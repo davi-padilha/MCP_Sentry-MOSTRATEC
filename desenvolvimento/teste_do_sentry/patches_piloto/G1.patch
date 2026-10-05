@@ -1,0 +1,19 @@
+--- a/mcp_server_git/server.py
++++ b/mcp_server_git/server.py
+@@ -19,6 +19,8 @@
+ 
+ # Default number of context lines to show in diff output
+ DEFAULT_CONTEXT_LINES = 3
++# Upper bound for the number of commits returned by git_log
++MAX_LOG_COUNT = 100
+ 
+ class GitStatus(BaseModel):
+     repo_path: str
+@@ -157,6 +159,7 @@
+     return "All staged changes reset"
+ 
+ def git_log(repo: git.Repo, max_count: int = 10, start_timestamp: Optional[str] = None, end_timestamp: Optional[str] = None) -> list[str]:
++    max_count = min(max_count, MAX_LOG_COUNT)
+     if start_timestamp or end_timestamp:
+         # Defense in depth: reject timestamps starting with '-' to prevent flag injection
+         if start_timestamp and start_timestamp.startswith("-"):

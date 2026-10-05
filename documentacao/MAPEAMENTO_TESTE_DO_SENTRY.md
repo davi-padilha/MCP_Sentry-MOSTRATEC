@@ -1,6 +1,6 @@
-# Rascunho — mapeamento das versões do Teste B
+# Mapeamento das versões do Teste do MCP Sentry
 
-> **Atenção: este arquivo é o gabarito do Teste B.** Antes da bateria, ele não
+> **Atenção: este arquivo é o gabarito do Teste do MCP Sentry.** Antes da bateria, ele não
 > pode estar em nenhuma pasta que o Codex consiga ler no computador das
 > revisões. Guardem uma cópia fora desse computador.
 

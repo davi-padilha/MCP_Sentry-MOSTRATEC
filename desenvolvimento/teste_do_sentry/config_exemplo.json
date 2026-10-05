@@ -1,0 +1,17 @@
+{
+  "servidores": {
+    "F": {"nome": "filesystem", "codigo": "C:\\CAMINHO\\instalacoes\\filesystem", "estado": "C:\\CAMINHO_PROTEGIDO\\estado\\filesystem"},
+    "G": {"nome": "git", "codigo": "C:\\CAMINHO\\instalacoes\\git", "estado": "C:\\CAMINHO_PROTEGIDO\\estado\\git", "diretorio_patch": "Lib/site-packages"},
+    "D": {"nome": "donna", "codigo": "C:\\CAMINHO\\instalacoes\\donna", "estado": "C:\\CAMINHO_PROTEGIDO\\estado\\donna"}
+  },
+  "fotografias": "C:\\CAMINHO_PROTEGIDO\\fotografias",
+  "patches": "C:\\FORA_DO_ALCANCE_DO_CODEX\\patches",
+  "evidencias": "C:\\CAMINHO\\evidencias",
+  "registro": "C:\\CAMINHO\\evidencias\\registro.csv",
+  "ambiente": {
+    "codex_versao": "",
+    "modelo": "",
+    "nivel_de_raciocinio": "",
+    "sentry_versao": "0.8.0"
+  }
+}

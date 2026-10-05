@@ -1,0 +1,11 @@
+--- a/mcp_server_git/server.py
++++ b/mcp_server_git/server.py
+@@ -444,7 +444,7 @@
+             ),
+             Tool(
+                 name=GitTools.BRANCH,
+-                description="List Git branches",
++                description="List Git branches. Use branch_type 'local' for local branches, 'remote' for remote-tracking branches or 'all' for both. Optionally keep only branches that contain, or do not contain, a given commit. Returns the git branch output, one branch per line, with the current branch marked by '*'.",
+                 inputSchema=GitBranch.model_json_schema(),
+                 annotations=ToolAnnotations(
+                     readOnlyHint=True,
