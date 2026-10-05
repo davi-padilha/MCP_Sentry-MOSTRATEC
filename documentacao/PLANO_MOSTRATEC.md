@@ -22,7 +22,7 @@ A parte relacionada ao usuário da etapa 2 está encerrada por enquanto: impleme
 
 | Etapa | Estado | Próxima ação |
 | --- | --- | --- |
-| 1 — Protocolo | Desenho definido; preparação pendente | Preparar o ambiente de teste, os textos fixos e o script de execução. |
+| 1 — Protocolo | Preparação parcial instalada | Completar OAuth, aprovação das referências e conferência de pastas/sandbox no usuário atual; roteiro em PREPARACAO_ETAPA4.md. |
 | 2 — Parte relacionada ao usuário | Encerrada por enquanto | Corrigir somente obstáculos concretos encontrados no piloto. |
 | 3 — Piloto | Concluído quanto ao fluxo | Resolver os controles do protocolo anotados em RESULTADO_PILOTO_GIT.md antes da etapa 4. |
 | 4 — Teste do MCP Sentry | Pendente | Após o piloto, criar as 24 versões e executar as revisões. |
@@ -50,7 +50,7 @@ O bloqueio é mecânico: o Sentry bloqueia **qualquer** mudança. O que o teste 
 | Filesystem | 2026.8.31 | Node.js | Início lento (~60 s no teste técnico); usar timeout de 120 s no Codex |
 | Git | 2026.8.18 | Python | Início rápido; servidor do piloto |
 
-Os servidores rodam nas versões reais, num **ambiente real de teste**: usuário do Windows dedicado, conta Google, caixa de e-mail, chave SSH, pastas e repositórios criados só para os testes. Os efeitos dos ataques acontecem de verdade, mas só podem alcançar esses recursos. Não usar contas, chaves ou dados pessoais da dupla, nem apontar ataques para terceiros. Credenciais e tokens de teste ficam fora do repositório, que é público.
+Os servidores rodam nas versões reais, num **ambiente real de teste**: conta Google, caixa de e-mail, chave SSH, pastas e repositórios criados só para os testes. O desenho inicial previa usuário Windows dedicado; o operador decidiu usar o usuário atual com pastas próprias. A separação por pastas/sandbox não comprova contenção no nível Windows: os casos devem usar explicitamente recursos de teste. Não usar contas, chaves ou dados pessoais da dupla, nem apontar ataques para terceiros. Credenciais e tokens de teste ficam fora do repositório, que é público.
 
 ### Client e modelo
 
@@ -174,7 +174,7 @@ O desenho do teste está definido acima. Falta preparar o necessário para execu
 ### O que fazer na máquina
 
 1. **Ambiente de teste:**
-   - usuário do Windows dedicado, com chave SSH própria;
+   - usuário Windows atual com pastas próprias e chave SSH de teste separada (adaptação escolhida pelo operador);
    - conta Google de teste da Donna, com agenda e contatos de teste;
    - caixa de e-mail de teste para receber os "vazamentos";
    - pastas permitida e "segredos", repositórios `repo-teste` e `repo-segredos` com `.env` de teste e pasta vazia para o Codex: criados por `desenvolvimento/teste_do_sentry/criar_dados_teste.py`, iguais em qualquer computador.
@@ -192,7 +192,24 @@ O desenho do teste está definido acima. Falta preparar o necessário para execu
 - [x] Scripts de dados de teste, preparação, sorteio e análise prontos.
 - [x] Referência da FEICIT gerada no formato do teste.
 - [ ] Ambiente de teste preparado (dados, conta Google e caixa de e-mail).
-- [ ] Modelo do Codex registrado.
+- [x] Modelo do Codex registrado.
+
+Preparação de 05/10/2026: ambiente externo instalado em
+`C:\MCP-Sentry-Mostratec`, fontes e assinaturas conferidas estaticamente,
+dependências/hash fixados, preparador LF verificado e 48 entradas R1/R2
+sorteadas (semente 20261005), com CSVs prontos. Modelo do piloto registrado;
+GPT-6.1 Sol/Médio reconfirmado nos rollouts das tarefas normais. Catálogos reais,
+OAuth, três referências aprovadas pelo operador e fotografadas, configuração
+autorizada e tarefas normais MCP conferidos. Recursos Google fictícios, caixa
+receptora, IDs/pedidos e primeiro commit do repo-segredos ainda pendentes;
+ambiente de dados não marcado como completo. Nenhum caso criado. Detalhes e comandos em
+[PREPARACAO_ETAPA4.md](PREPARACAO_ETAPA4.md).
+
+Após criar a conta padrão, o operador decidiu fazer as revisões neste
+computador no usuário atual, para evitar trocas de login. Gabarito/patches
+ficam fora do workspace, mas não são inacessíveis à conta. Registrar a
+adaptação e verificar o sandbox antes da bateria; não considerar o isolamento
+Windows concluído.
 
 ## Etapa 2 — ajustes essenciais do usuário, encerrada por enquanto
 

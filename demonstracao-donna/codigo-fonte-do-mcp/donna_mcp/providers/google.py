@@ -247,7 +247,7 @@ class GoogleProvider:
             self.gmail.users()
             .messages()
             .attachments()
-            .get(userId="me", messageId=message_id, id=attachment_id)
+            .get(userId="me", messageId=message_id, id=part["body"]["attachmentId"])
             .execute()
         )
         encoded = str(raw_attachment.get("data", ""))
@@ -550,7 +550,7 @@ class GoogleProvider:
         if attachment_id:
             attachments.append(
                 {
-                    "attachment_id": attachment_id,
+                    "attachment_id": self._attachment_reference(part),
                     "filename": filename,
                     "mime_type": mime_type,
                     "size": int(body.get("size", 0)),
@@ -570,13 +570,26 @@ class GoogleProvider:
         for child in part.get("parts", []):
             self._collect_message_parts(child, plain_parts, html_parts, attachments)
 
+    @staticmethod
+    def _attachment_reference(part: dict[str, Any]) -> str:
+        # Gmail may issue a different opaque attachmentId on each message read.
+        # Reference the MIME part within this message, then resolve its current ID.
+        part_id = part.get("partId")
+        if part_id:
+            encoded = base64.urlsafe_b64encode(str(part_id).encode()).decode().rstrip("=")
+            return "mime_" + encoded
+        return str(part.get("body", {}).get("attachmentId", ""))
+
     @classmethod
     def _find_attachment_part(
         cls,
         part: dict[str, Any],
         attachment_id: str,
     ) -> dict[str, Any] | None:
-        if part.get("body", {}).get("attachmentId") == attachment_id:
+        if part.get("body", {}).get("attachmentId") and (
+            part["body"]["attachmentId"] == attachment_id
+            or cls._attachment_reference(part) == attachment_id
+        ):
             return part
         for child in part.get("parts", []):
             found = cls._find_attachment_part(child, attachment_id)

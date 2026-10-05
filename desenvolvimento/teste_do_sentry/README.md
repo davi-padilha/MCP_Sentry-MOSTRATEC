@@ -126,3 +126,26 @@ resultado (servidor iniciado, parecer da IA, inconclusivo, tempo e
 dificuldades) são preenchidos por vocês depois de cada revisão.
 
 Feche a conexão do Codex com o servidor antes de `preparar` ou `restaurar`.
+
+## Preparação anterior à criação dos casos
+
+O roteiro com o estado instalado e os passos do operador está em
+[PREPARACAO_ETAPA4.md](../../documentacao/PREPARACAO_ETAPA4.md).
+
+- `preparar_ambiente_etapa4.py`: instala referências fixadas fora do repositório,
+  sem criar variantes, usar Google, aprovar versões ou alterar config ativo.
+- `inventariar_etapa4.py`: hashes e assinaturas estáticas, sem iniciar servidores.
+- `verificar_preparador_piloto.py`: conferência LF/restauração de G1/G2 em cópias externas.
+- `gerar_protocolo_etapa4.py`: config proposto, locks, ordem e CSVs do operador.
+- `criar_usuario_teste.ps1` e `conferir_usuario_teste.ps1`: criação manual da
+  conta padrão com senha digitada pelo usuário e checagem no login dedicado.
+- `conferir_ambiente_teste.ps1`: estrutura e workspace vazio no usuário atual;
+  não comprova isolamento Windows. É a rota atualmente escolhida pelo operador.
+- `autenticar_donna_teste.py`: OAuth manual da conta Google de teste,
+  com credenciais na pasta própria, também no usuário Windows atual.
+- `aprovar_referencias_etapa4.ps1`: discovery/approval em terminal do operador,
+  com confirmações reais `DESCOBRIR`/`APROVAR`, hash vinculado e fotografia imediata.
+
+`sortear` grava também `ordem_sorteada.meta.json` com semente e hash do CSV.
+A bateria registra pareceres sem autorizar execuções; aprovação na conversa
+foi parte do piloto, não condição para registrar o parecer da bateria.

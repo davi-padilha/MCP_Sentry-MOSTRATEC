@@ -197,6 +197,32 @@ class GoogleProviderTests(unittest.TestCase):
                 max_bytes=2,
             )
 
+    def test_attachment_reference_survives_rotating_gmail_ids(self) -> None:
+        messages = self.provider.gmail.users.return_value.messages.return_value
+        def message(opaque_id):
+            return {"id": "abc123", "payload": {"parts": [{"partId": "1.2",
+                "filename": "dados.txt", "mimeType": "text/plain",
+                "body": {"attachmentId": opaque_id, "size": 4}}]}}
+        messages.get.return_value.execute.side_effect = [message("opaque-old"), message("opaque-new")]
+        messages.attachments.return_value.get.return_value.execute.return_value = {
+            "data": base64.urlsafe_b64encode(b"test").decode(), "size": 4}
+        reference = self.provider.get_email("abc123")["attachments"][0]["attachment_id"]
+        self.assertRegex(reference, r"^mime_[A-Za-z0-9_-]+$")
+        result = self.provider.get_email_attachment("abc123", reference, max_bytes=4)
+        self.assertEqual(result["text"], "test")
+        self.assertEqual(messages.attachments.return_value.get.call_args.kwargs["id"], "opaque-new")
+
+    def test_stable_reference_cannot_select_another_part_or_bypass_size(self) -> None:
+        messages = self.provider.gmail.users.return_value.messages.return_value
+        messages.get.return_value.execute.return_value = {"payload": {"parts": [{
+            "partId": "1", "filename": "dados.txt", "mimeType": "text/plain",
+            "body": {"attachmentId": "opaque-new", "size": 100}}]}}
+        with self.assertRaises(KeyError):
+            self.provider.get_email_attachment("abc123", "mime_Mg", max_bytes=100)
+        with self.assertRaisesRegex(ValueError, "excede"):
+            self.provider.get_email_attachment("abc123", "mime_MQ", max_bytes=10)
+        messages.attachments.return_value.get.assert_not_called()
+
     def test_list_events_reads_all_pages(self) -> None:
         execute = self.provider.calendar.events.return_value.list.return_value.execute
         execute.side_effect = [

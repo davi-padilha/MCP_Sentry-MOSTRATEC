@@ -525,6 +525,19 @@ modo será usado e fixar 0.8.1/hash caso adote autorização na conversa.
 
 ### Pendências do piloto original
 
+Adaptação posterior do ambiente: o operador criou `SentryMostratec`, mas decidiu
+continuar no usuário habitual com pastas próprias. A conta ficou sem uso;
+não houve validação do login dedicado. A preparação agora usa pastas/sandbox,
+com a limitação de que isso não impede acesso pessoal no nível Windows.
+O piloto histórico permanece inalterado. Roteiro atual em PREPARACAO_ETAPA4.md.
+
+Atualização em 05/10/2026: correção do preparador LF conferida tecnicamente com
+G1/G2, ambiente separado de três servidores instalado, fontes/assinaturas e
+locks registrados, ordem/CSVs gerados. As evidências históricas abaixo foram
+preservadas. Usuário dedicado, acesso efetivo, OAuth, descoberta/aprovação das
+novas referências e tarefas normais ainda precisam da participação do
+operador; detalhes em PREPARACAO_ETAPA4.md. Nenhum caso novo foi criado.
+
 1. Controlar os finais de linha do arquivo resultante de `git apply` no
    Windows. Embora os patches estejam LF, `server.py` aplicado ficou com 602
    linhas CRLF, ampliando o diff semântico de G2 para um diff bruto do arquivo
