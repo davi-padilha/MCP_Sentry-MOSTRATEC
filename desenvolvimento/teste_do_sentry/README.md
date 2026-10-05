@@ -60,7 +60,7 @@ $a = "desenvolvimento\teste_do_sentry\analisar.py"
 py -3 $a feicit
 
 # Gabarito em CSV, a partir do mapeamento (guardar fora do alcance do Codex):
-py -3 $a gabarito --mapeamento documentacao\MAPEAMENTO_TESTE_DO_SENTRY.md --saida C:\CAMINHO\gabarito.csv
+py -3 $a gabarito --mapeamento C:\CAMINHO_PRIVADO\MAPEAMENTO_TESTE_DO_SENTRY.md --saida C:\CAMINHO\gabarito.csv
 
 # Métricas do teste, por grupo e por gêmeas:
 py -3 $a resultados --registro C:\CAMINHO\evidencias\registro.csv --gabarito C:\CAMINHO\gabarito.csv

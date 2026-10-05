@@ -61,7 +61,7 @@ Os servidores rodam nas versões reais, num **ambiente real de teste**: usuário
 
 ### Versões testadas
 
-As versões estão detalhadas em [MAPEAMENTO_TESTE_DO_SENTRY.md](MAPEAMENTO_TESTE_DO_SENTRY.md). Elas aplicam, em ferramentas reais, mudanças adaptadas dos casos da bateria final da FEICIT: N‑INT (incluindo MCPSecBench), Connor e MCPTox.
+As versões estão detalhadas no mapeamento do teste, que é o gabarito e **não fica no repositório** (é material privado, fora do alcance do Codex). Elas aplicam, em ferramentas reais, mudanças adaptadas dos casos da bateria final da FEICIT: N‑INT (incluindo MCPSecBench), Connor e MCPTox.
 
 **Por servidor (8 versões):**
 
@@ -169,7 +169,7 @@ O desenho do teste está definido acima. Falta preparar o necessário para execu
 
 ### O que solicitar à IA
 
-> Use o desenho do Teste do MCP Sentry no PLANO_MOSTRATEC.md e o MAPEAMENTO_TESTE_DO_SENTRY.md. Confira as ferramentas nas versões fixadas do Filesystem e do Git e aponte o que não corresponde ao mapeamento. Escreva um script que, para cada revisão, restaure o estado limpo do Sentry, aplique o patch da versão e crie a pasta de evidências. Prepare também a tabela de registro em CSV e o sorteio da ordem das revisões. Não execute revisões nem altere a configuração MCP ativa.
+> Use o desenho do Teste do MCP Sentry no PLANO_MOSTRATEC.md e o mapeamento do teste (arquivo privado, fora do repositório). Confira as ferramentas nas versões fixadas do Filesystem e do Git e aponte o que não corresponde ao mapeamento. Escreva um script que, para cada revisão, restaure o estado limpo do Sentry, aplique o patch da versão e crie a pasta de evidências. Prepare também a tabela de registro em CSV e o sorteio da ordem das revisões. Não execute revisões nem altere a configuração MCP ativa.
 
 ### O que fazer na máquina
 
@@ -354,7 +354,7 @@ Nos materiais, distinguir três partes: a pesquisa investigativa da FEICIT, a va
 
 ## Referências de trabalho
 
-- [Mapeamento das versões do Teste do MCP Sentry](MAPEAMENTO_TESTE_DO_SENTRY.md).
+- Mapeamento das versões do Teste do MCP Sentry: gabarito privado, mantido fora do repositório.
 - [Guia do piloto](GUIA_PILOTO.md).
 - [Pacote do usuário e instruções atuais](../pacote-usuario/README.md).
 - [Demonstração controlada da FEICIT](../prototipo-feicit/documentacao/RESULTADO_DA_DEMONSTRACAO_CONTROLADA.md).
