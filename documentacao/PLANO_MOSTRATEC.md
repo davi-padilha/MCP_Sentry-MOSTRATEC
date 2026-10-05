@@ -24,7 +24,7 @@ A parte relacionada ao usuário da etapa 2 está encerrada por enquanto: impleme
 | --- | --- | --- |
 | 1 — Protocolo | Desenho definido; preparação pendente | Preparar o ambiente de teste, os textos fixos e o script de execução. |
 | 2 — Parte relacionada ao usuário | Encerrada por enquanto | Corrigir somente obstáculos concretos encontrados no piloto. |
-| 3 — Piloto | Pendente | Conectar o Git no Codex e exercitar o fluxo completo. |
+| 3 — Piloto | Concluído quanto ao fluxo | Resolver os controles do protocolo anotados em RESULTADO_PILOTO_GIT.md antes da etapa 4. |
 | 4 — Teste do MCP Sentry | Pendente | Após o piloto, criar as 24 versões e executar as revisões. |
 | 5 — Comunicação | Parcial | Vídeo, complemento de fala e proposta de banner prontos; diagramas e resultados pendentes. |
 
@@ -261,12 +261,23 @@ Se a IA mandar bloquear uma versão benigna, o atalho de aprovação (`AUTORIZAR
 
 ### Critério de conclusão
 
-- [ ] Tarefa normal funcionando pelo Sentry no Codex.
-- [ ] Versão benigna detectada, revisada, aprovada e executada.
-- [ ] Versão sem aprovação continua bloqueada, sem iniciar o servidor.
-- [ ] Parecer da IA registrado pelo client.
-- [ ] Restauração do estado entre revisões funcionando.
-- [ ] Dificuldades e correções anotadas.
+- [x] Tarefa normal funcionando pelo Sentry no Codex.
+- [x] Versão benigna detectada, revisada, aprovada e executada.
+- [x] Versão sem aprovação continua bloqueada, sem iniciar o servidor.
+- [x] Parecer da IA registrado pelo client.
+- [x] Restauração do estado entre revisões funcionando.
+- [x] Dificuldades e correções anotadas em [RESULTADO_PILOTO_GIT.md](RESULTADO_PILOTO_GIT.md), incluindo desvios e pendências antes da etapa 4.
+
+Complemento solicitado após o piloto 0.8.0: candidata 0.8.1 permite autorização
+única na conversa após parecer `allow`, confiando na atestação do client sobre
+a confirmação explícita do usuário. Modo opcional; decisão externa preservada.
+
+- [x] Implementação e validação técnica do complemento (76 testes; 1 ignorado).
+- [x] Teste complementar no Codex: bloquear, registrar `allow`, continuar
+  bloqueado sem confirmação, executar uma vez após confirmação e bloquear
+  a chamada seguinte. Wheel/hash 0.8.1 registrados em VALIDACAO_0.8.1.md.
+
+Detalhes: [VALIDACAO_0.8.1.md](VALIDACAO_0.8.1.md) e [GUIA_PILOTO.md](GUIA_PILOTO.md).
 
 Uma recomendação errada ou uma recusa da IA é um resultado observado. Registrar a ocorrência; não ajustar o cenário apenas para obter a resposta desejada.
 
@@ -361,4 +372,4 @@ Nos materiais, distinguir três partes: a pesquisa investigativa da FEICIT, a va
 - [Fluxo de revisão pelo client](../prototipo-feicit/documentacao/AVALIACAO_SEMANTICA_CLIENTE.md).
 - [Filesystem MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem) e [Git MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/git).
 
-**Estado deste documento:** desenho do Teste do MCP Sentry definido. Etapas 1, 3 e 4 com preparação e execução pendentes; etapa 5 parcial. Versões, revisões e resultados futuros precisam ser registrados conforme forem executados.
+**Estado deste documento:** desenho do Teste do MCP Sentry definido. Etapa 3 concluída quanto ao fluxo em 05/10/2026, com limites e pendências registrados em RESULTADO_PILOTO_GIT.md. Etapas 1 e 4 com preparação/execução pendentes; etapa 5 parcial. Versões, revisões e resultados futuros precisam ser registrados conforme forem executados.

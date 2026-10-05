@@ -6,7 +6,8 @@ confere os arquivos e a configuração aprovados e só então inicia uma cópia
 verificada do servidor protegido. Se houver mudança, o servidor permanece
 parado até uma revisão e uma decisão do operador.
 
-Esta pasta contém somente o instalador da candidata **0.8.0** e estas instruções.
+Esta pasta contém o instalador da candidata **0.8.1**, o wheel **0.8.0**
+preservado para reproduzir o piloto original, e estas instruções.
 Esta é a pasta inteira a entregar ao usuário: basta receber este README e o
 arquivo `.whl`, sem baixar o restante do repositório. O wheel é um instalador
 Python, não um executável independente; Python 3.11+ deve estar instalado.
@@ -28,7 +29,7 @@ No PowerShell, abra esta pasta e instale o gateway em um ambiente virtual:
 
 ```powershell
 py -3 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install .\mcp_sentry_gateway-0.8.0-py3-none-any.whl
+.\.venv\Scripts\python.exe -m pip install .\mcp_sentry_gateway-0.8.1-py3-none-any.whl
 ```
 
 O gateway não requer uma instalação separada do SDK MCP. O servidor protegido
@@ -36,6 +37,18 @@ pode requerer suas próprias dependências e seu próprio interpretador. Mantenh
 o gateway e o interpretador usado pelo servidor em caminhos estáveis.
 
 ## Instalação assistida para Codex
+
+Na 0.8.1 há um modo opcional para o protótipo MOSTRATEC: acrescente
+`--conversation-approval` aos argumentos do gateway de execução e revisão.
+Após parecer `allow` vigente, o usuário deve enviar em mensagem separada
+`APROVO UMA EXECUÇÃO DESTA VERSÃO.`; o client pode então registrar a autorização
+com `sentry_authorize_once`. A próxima chamada protegida funciona uma vez;
+a seguinte fica bloqueada. Não aceita a versão como referência permanente.
+O Sentry confia na atestação do client sobre a confirmação, sem autenticar
+a autoria humana. Sem a opção, a aprovação continua no terminal.
+O assistente não ativa essa opção automaticamente. O complemento foi
+verificado no Codex com Git e G1 em 05/10/2026; consulte o guia e a validação
+0.8.1 no repositório para evidências e limites antes de usá-lo na bateria.
 
 Se você já tem um servidor MCP local configurado no Codex, execute:
 

@@ -7,13 +7,14 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from .core import APPROVED_VERSION_FILE, SECURITY_REPORTS_DIR, UPDATE_REVIEWS_DIR, SentryError, canon, digest, inspect, safe_text, write, write_text_report
+from .core import APPROVED_VERSION_FILE, SECURITY_REPORTS_DIR, UPDATE_REVIEWS_DIR, SentryError, canon, capture, digest, execution_envelope, inspect, load_execution_envelope, safe_text, write, write_text_report
 
 POLICY_VERSION = "mcp-sentry-review-v1"
 VERDICT_FIELDS = {"review_id", "reviewed_hash", "dossier_hash", "policy_version", "decision", "justification", "risks"}
 REVIEW_TTL_SECONDS = 30 * 60
 AUTHORIZATION_TTL_SECONDS = 5 * 60
 HUMAN_APPROVAL_TTL_SECONDS = 30 * 60
+CONVERSATION_CONFIRMATION = "APROVO UMA EXECUÇÃO DESTA VERSÃO."
 
 
 def _now(): return datetime.now(timezone.utc).isoformat()
@@ -42,7 +43,7 @@ def _expire_if_needed(record, store):
     ) or (
         status == "awaiting_human_approval" and _is_expired(record.get("decided_at"), HUMAN_APPROVAL_TTL_SECONDS)
     ) or (
-        status == "allowed_once" and _is_expired(record.get("decided_at"), AUTHORIZATION_TTL_SECONDS)
+        status == "allowed_once" and _is_expired(record.get("operator_approved_at", record.get("decided_at")), AUTHORIZATION_TTL_SECONDS)
     )
     if expired:
         record["status"] = "expired"
@@ -78,7 +79,8 @@ def _operator_approval_summary(record):
         f"reviewed_hash: {dossier['current_hash']}",
         f"dossier_hash: {dossier['dossier_hash']}",
         f"policy_version: {record['policy_version']}",
-        "approval: external_operator_attested",
+        "approval: " + record.get("approval_source", "external_operator_attested"),
+        "user_confirmation: " + record.get("user_confirmation", "external terminal confirmation"),
         f"approved_at: {record['operator_approved_at']}",
     )) + "\n").encode("utf-8"))
 
@@ -209,15 +211,20 @@ def submit_verdict(manifest_path: Path, store: Path, verdict, *, source="local_o
 
 def approve_review_execution(manifest_path: Path, store: Path, review_id: str,
                              reviewed_hash: str, dossier_hash: str,
-                             human_confirmation: str):
+                             human_confirmation: str, *, approval_source="external_operator_attested",
+                             user_confirmation=None):
     """Convert one model recommendation into one operator-authorized launch.
 
-    This command is intentionally outside the MCP facade.  The confirmation is
-    an operational attestation, not authentication; the store must be outside
-    model-writable roots for the separation to be material.
+    The default route is the external operator. The opt-in conversational
+    route trusts the client to attest the user's separate confirmation;
+    neither textual route authenticates a human identity.
     """
     if human_confirmation != "APPROVE_REVIEW_EXECUTION":
         raise SentryError("aprovação exige atestação explícita do operador")
+    if approval_source not in {"external_operator_attested", "client_attested_user_confirmation"}:
+        raise SentryError("origem de autorização inválida")
+    if approval_source == "client_attested_user_confirmation" and user_confirmation != CONVERSATION_CONFIRMATION:
+        raise SentryError("confirmação explícita do usuário ausente ou inválida")
     if not all(isinstance(value, str) and value for value in (review_id, reviewed_hash, dossier_hash)):
         raise SentryError("identificadores de aprovação inválidos")
     record, result = ensure_pending(manifest_path, store)
@@ -235,11 +242,29 @@ def approve_review_execution(manifest_path: Path, store: Path, review_id: str,
         dossier = record["dossier"]
         if record.get("status") != "awaiting_human_approval":
             raise SentryError("revisão não aguarda aprovação do operador")
+        verdict = record.get("verdict")
+        if (not isinstance(verdict, dict) or verdict.get("decision") != "allow" or
+                verdict.get("policy_version") != POLICY_VERSION or
+                verdict.get("review_id") != review_id or
+                verdict.get("reviewed_hash") != dossier["current_hash"] or
+                verdict.get("dossier_hash") != dossier["dossier_hash"]):
+            raise SentryError("autorização exige parecer allow registrado e vinculado à versão atual")
+        if approval_source == "client_attested_user_confirmation" and record.get("assessment_source") != "client_submitted":
+            raise SentryError("autorização pela conversa exige parecer registrado pelo client")
         if (dossier["current_hash"] != result["dossier"]["current_hash"] or
                 reviewed_hash != dossier["current_hash"] or dossier_hash != dossier["dossier_hash"]):
             raise SentryError("aprovação não corresponde ao estado revisado atual")
+        if approval_source == "client_attested_user_confirmation":
+            current = capture(manifest_path)
+            if digest(canon(current)) != reviewed_hash:
+                raise SentryError("estado mudou durante a autorização")
+            if execution_envelope(current) != load_execution_envelope(store):
+                raise SentryError("envelope de execução mudou; requer promoção humana separada")
         record["status"] = "allowed_once"
         record["operator_approved_at"] = _now()
+        record["approval_source"] = approval_source
+        if user_confirmation is not None:
+            record["user_confirmation"] = user_confirmation
         write_text_report(staged_report, _operator_approval_summary(record))
         write(_path(store, review_id), record)
         os.replace(staged_report, store / SECURITY_REPORTS_DIR / f"operator-approval-{review_id}.txt")
@@ -248,6 +273,18 @@ def approve_review_execution(manifest_path: Path, store: Path, review_id: str,
     finally:
         staged_report.unlink(missing_ok=True)
         lock.unlink(missing_ok=True)
+
+
+def authorize_conversation_execution(manifest_path, store, review_id, reviewed_hash,
+                                     dossier_hash, confirmation):
+    """Prototype client attestation; does not authenticate the user or spawn."""
+    if confirmation != CONVERSATION_CONFIRMATION:
+        raise SentryError("confirmação explícita do usuário ausente ou inválida")
+    return approve_review_execution(
+        manifest_path, store, review_id, reviewed_hash, dossier_hash,
+        "APPROVE_REVIEW_EXECUTION", approval_source="client_attested_user_confirmation",
+        user_confirmation=confirmation,
+    )
 
 def consume_allowed_once(manifest_path: Path, store: Path):
     """Consume the exact reviewed state before a backend process can be spawned.

@@ -1,6 +1,6 @@
 # Desenvolvimento do gateway atual
 
-Código-fonte da candidata 0.8.0. O usuário recebe somente a pasta
+Código-fonte da candidata 0.8.1. O usuário recebe a pasta
 [pacote-usuario/](../../pacote-usuario/README.md), com o wheel e seu manual.
 O protótipo antigo está em [prototipo-feicit/](../../prototipo-feicit/README.md).
 

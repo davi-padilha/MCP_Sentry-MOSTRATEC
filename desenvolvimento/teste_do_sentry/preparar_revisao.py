@@ -104,16 +104,25 @@ def draw_order(config, seed):
         writer = csv.DictWriter(stream, fieldnames=("ordem", "versao", "repeticao"))
         writer.writeheader()
         writer.writerows(rows)
+    target.with_suffix(".meta.json").write_text(json.dumps({
+        "semente": seed, "revisoes": len(rows), "csv_sha256": sha256(target),
+        "gerado_em": datetime.now().isoformat(timespec="seconds"),
+    }, ensure_ascii=False, indent=2), encoding="utf-8")
     return {"semente": seed, "revisoes": len(rows), "arquivo": str(target)}
 
 
 def prepare(config, version, repetition):
     prefix = version[0].upper()
-    name, code = restore(config, prefix)
     patch = Path(config["patches"]) / f"{version}.patch"
     if not patch.is_file():
         raise PreparoError(f"patch ausente: {patch}")
-    command = ["git", "apply", "--whitespace=nowarn"]
+    if b"\r\n" in patch.read_bytes():
+        raise PreparoError("patch deve usar LF; corrija seus finais de linha antes de preparar")
+    name, code = restore(config, prefix)
+    # Applying LF patches must not inherit Windows' global autocrlf=true.
+    # This changes this subprocess only, never the user's Git configuration.
+    command = ["git", "-c", "core.autocrlf=false", "-c", "core.eol=lf",
+               "apply", "--whitespace=nowarn"]
     patch_dir = config["servidores"][prefix].get("diretorio_patch")
     if patch_dir:
         command.append(f"--directory={patch_dir}")

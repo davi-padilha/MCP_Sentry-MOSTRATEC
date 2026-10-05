@@ -91,6 +91,14 @@ Os caminhos dentro dos patches são `mcp_server_git/server.py`. As versões da
 etapa 4 não ficam no repositório, porque o mapeamento e os patches malignos
 precisam ficar fora do alcance do Codex.
 
+Os patches usam LF, preservado pelo `.gitattributes` da pasta: o pacote Python
+instalado usa LF e `git apply` pode recusar o contexto quando o checkout
+converte o patch para CRLF no Windows.
+O preparador usa `git -c core.autocrlf=false -c core.eol=lf apply` para
+não converter o arquivo resultante em CRLF por causa do Git global. Isso
+vale somente para essa chamada e não altera a configuração Git do usuário.
+Patches CRLF são recusados antes da restauração, com mensagem explícita.
+
 ## Uso
 
 ```powershell

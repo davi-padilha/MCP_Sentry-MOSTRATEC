@@ -200,6 +200,51 @@ diretamente, sem editar suas configurações.
 
 ## Bloqueio, revisão e decisão
 
+### Complemento 0.8.1: confirmação na conversa (opcional)
+
+O piloto Git original usou 0.8.0 e decisão no terminal. A candidata 0.8.1
+acrescenta `--conversation-approval` aos argumentos do gateway nas duas
+entradas, execução e revisão. Sem essa opção, a decisão continua externa.
+O `setup` não ativa a opção automaticamente. Faça backup e obtenha autorização
+do operador antes de alterar a configuração do client.
+
+Nesse modo, após ler as evidências e registrar um parecer `allow`, o client
+pode chamar `sentry_authorize_once` na interface de revisão **somente após
+uma nova mensagem do usuário**, com a confirmação exata:
+
+> APROVO UMA EXECUÇÃO DESTA VERSÃO.
+
+A ferramenta exige os identificadores da revisão, da versão e do dossiê.
+Ela recusa parecer ausente, negativo, expirado, de fixture local ou referente
+a outra versão; também recusa mudança do envelope de execução. Registra
+`approval_source=client_attested_user_confirmation` e a frase recebida.
+Não inicia o servidor nem torna a versão referência permanente. A próxima
+chamada protegida consome a autorização antes do início; chamadas seguintes
+permanecem bloqueadas. A autorização vence em cinco minutos da confirmação.
+Se já havia uma cópia anterior em execução, reconecte para iniciar a revisada.
+
+Este protótipo confia no client para atestar que a frase veio do usuário:
+o MCP recebe argumentos do modelo e não autentica a autoria da mensagem.
+A separação entre recomendação e consentimento deve ser conferida nos logs.
+Catálogo, envelope e aceitação permanente continuam na rota do operador.
+
+Teste complementar breve em conversa nova fora deste repositório:
+
+1. Prepare G1 com conexões encerradas e registre a versão 0.8.1 nos metadados.
+2. Peça `git_log` exclusivamente pelo MCP: deve bloquear sem iniciar o Git.
+3. Peça a revisão e, em outra mensagem, o registro do parecer.
+4. Com `allow`, repita a tarefa antes de confirmar: deve continuar bloqueada.
+5. O usuário digita a frase acima; o client registra a autorização e repete
+   a tarefa pelo MCP. Deve funcionar uma vez, sem shell/leitura direta.
+6. Repita a tarefa: deve bloquear. Colete parecer, autorização, ciclo de vida,
+   tempos e transcrição. `block` e casos expirados já têm testes automatizados;
+   se o modelo recomendar `block`, registre o resultado sem forçar `allow`.
+
+O complemento foi verificado no Codex em G1-R2 em 05/10/2026, com uma execução
+após confirmação e bloqueio da seguinte. Evidências em VALIDACAO_0.8.1.md.
+Não substitui as evidências históricas 0.8.0 nem resolve as outras pendências
+da etapa 4.
+
 1. Uma alteração bloqueia a ferramenta antes de iniciar o servidor. A resposta
    informa a interface de revisão gerada para o servidor. Solicite à IA a revisão
    nessa interface; peça separadamente o registro do parecer.

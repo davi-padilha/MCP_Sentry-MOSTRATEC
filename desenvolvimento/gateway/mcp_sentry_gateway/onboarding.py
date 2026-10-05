@@ -15,6 +15,7 @@ import time
 import tomllib
 import tempfile
 from pathlib import Path
+from . import __version__
 
 from .core import APPROVED_VERSION_FILE, SentryError, capture, digest, execution_envelope, external, load, load_execution_envelope, write
 
@@ -100,7 +101,7 @@ def discover_tools(command: list[str], cwd: Path, env_names: list[str], env_valu
         initialized = exchange("initialize", {
             "protocolVersion": PROTOCOL_VERSION,
             "capabilities": {},
-            "clientInfo": {"name": "mcp-sentry-setup", "version": "0.8.0"},
+            "clientInfo": {"name": "mcp-sentry-setup", "version": __version__},
         })
         if initialized.get("protocolVersion") not in {"2025-03-26", "2025-06-18"}:
             raise SentryError("versão MCP do servidor fora do escopo atual do Sentry")
