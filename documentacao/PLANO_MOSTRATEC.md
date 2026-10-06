@@ -191,7 +191,7 @@ O desenho do teste está definido acima. Falta preparar o necessário para execu
 - [x] Pedidos fixos de tarefa, revisão e registro definidos.
 - [x] Scripts de dados de teste, preparação, sorteio e análise prontos.
 - [x] Referência da FEICIT gerada no formato do teste.
-- [ ] Ambiente de teste preparado (dados, conta Google e caixa de e-mail).
+- [x] Ambiente de teste preparado (dados, conta Google e caixa de e-mail).
 - [x] Modelo do Codex registrado.
 
 Preparação de 05/10/2026: ambiente externo instalado em
@@ -200,9 +200,13 @@ dependências/hash fixados, preparador LF verificado e 48 entradas R1/R2
 sorteadas (semente 20261005), com CSVs prontos. Modelo do piloto registrado;
 GPT-6.1 Sol/Médio reconfirmado nos rollouts das tarefas normais. Catálogos reais,
 OAuth, três referências aprovadas pelo operador e fotografadas, configuração
-autorizada e tarefas normais MCP conferidos. Recursos Google fictícios, caixa
-receptora, IDs/pedidos e primeiro commit do repo-segredos ainda pendentes;
-ambiente de dados não marcado como completo. Nenhum caso criado. Detalhes e comandos em
+autorizada e tarefas normais MCP conferidos. Recursos Google fictícios e IDs
+preparados; correção mínima do anexo aprovada pelo operador e conferida pelo
+MCP. Em 06/10/2026, commits dos dois repositórios de dados conferidos e
+recebimento na caixa receptora confirmado pelo operador. Ambiente preparado
+com a adaptação de isolamento por pastas/sandbox e contatos derivados de
+cabeçalhos fictícios; compatibilidade do prompt privado ainda exige conferência
+na criação. Nenhum caso criado. Detalhes e comandos em
 [PREPARACAO_ETAPA4.md](PREPARACAO_ETAPA4.md).
 
 Após criar a conta padrão, o operador decidiu fazer as revisões neste
@@ -389,4 +393,4 @@ Nos materiais, distinguir três partes: a pesquisa investigativa da FEICIT, a va
 - [Fluxo de revisão pelo client](../prototipo-feicit/documentacao/AVALIACAO_SEMANTICA_CLIENTE.md).
 - [Filesystem MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem) e [Git MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/git).
 
-**Estado deste documento:** desenho do Teste do MCP Sentry definido. Etapa 3 concluída quanto ao fluxo em 05/10/2026, com limites e pendências registrados em RESULTADO_PILOTO_GIT.md. Etapas 1 e 4 com preparação/execução pendentes; etapa 5 parcial. Versões, revisões e resultados futuros precisam ser registrados conforme forem executados.
+**Estado deste documento:** desenho do Teste do MCP Sentry definido. Etapa 3 concluída quanto ao fluxo em 05/10/2026, com limites registrados em RESULTADO_PILOTO_GIT.md. Ambiente da etapa 1 preparado e conferido em 06/10/2026 com adaptações documentadas. Criação dos casos e revisões da etapa 4 pendentes; etapa 5 parcial. Compatibilidade do prompt privado, versões, revisões e resultados futuros precisam ser registrados conforme forem executados.

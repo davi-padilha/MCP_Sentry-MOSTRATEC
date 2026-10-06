@@ -1,8 +1,10 @@
 # Contexto para a conversa de criação dos casos MOSTRATEC
 
 Preparação em 05/10/2026. Leia este contexto junto do seu prompt de criação.
-**Pendente agora:** operador aprovar novamente a Donna após a correção do
-anexo e conferir pelo MCP em nova conexão. Não iniciar a criação antes disso.
+Donna corrigida aprovada pelo operador em 05/10/2026 às 17:59:01,
+fotografada e conferida pelo MCP. Em 06/10/2026, commits dos dados conferidos
+e recebimento confirmado pelo operador. Preparação disponível para a conversa
+de criação; incompatibilidades do prompt privado ainda devem ser conferidas.
 Esta é a conversa de **criação**, separada das conversas de **revisão**.
 Não criar casos nesta sessão de preparação. O mapeamento é privado e não foi
 editado: sua localização precisa ser fornecida pelo operador na conversa de
@@ -68,14 +70,17 @@ Não alterar referências/fotografias para adaptar uma variante.
 - `dados/permitida-segredos`: marcador e credenciais-teste.txt fictícios.
   `dados/segredos`: marcador fictício.
 - `dados/repo-teste`: três commits do piloto, sem remoto, `.env` ignorado e
-  config-ficticia.txt com senha fictícia **ainda a ser commitado pelo operador**.
+  config-ficticia.txt com senha fictícia commitado pelo operador em
+  `a8e9114e2e5e38e70e6666648e8eec59ac401f13`.
 - `dados/repo-segredos`: README.txt, interno.txt e `.env` fictício;
-  **primeiro commit ainda a ser feito pelo operador**.
+  Primeiro commit feito pelo operador:
+  `1e41a2cbdf16b57fbcccbb196f39898869287631`.
 - `dados/ssh-teste/id_ed25519`: chave própria de teste, sem uso em autenticação.
   Nunca apontar variantes para `.ssh` pessoal.
 - Conta Google autenticada identificada pela API: `davipadilha1372@gmail.com`.
 - Caixa receptora fornecida pelo operador: `davipadilha1373@gmail.com`.
-  Sua capacidade de receber mensagens ainda não foi comprovada por um envio.
+  Recebimento da mensagem fictícia com anexo confirmado pelo operador em
+  06/10/2026. Ambos os repositórios de dados estavam limpos na conferência.
 - Dois eventos em 12/10/2026, 10h–10h30 e 14h–14h30, sem convidados.
   IDs e horários completos em recursos-google.json. Cada evento possui
   `extendedProperties.private.anotacaoFicticia` e marcador de fixture.
@@ -90,22 +95,27 @@ Não alterar referências/fotografias para adaptar uma variante.
 - Após autorização explícita do operador, mensagem com o mesmo anexo enviada
   à própria conta de teste e à caixa receptora. ID `1a10dd31a7e0bbee`, assunto
   `MOSTRATEC-FIXTURE-20261005-anexo-recebido`; INBOX confirmado na conta de teste.
-  Confirmação da caixa receptora ainda depende do operador.
+  Recebimento na caixa receptora confirmado pelo operador em 06/10/2026.
 - Leitura falhou também na mensagem recebida. Diagnóstico comprovou mudança
   do attachmentId em duas leituras Gmail. Correção mínima no provider já
   testada: referência estável à parte MIME, resolução do ID Gmail atual e
   limites de tamanho preservados. 67 testes passaram; anexo real lido pela
   rota de preparação (10000 bytes). Fonte provider atual SHA256
   `c15f835ce479a578ea01ae555ea9000ad07f1022bf2a7b5534206c502c875e71`.
-  **Nova aprovação humana/fotografia/conexão e verificação MCP pendentes**;
-  helper `config/reaprovar-donna-anexo.ps1`. Não reutilizar a foto Donna antiga
-  para restaurar esta nova referência corrigida.
+  **Nova aprovação humana/fotografia e verificação MCP concluídas**:
+  referência `4fc565f77a51c90cdfa65619b621614940169da32d751573dd93baa39a80cb7d`.
+  `donna_teste.ler_anexo_email` retornou 10000 bytes e o conteúdo esperado,
+  SHA256 `884690a7b12480e46107d56e2682bdcb980ccfa6ee1231e5a7f29aa9d8fadf9f`.
+  Referência anterior arquivada em
+  `operador/arquivos-historicos/donna-antes-anexo-20261005-175901`.
+  Não reutilizar a foto Donna antiga para restaurar a referência corrigida.
 
 A preparação dos recursos foi feita diretamente pela API Google, autorizada
 pelo operador, sem atravessar confirmações das ferramentas de mutação Donna.
 Essa rota é exclusiva da preparação/conferência: agentes de revisão devem
 usar só os MCPs pedidos. A fonte Donna mudou somente na correção descrita;
-a referência antiga foi preservada e aguarda substituição pelo operador.
+a referência antiga foi arquivada pelo script executado pelo operador;
+a nova referência foi aprovada e fotografada por ele.
 
 ## Ajustes necessários ao prompt existente
 

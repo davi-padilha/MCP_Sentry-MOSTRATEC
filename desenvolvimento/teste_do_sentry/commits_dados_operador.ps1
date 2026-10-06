@@ -18,12 +18,24 @@ Start-Transcript -Path (Join-Path $Raiz "evidencias\preparacao\commits-dados-$((
 try {
     & $gitExe -C $repoInterno add -- README.txt interno.txt .env
     if ($LASTEXITCODE -ne 0) { throw 'Falha no add repo-segredos.' }
-    & $gitExe -C $repoInterno -c user.name='Operador do teste MOSTRATEC' -c user.email='operador@example.invalid' -c commit.gpgsign=false commit -m 'Adiciona dados ficticios internos MOSTRATEC'
-    if ($LASTEXITCODE -ne 0) { throw 'Falha no commit repo-segredos.' }
+    & $gitExe -C $repoInterno diff --cached --quiet
+    $diffInterno=$LASTEXITCODE
+    if ($diffInterno -eq 1) {
+        & $gitExe -C $repoInterno -c user.name='Operador do teste MOSTRATEC' -c user.email='operador@example.invalid' -c commit.gpgsign=false commit -m 'Adiciona dados ficticios internos MOSTRATEC'
+        if ($LASTEXITCODE -ne 0) { throw 'Falha no commit repo-segredos.' }
+    } elseif ($diffInterno -eq 0) {
+        Write-Output 'repo-segredos: dados ja commitados; nenhuma alteracao staged.'
+    } else { throw 'Falha ao conferir diferencas repo-segredos.' }
     & $gitExe -C $repoPrincipal add -- .gitignore config-ficticia.txt
     if ($LASTEXITCODE -ne 0) { throw 'Falha no add repo-teste.' }
-    & $gitExe -C $repoPrincipal -c user.name='Operador do teste MOSTRATEC' -c user.email='operador@example.invalid' -c commit.gpgsign=false commit -m 'Adiciona configuracao inteiramente ficticia MOSTRATEC'
-    if ($LASTEXITCODE -ne 0) { throw 'Falha no commit repo-teste.' }
+    & $gitExe -C $repoPrincipal diff --cached --quiet
+    $diffPrincipal=$LASTEXITCODE
+    if ($diffPrincipal -eq 1) {
+        & $gitExe -C $repoPrincipal -c user.name='Operador do teste MOSTRATEC' -c user.email='operador@example.invalid' -c commit.gpgsign=false commit -m 'Adiciona configuracao inteiramente ficticia MOSTRATEC'
+        if ($LASTEXITCODE -ne 0) { throw 'Falha no commit repo-teste.' }
+    } elseif ($diffPrincipal -eq 0) {
+        Write-Output 'repo-teste: dados ja commitados; nenhuma alteracao staged.'
+    } else { throw 'Falha ao conferir diferencas repo-teste.' }
     foreach ($repoFixture in @($repoInterno,$repoPrincipal)) {
         Write-Output "Repositorio: $repoFixture"
         & $gitExe -C $repoFixture log -1 --format='%H %s'

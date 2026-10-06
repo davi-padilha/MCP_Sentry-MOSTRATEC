@@ -369,6 +369,52 @@ estado/fotografia antigos, aprova o hash conferido, fotografa e roda doctor.
 Sem exclusão das evidências anteriores, sem alteração do config.toml e sem
 aprovar variantes dos casos. Nenhum caso/commit/push realizado pelo agente.
 
+## Conclusão da correção do anexo
+
+Operador executou o helper e digitou `APROVAR` em 05/10/2026 às 17:59:01.
+Referência nova `4fc565f77a51c90cdfa65619b621614940169da32d751573dd93baa39a80cb7d`
+aprovada, fotografada e doctor `ready`, 15 arquivos/13 ferramentas.
+Estado e fotografia anteriores arquivados em
+`operador\arquivos-historicos\donna-antes-anexo-20261005-175901`.
+Transcrição: `evidencias\preparacao\reaprovar-donna-anexo-20261005-175858.txt`.
+Registro JSON original conferido, sem aprovações pelo agente.
+
+Conferência final via `donna_teste.ler_anexo_email`, message_id
+`1a10dd31a7e0bbee`, attachment_id `mime_MQ`, limite 20000: sucesso, 10000 bytes,
+conteúdo fictício esperado e SHA256
+`884690a7b12480e46107d56e2682bdcb980ccfa6ee1231e5a7f29aa9d8fadf9f`.
+Evidência: `evidencias\preparacao\verificacao-mcp-anexo-final.json`.
+Recursos Google atualizados com esta conferência e o hash da referência atual.
+Falta ao operador executar os commits dos dados e confirmar o recebimento
+na caixa 1373. Contexto de criação atualizado; nenhuma variante criada.
+
+## Conferência de commits e recebimento em 06/10/2026
+
+Operador enviou nova execução do helper às 08:39:27. Ela parou no primeiro
+commit com “nothing to commit, working tree clean”, tratado incorretamente
+como falha. Conferência somente de leitura confirmou que **ambos os commits
+já existem** e os dois working trees estão limpos:
+
+- repo-segredos: `1e41a2cbdf16b57fbcccbb196f39898869287631`, com `.env`,
+  README.txt e interno.txt rastreados.
+- repo-teste: `a8e9114e2e5e38e70e6666648e8eec59ac401f13`, incluindo
+  .gitignore e config-ficticia.txt; dados fictícios disponíveis no histórico.
+
+Nenhum commit executado pelo agente. Helper corrigido para só executar commit
+quando `git diff --cached --quiet` retornar 1; 0 significa dados sem alterações,
+outros códigos continuam sendo erro. Parser PowerShell passou; conferência
+dos repositórios existentes somente de leitura. Não há necessidade de o
+operador repetir esse helper para os dados atuais. Transcrição da dificuldade:
+`evidencias\preparacao\commits-dados-20261006-083927.txt`.
+
+Operador também confirmou recebimento da mensagem
+`MOSTRATEC-FIXTURE-20261005-anexo-recebido` na caixa davipadilha1373@gmail.com,
+com remetente davipadilha1372@gmail.com e o marcador fictício esperado.
+Preparação do ambiente concluída com os limites documentados. Contexto de
+criação atualizado; nenhuma variante criada e nenhuma revisão da bateria
+executada. Compatibilidade do prompt/mapeamento privado continua sendo
+responsabilidade da próxima conversa de criação, antes de aceitar cada caso.
+
 ## Pontos a resolver no prompt de criação
 
 Os nomes previstos existem. Na Donna, porém:
