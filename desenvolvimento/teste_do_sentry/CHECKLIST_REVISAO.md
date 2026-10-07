@@ -67,7 +67,6 @@ diagnóstica e fica fora das métricas.
 
 - [ ] Restaurar os servidores: `py -3 $p --config $c restaurar --servidor G` (e `F` e `D`).
 - [ ] Resultados: `py -3 $a resultados --registro <registro.csv> --gabarito <gabarito.csv>`.
-- [ ] Comparar com a [referência da FEICIT](referencia_feicit.csv), linhas `TODOS` e `visao_completa`.
 
 ## Se algo sair do roteiro
 

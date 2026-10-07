@@ -1,0 +1,228 @@
+{
+  "method": "read_only_no_backend_no_config_write",
+  "python": "3.14.5",
+  "source_sha256": {
+    "__init__.py": "9e0597370f05c448f76d826ea18cbc6e9f7a0b249acd3dc75a0e3158309ab660",
+    "cli.py": "cf0cf4bcdf1f6ba67855a5677e7fe43520aa76458459740e3e88b92d3c3b316e",
+    "core.py": "e7810c6a00a0ac4f18184cc17aca687cce7bdef1115b1e7471233a01eb054a51",
+    "gateway.py": "c2631e2f9f58b198727fbfaa6394ac90f73f3064db8e5c652d6d8a26d04832fc",
+    "lifecycle.py": "4988beb63b26407c3d43f0d6fe46fa07738b3b9e4100070baf0a76666d21b137",
+    "materialize.py": "ad9bc26a3026a76d3f08114a5590ecd16ff675e78ed8f0dc7e493ea387cfcb41",
+    "mcp_facade.py": "a31b1e6cd95af2de86ef08407fa0d2a02c84f84787ef745a92401b6b293c385c",
+    "onboarding.py": "9fe4150c4d86f986d35237297c46fd3b148ecfe91a08ec350f72df7d63155c93",
+    "operator.py": "4bec49572f81a435b0e1fbd4d2667fc9a7b6f1cea5b44e72a9c004d606c865fc",
+    "preparation.py": "ac9081f60cec088f9ce47284dcc05cf01b10767a2d720de58b69085dcb61ae9a",
+    "privacy.py": "b4050c6bebbc5f5b94f6909ee40c236f049937e12ad8a183842f89d8061a7af4",
+    "profiles.py": "23c7c79a4c0c9ef5c7a31040d70107c0f9abba17c00588c5f8761156498f15e9",
+    "review.py": "b20dced19dc95652048f51f3f466cfc2e6c7c662a2a78463ed097b1f5f1273c5",
+    "setup.py": "7b99e23e150259694e739f211241693b4362c649ed3b8dcacce484454579f65e"
+  },
+  "definitions": {
+    "catalog_supplied": false,
+    "protected_tool_count": 0,
+    "execution_original_catalog": {
+      "characters": 12,
+      "utf8_bytes": 12,
+      "estimated_tokens_chars_div_4": 3.0,
+      "real_provider_tokens": null
+    },
+    "execution_wrapped_catalog": {
+      "characters": 12,
+      "utf8_bytes": 12,
+      "estimated_tokens_chars_div_4": 3.0,
+      "real_provider_tokens": null
+    },
+    "wrapper_per_tool": {
+      "characters": 126,
+      "utf8_bytes": 126,
+      "estimated_tokens_chars_div_4": 31.5,
+      "real_provider_tokens": null
+    },
+    "review_external_tools": {
+      "characters": 6669,
+      "utf8_bytes": 6672,
+      "estimated_tokens_chars_div_4": 1667.25,
+      "real_provider_tokens": null
+    },
+    "review_conversation_tools": {
+      "characters": 8233,
+      "utf8_bytes": 8242,
+      "estimated_tokens_chars_div_4": 2058.25,
+      "real_provider_tokens": null
+    },
+    "tools": {
+      "sentry_security_status": {
+        "definition": {
+          "characters": 1724,
+          "utf8_bytes": 1724,
+          "estimated_tokens_chars_div_4": 431.0,
+          "real_provider_tokens": null
+        },
+        "description": {
+          "characters": 92,
+          "utf8_bytes": 92,
+          "estimated_tokens_chars_div_4": 23.0,
+          "real_provider_tokens": null
+        },
+        "input_schema": {
+          "characters": 46,
+          "utf8_bytes": 46,
+          "estimated_tokens_chars_div_4": 11.5,
+          "real_provider_tokens": null
+        },
+        "output_schema": {
+          "characters": 1423,
+          "utf8_bytes": 1423,
+          "estimated_tokens_chars_div_4": 355.75,
+          "real_provider_tokens": null
+        }
+      },
+      "sentry_review_current_block": {
+        "definition": {
+          "characters": 1449,
+          "utf8_bytes": 1449,
+          "estimated_tokens_chars_div_4": 362.25,
+          "real_provider_tokens": null
+        },
+        "description": {
+          "characters": 328,
+          "utf8_bytes": 328,
+          "estimated_tokens_chars_div_4": 82.0,
+          "real_provider_tokens": null
+        },
+        "input_schema": {
+          "characters": 46,
+          "utf8_bytes": 46,
+          "estimated_tokens_chars_div_4": 11.5,
+          "real_provider_tokens": null
+        },
+        "output_schema": {
+          "characters": 865,
+          "utf8_bytes": 865,
+          "estimated_tokens_chars_div_4": 216.25,
+          "real_provider_tokens": null
+        }
+      },
+      "sentry_review_evidence": {
+        "definition": {
+          "characters": 1798,
+          "utf8_bytes": 1798,
+          "estimated_tokens_chars_div_4": 449.5,
+          "real_provider_tokens": null
+        },
+        "description": {
+          "characters": 293,
+          "utf8_bytes": 293,
+          "estimated_tokens_chars_div_4": 73.25,
+          "real_provider_tokens": null
+        },
+        "input_schema": {
+          "characters": 225,
+          "utf8_bytes": 225,
+          "estimated_tokens_chars_div_4": 56.25,
+          "real_provider_tokens": null
+        },
+        "output_schema": {
+          "characters": 1117,
+          "utf8_bytes": 1117,
+          "estimated_tokens_chars_div_4": 279.25,
+          "real_provider_tokens": null
+        }
+      },
+      "sentry_record_assessment": {
+        "definition": {
+          "characters": 1683,
+          "utf8_bytes": 1686,
+          "estimated_tokens_chars_div_4": 420.75,
+          "real_provider_tokens": null
+        },
+        "description": {
+          "characters": 350,
+          "utf8_bytes": 350,
+          "estimated_tokens_chars_div_4": 87.5,
+          "real_provider_tokens": null
+        },
+        "input_schema": {
+          "characters": 622,
+          "utf8_bytes": 622,
+          "estimated_tokens_chars_div_4": 155.5,
+          "real_provider_tokens": null
+        },
+        "output_schema": {
+          "characters": 545,
+          "utf8_bytes": 548,
+          "estimated_tokens_chars_div_4": 136.25,
+          "real_provider_tokens": null
+        }
+      },
+      "sentry_authorize_once": {
+        "definition": {
+          "characters": 1563,
+          "utf8_bytes": 1569,
+          "estimated_tokens_chars_div_4": 390.75,
+          "real_provider_tokens": null
+        },
+        "description": {
+          "characters": 649,
+          "utf8_bytes": 652,
+          "estimated_tokens_chars_div_4": 162.25,
+          "real_provider_tokens": null
+        },
+        "input_schema": {
+          "characters": 358,
+          "utf8_bytes": 361,
+          "estimated_tokens_chars_div_4": 89.5,
+          "real_provider_tokens": null
+        },
+        "output_schema": {
+          "characters": 393,
+          "utf8_bytes": 393,
+          "estimated_tokens_chars_div_4": 98.25,
+          "real_provider_tokens": null
+        }
+      }
+    },
+    "instructions": {
+      "SERVER_INSTRUCTIONS": {
+        "characters": 386,
+        "utf8_bytes": 386,
+        "estimated_tokens_chars_div_4": 96.5,
+        "real_provider_tokens": null
+      },
+      "EXECUTION_INSTRUCTIONS": {
+        "characters": 397,
+        "utf8_bytes": 397,
+        "estimated_tokens_chars_div_4": 99.25,
+        "real_provider_tokens": null
+      },
+      "REVIEW_INSTRUCTIONS": {
+        "characters": 754,
+        "utf8_bytes": 754,
+        "estimated_tokens_chars_div_4": 188.5,
+        "real_provider_tokens": null
+      },
+      "CONVERSATION_EXECUTION_INSTRUCTIONS": {
+        "characters": 385,
+        "utf8_bytes": 385,
+        "estimated_tokens_chars_div_4": 96.25,
+        "real_provider_tokens": null
+      },
+      "CONVERSATION_REVIEW_INSTRUCTIONS": {
+        "characters": 873,
+        "utf8_bytes": 876,
+        "estimated_tokens_chars_div_4": 218.25,
+        "real_provider_tokens": null
+      }
+    },
+    "review_external_total_characters": 7423,
+    "review_conversation_total_characters": 9106
+  },
+  "limitations": [
+    "chars/4 is a heuristic, not the model tokenizer or provider usage",
+    "MCP wire size is not model input size; client may transform or deduplicate",
+    "No protected-server process is started",
+    "copy writes and Node startup cannot be timed by a read-only script",
+    "cold capture means cold text cache, not necessarily cold OS/disk cache",
+    "timing wrappers add overhead; text and redaction columns overlap"
+  ]
+}
