@@ -22,6 +22,9 @@ das execuções sem publicar o gabarito por caso, os patches ou as transcriçõe
    estimativas com ressalvas e propostas de melhoria do gateway.
 7. [Reavaliação da classificação de agenda](REAVALIACAO-CLASSIFICACAO.md):
    reclassificação autorizada, conclusão semântica e efeitos nas duas baterias.
+8. [Tokens e tempos das 109 conversas históricas](TOKENS_E_TEMPOS.md):
+   contadores por turno e série, cache, tamanho dos dossiês e duração;
+   primárias, R3 e tentativa parcial separadas, sem novas revisões.
 
 Em 07/10/2026, o operador autorizou uma correção posterior à coleta: uma
 variante passou de bloquear para liberar. O gabarito v2 tem 13 benignas e

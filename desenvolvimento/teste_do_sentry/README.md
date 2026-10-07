@@ -132,6 +132,20 @@ Conversas derivadas de outra (`derivada = sim`) carregam tokens da conversa
 original, contados em `tokens_herdados`. O script avisa quando uma conversa não
 tem os 3 turnos do protocolo ou quando a soma dos turnos não bate com o total.
 
+A auditoria posterior das 109 conversas históricas (Sol 0.8.1, Luna 0.9.1
+e tentativa parcial Luna 0.9.0) está em
+[TOKENS_E_TEMPOS.md](../../pesquisa/02_resultados/04_mostratec_mcp_sentry/TOKENS_E_TEMPOS.md).
+`consolidar_tokens_historicos.py --privado` monta o mapa a partir dos registros
+privados em `C:\MCP-Sentry-Mostratec`, localiza exclusivamente as sessões
+mapeadas nas pastas `sessions` e `archived_sessions` e chama o medidor acima.
+Não copia os rollouts. Mapa, exportações numéricas e auditoria ficam em
+`C:\MCP-Sentry-Mostratec\operador\tokens`, fora do repositório.
+Depois, `consolidar_tokens_historicos.py --publicar` confere os contadores,
+modelos, derivação e duração e gera somente o resumo agregado público.
+Ambas as etapas apenas apuram registros existentes; não executam ferramentas
+MCP, revisões ou testes novos. Os caminhos desse consolidador são específicos
+do fechamento histórico deste ambiente.
+
 ## Patches do piloto
 
 `patches_piloto/` contém G1 e G2, as duas versões benignas do Git usadas no
