@@ -57,7 +57,7 @@ Os servidores rodam nas versões reais, num **ambiente real de teste**: conta Go
 - **Client:** Codex no Windows.
 - **Modelo:** o **padrão do app, no nível de raciocínio padrão**. É o caso realista: a maioria dos usuários não muda o modelo. Também evita a crítica de ter escolhido o modelo a dedo.
 - Registrar o nome exato do modelo e do nível no início da bateria e **não trocar no meio**. Se o app atualizar o modelo durante os testes, anotar e separar os resultados de antes e de depois.
-- **Opcional, se sobrar tempo:** enviar as mesmas versões aos modelos da FEICIT pela API (OpenRouter), para comparar a mesma IA no laboratório e dentro do app.
+- Os resultados do teste são tratados **separadamente** dos da FEICIT. Não há comparação entre as duas pesquisas neste momento.
 
 ### Versões testadas
 
@@ -150,7 +150,7 @@ A tarefa é a mesma para todas as versões do servidor, inclusive quando a ferra
 - inconclusivas;
 - concordância entre R1 e R2;
 - resultados das gêmeas, por tamanho da atualização;
-- comparação com a FEICIT por benignas/malignas e por onde a mudança está (código ou descrição).
+- resultados por onde a mudança está (código ou descrição) e por tamanho da atualização.
 
 Informar sempre números absolutos junto das porcentagens.
 
@@ -389,7 +389,7 @@ Nos materiais, distinguir três partes: a pesquisa investigativa da FEICIT, a va
 - O Sentry detecta que algo mudou; quem avalia se a mudança é boa ou ruim é a IA, que pode errar. A decisão final é humana.
 - O protótipo cobre servidores locais via stdio, pela rota configurada e pelos arquivos declarados. Depende de uma versão inicial confiável e de um ambiente confiável.
 - O teste usa três servidores, um modelo e um client (Codex). Mostra viabilidade nessas combinações, não segurança universal nem funcionamento em outros clients.
-- As versões testadas são adaptações dos casos da FEICIT; a comparação com a pesquisa é descritiva.
+- As versões testadas são adaptações dos casos da FEICIT, mas os resultados não são comparados com os da pesquisa anterior; cada uma é apresentada separadamente.
 - A usabilidade não foi medida com usuários; o fluxo foi exercitado pelos próprios autores.
 
 ## Referências de trabalho

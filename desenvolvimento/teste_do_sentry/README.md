@@ -94,6 +94,44 @@ modelo via tudo o que mudou, como no dossiê do Sentry: D no N‑INT, C2 no
 Connor e C1 no MCPTox. Os casos S0 (sem mudança) ficam de fora, porque o
 Sentry nem chamaria a IA. As outras condições estão no CSV para consulta.
 
+## Tokens e tempos reais (rollouts do Codex)
+
+`medir_tokens_rollouts.py` lê os arquivos de sessão do Codex
+(`%USERPROFILE%\.codex\sessions\AAAA\MM\DD\rollout-*.jsonl`) e exporta só
+contagens: nunca copia texto de mensagens, argumentos ou resultados.
+
+Por turno (1 = tarefa, 2 = revisão, 3 = registro), registra:
+
+- **tokens:** entrada, entrada em cache, entrada sem cache, saída, raciocínio e total;
+- **tempo da IA:** duração do turno e tempo até o primeiro token;
+- **tempo do operador:** intervalo entre o fim do turno anterior e o início deste;
+- **MCP:** chamadas, erros, tamanho do resultado e tamanho do dossiê
+  (resultado de `sentry_review_current_block`).
+
+```powershell
+$t = "desenvolvimento\teste_do_sentry\medir_tokens_rollouts.py"
+
+# Todas as sessões de um período que chamaram os servidores de teste:
+py -3 $t --desde 2026-10-05 --ate 2026-10-06 --servidor-contem _teste --saida C:\CAMINHO\tokens
+
+# Ligando cada conversa a uma revisão:
+py -3 $t --mapa C:\CAMINHO\mapa.csv --saida C:\CAMINHO\tokens
+```
+
+O `mapa.csv` tem a coluna `sessao` (id da sessão ou nome do arquivo de
+rollout) e colunas livres, como `id`, `serie`, `versao` e `repeticao`, que são
+copiadas para `sessoes.csv` e `turnos.csv`.
+
+A coluna `fonte_tokens` diz de onde vem cada número:
+
+- `turn_token_usage`: registro por turno das versões atuais do Codex. É o confiável.
+- `token_count_acumulado`: diferença do total acumulado, em versões antigas.
+- `inconsistente` e `ausente`: ficam fora das medianas.
+
+Conversas derivadas de outra (`derivada = sim`) carregam tokens da conversa
+original, contados em `tokens_herdados`. O script avisa quando uma conversa não
+tem os 3 turnos do protocolo ou quando a soma dos turnos não bate com o total.
+
 ## Patches do piloto
 
 `patches_piloto/` contém G1 e G2, as duas versões benignas do Git usadas no
