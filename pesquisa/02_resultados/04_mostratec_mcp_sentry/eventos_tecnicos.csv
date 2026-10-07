@@ -1,0 +1,6 @@
+serie,evento,efeito,tratamento
+luna_090_parcial,esquema_v1_validacao_v2,12 execucoes preservadas; 3 sem parecer registrado,serie encerrada; 0.9.1 corrigida; nova bateria separada
+luna_090_parcial,variaveis_ausentes_no_coletor,NameError antes da coleta inicial,instrumentacao corrigida com originais preservados
+luna_091,comparacao_literal_do_parecer,1 parecer persistido mascarado foi inicialmente marcado inconclusivo,conferido com safe_text; coleta corrigida sem repetir conversa
+luna_091,identificador_de_revisao_incorreto,1 primaria sem registro apos duas tentativas; recomendacao textual de bloquear,inconclusivo preservado; R3 bloquear fora das metricas
+luna_091,rotulo_herdado_no_relatorio,consolidacao dizia 0.9.0 em vez de 0.9.1,metadado corrigido com relatorio anterior preservado

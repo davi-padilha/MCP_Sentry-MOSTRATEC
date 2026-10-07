@@ -9,7 +9,7 @@ from pathlib import Path
 
 from .core import APPROVED_VERSION_FILE, SECURITY_REPORTS_DIR, UPDATE_REVIEWS_DIR, SentryError, canon, capture, digest, execution_envelope, inspect, load_execution_envelope, safe_text, write, write_text_report
 
-POLICY_VERSION = "mcp-sentry-review-v1"
+POLICY_VERSION = "mcp-sentry-review-v2"
 VERDICT_FIELDS = {"review_id", "reviewed_hash", "dossier_hash", "policy_version", "decision", "justification", "risks"}
 REVIEW_TTL_SECONDS = 30 * 60
 AUTHORIZATION_TTL_SECONDS = 5 * 60
@@ -68,6 +68,7 @@ def _decision_summary(record):
     ]
     lines.extend("- " + risk for risk in verdict["risks"])
     lines.append(f"changes: {len(dossier['changes'])}")
+    lines.append("privacy_policy_hash: " + str(dossier.get("privacy", {}).get("approved_policy_hash")))
     lines.extend(f"- {change['kind']}: {change['path']}" for change in dossier["changes"])
     return safe_text(("\n".join(lines) + "\n").encode("utf-8"))
 
@@ -162,7 +163,8 @@ def get_pending(manifest_path: Path, store: Path, review_id: str, page: int = 1,
             "total_changes": len(changes), "total_pages": total_pages, "has_more": has_more,
             "next_page": page + 1 if has_more else None, "changes": changes[start:start + page_size],
             "metadata": record["dossier"]["metadata"], "configuration": record["dossier"]["configuration"],
-            "coverage": record["dossier"].get("coverage", {})}
+            "coverage": record["dossier"].get("coverage", {}),
+            "privacy": record["dossier"]["privacy"]}
 
 def submit_verdict(manifest_path: Path, store: Path, verdict, *, source="local_operator_or_fixture", model=None):
     if source not in {"local_operator_or_fixture", "client_submitted"}:

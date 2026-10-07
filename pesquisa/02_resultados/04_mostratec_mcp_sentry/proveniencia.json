@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "publicado_em": "2026-10-07",
+  "fontes_privadas_sha256": [
+    {
+      "serie": "sol_081",
+      "artefato_privado": "registro.csv",
+      "sha256": "1ffc253fda9feb71effc0684d6e02ac820d031dcaceb9f7ced412a447c57aec9"
+    },
+    {
+      "serie": "sol_081",
+      "artefato_privado": "metricas.csv",
+      "sha256": "f824002e8e0ff0a9daef0e22a7baa6ca330cf5b09e2570520d7aab55a14c35bb"
+    },
+    {
+      "serie": "luna_091",
+      "artefato_privado": "registro.csv",
+      "sha256": "568f7956ce45d5712fa5b645719921bca54a914eb47ca17a61410b79bfe5ffc8"
+    },
+    {
+      "serie": "luna_091",
+      "artefato_privado": "metricas.csv",
+      "sha256": "21edfd160a2097b984dfa062d7d9df958597853573ca143ca8d83f9c50cea24a"
+    },
+    {
+      "serie": "luna_090_parcial",
+      "artefato_privado": "registro.csv",
+      "sha256": "2eb120986ff3e77312d275e565c0c1eedf89e0997b9b31871ca040504c2aa294"
+    }
+  ],
+  "instalacao_091": {
+    "sentry": "0.9.1",
+    "wheel_sha256": "94b51755b3246e8ee5d420f273bfbb1d50ca6e6c00c6e1307736f6219990a7e4",
+    "modulos_iguais_wheel_fonte_instalacao": 14,
+    "codigo_nativo_e_aprovacoes_restaurados": {
+      "git": 11,
+      "filesystem": 4078,
+      "donna": 15
+    }
+  },
+  "conferencias": {
+    "registros_exportados": 109,
+    "primarias_comparadas": 96,
+    "diagnosticas": 1,
+    "parciais_tecnicas": 12,
+    "casos_pedidos_ordem_iguais": true,
+    "gabarito_privado_preservado": true,
+    "backend_iniciado": false
+  },
+  "publicacao": {
+    "campos": "lista permitida no exportador",
+    "ids": "HMAC com chave efemera nao publicada; independentes por serie",
+    "ordem": "ordenacao por ID anonimo; nao representa ordem de execucao",
+    "nao_incluido": [
+      "gabarito por caso",
+      "nomes originais de casos",
+      "patches",
+      "transcricoes",
+      "justificativas",
+      "credenciais",
+      "contas",
+      "caminhos locais",
+      "IDs Google ou de conversas",
+      "argumentos e retornos MCP",
+      "fotografias de codigo/estado"
+    ]
+  },
+  "arquivos_publicos_sha256": {
+    "eventos_tecnicos.csv": "1f01749d486f644e96a6d5192efdd73f709a7f8705a90a9281515793d7071330",
+    "execucoes_publicas.csv": "97d71d01b6e56e8c73682cc739ba0cc0bc6d298f1d766906a990c3e0018787bd",
+    "metricas_por_grupo.csv": "5dcd6f2bf9d871bd575dbd1827f1b7836044823c7b28598ee19222967d22d248"
+  }
+}

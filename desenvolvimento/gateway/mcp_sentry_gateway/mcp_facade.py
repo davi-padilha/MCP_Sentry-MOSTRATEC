@@ -5,7 +5,7 @@ import json
 import threading
 
 from .core import APPROVED_VERSION_FILE, SentryError
-from .review import CONVERSATION_CONFIRMATION, authorize_conversation_execution, get_pending, security_status, submit_verdict
+from .review import POLICY_VERSION, CONVERSATION_CONFIRMATION, authorize_conversation_execution, get_pending, security_status, submit_verdict
 
 VERDICT_SCHEMA = {
     "type": "object",
@@ -13,7 +13,7 @@ VERDICT_SCHEMA = {
         "review_id": {"type": "string", "minLength": 1},
         "reviewed_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
         "dossier_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-        "policy_version": {"const": "mcp-sentry-review-v1"},
+        "policy_version": {"const": POLICY_VERSION},
         "decision": {"enum": ["allow", "block"]},
         "justification": {"type": "string", "pattern": ".*\\S.*"},
         "risks": {"type": "array", "items": {"type": "string"}},
@@ -76,6 +76,8 @@ PENDING_OUTPUT_SCHEMA = {
     "additionalProperties": False,
 }
 PENDING_OUTPUT_SCHEMA["properties"]["coverage"] = {"type": "object"}
+PENDING_OUTPUT_SCHEMA["properties"]["privacy"] = {"type": "object"}
+PENDING_OUTPUT_SCHEMA["required"].append("privacy")
 
 CURRENT_REVIEW_OUTPUT_SCHEMA = {
     "type": "object",
@@ -90,6 +92,8 @@ CURRENT_REVIEW_OUTPUT_SCHEMA = {
     "additionalProperties": False,
 }
 CURRENT_REVIEW_OUTPUT_SCHEMA["properties"]["coverage"] = {"type": "object"}
+CURRENT_REVIEW_OUTPUT_SCHEMA["properties"]["privacy"] = {"type": "object"}
+CURRENT_REVIEW_OUTPUT_SCHEMA["required"].append("privacy")
 
 VERDICT_OUTPUT_SCHEMA = {
     "type": "object",

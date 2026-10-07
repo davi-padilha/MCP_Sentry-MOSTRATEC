@@ -16,14 +16,14 @@ def decide(manifest, store, action, *, input_fn=input, output=print):
     shown = record["dossier"]
     output(json.dumps({"review_id": record["review_id"], "version_hash": shown["current_hash"],
                        "assessment": record["verdict"], "coverage": shown.get("coverage", {}),
-                       "configuration": shown["configuration"], "changes": [
+                       "configuration": shown["configuration"], "privacy": shown["privacy"], "changes": [
                            {"path": c["path"], "kind": c["kind"]} for c in shown["changes"]]},
                       ensure_ascii=False, indent=2))
     confirmations = {"once": "AUTORIZAR", "accept": "ACEITAR", "catalog": "DESCOBRIR", "envelope": "PROMOVER"}
     if action == "catalog":
         output("DESCOBRIR autoriza iniciar uma cópia desta versão revisada uma vez para consultar o catálogo.")
     elif action == "envelope":
-        output("PROMOVER aprova somente a configuração exibida, incluindo as raízes; não aprova código nem inicia o servidor.")
+        output("PROMOVER aprova a configuração e a política de privacidade propostas exibidas; não aprova código nem inicia o servidor.")
     else:
         output("AUTORIZAR libera um início; ACEITAR torna esta versão a referência permanente.")
     output(f"Digite {confirmations[action]} para confirmar, ou Enter para cancelar:")

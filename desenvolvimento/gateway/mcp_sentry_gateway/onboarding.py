@@ -319,7 +319,7 @@ def doctor(manifest_path: Path, store: Path, codex_config: Path | None = None, n
             if approved.get("capture") != snapshot:
                 issues.append("a versão atual difere da aprovada")
             if execution_envelope(snapshot) != load_execution_envelope(store):
-                issues.append("a configuração de execução difere da aprovada")
+                issues.append("a configuração de execução ou política de privacidade difere da aprovada")
         if codex_config is not None:
             if not codex_config.is_file():
                 issues.append("configuração do Codex não encontrada")

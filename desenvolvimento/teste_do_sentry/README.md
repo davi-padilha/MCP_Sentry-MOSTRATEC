@@ -6,6 +6,7 @@
 | `criar_dados_teste.py` | Cria as pastas, os repositórios e os dados de teste, iguais em qualquer computador |
 | `preparar_revisao.py` | Restaura o estado, aplica a versão e organiza as provas de cada revisão |
 | `analisar.py` | Calcula as métricas do teste e a referência da FEICIT |
+| `exportar_resultados_publicos.py` | Exporta campos permitidos dos resultados fechados, sem gabarito por caso, patches ou transcrições |
 | `referencia_feicit.csv` | Resultados da FEICIT no formato do teste |
 | `patches_piloto/` | Versões G1 e G2 usadas no piloto |
 
@@ -73,6 +74,12 @@ No `registro.csv`, preencha:
 - `servidor_iniciado` com `sim` ou `nao`.
 
 A R3 aparece à parte, fora das métricas.
+
+As duas baterias concluídas estão publicadas em
+[resultados MOSTRATEC](../../pesquisa/02_resultados/04_mostratec_mcp_sentry/README.md),
+com relatório, comparação e dados selecionados. A exportação conserva as fontes
+privadas e usa IDs anônimos independentes por série; não publica o mapeamento
+original dos casos.
 
 Na referência da FEICIT, a linha `visao_completa` usa a condição em que o
 modelo via tudo o que mudou, como no dossiê do Sentry: D no N‑INT, C2 no

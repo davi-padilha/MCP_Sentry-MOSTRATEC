@@ -22,11 +22,11 @@ A parte relacionada ao usuário da etapa 2 está encerrada por enquanto: impleme
 
 | Etapa | Estado | Próxima ação |
 | --- | --- | --- |
-| 1 — Protocolo | Preparação parcial instalada | Completar OAuth, aprovação das referências e conferência de pastas/sandbox no usuário atual; roteiro em PREPARACAO_ETAPA4.md. |
-| 2 — Parte relacionada ao usuário | Encerrada por enquanto | Corrigir somente obstáculos concretos encontrados no piloto. |
-| 3 — Piloto | Concluído quanto ao fluxo | Resolver os controles do protocolo anotados em RESULTADO_PILOTO_GIT.md antes da etapa 4. |
-| 4 — Teste do MCP Sentry | Pendente | Após o piloto, criar as 24 versões e executar as revisões. |
-| 5 — Comunicação | Parcial | Vídeo, complemento de fala e proposta de banner prontos; diagramas e resultados pendentes. |
+| 1 — Protocolo | Preparado e conferido | Preservar recursos fictícios, referências e registros de preparação. |
+| 2 — Parte relacionada ao usuário | Evolução validada até 0.9.1 | Correção do mascaramento, políticas de privacidade e contrato de revisão documentados em VALIDACAO_0.9.1.md. |
+| 3 — Piloto | Concluído quanto ao fluxo | Preservar seus resultados e limites em RESULTADO_PILOTO_GIT.md. |
+| 4 — Teste do MCP Sentry | Duas baterias concluídas | Consultar os resultados públicos; tentativa parcial 0.9.0 e R3 diagnóstica permanecem separadas da comparação principal. |
+| 5 — Comunicação | Parcial | Incorporar resultados e limitações aos materiais finais; relatório e dados públicos disponíveis. |
 
 Durante a etapa 2 também foram feitos ajustes internos de segurança/compatibilidade, testes técnicos com Memory, Git e Filesystem, medições de desempenho e empacotamento da candidata. Esses trabalhos preparam as etapas seguintes, mas não equivalem ao uso em um client real. Os pareceres dos testes técnicos são fixtures, não avaliações produzidas pela IA.
 
@@ -321,10 +321,12 @@ Aplicar o procedimento do piloto às 24 versões, com a versão fixada do Sentry
 
 ### Critério de conclusão
 
-- [ ] Revisões executadas, com falhas e tentativas de preparação explicitadas.
-- [ ] Resultados verificáveis e evidências preservadas.
-- [ ] Tabelas descritivas prontas, sem alegação de eficácia universal.
-- [ ] Conclusões limitadas aos servidores, versões, modelo e client testados.
+- [x] Revisões executadas, com falhas e tentativas de preparação explicitadas.
+- [x] Resultados verificáveis e evidências preservadas; gabarito e evidências integrais permanecem privados.
+- [x] Tabelas descritivas prontas, sem alegação de eficácia universal.
+- [x] Conclusões limitadas aos servidores, versões, modelo e client testados.
+
+Relatório, dados de execução anonimizados e métricas: [resultados públicos da MOSTRATEC](../pesquisa/02_resultados/04_mostratec_mcp_sentry/README.md).
 
 ## Etapa 5 — formular a prova de conceito e preparar a comunicação, em paralelo
 
@@ -393,4 +395,4 @@ Nos materiais, distinguir três partes: a pesquisa investigativa da FEICIT, a va
 - [Fluxo de revisão pelo client](../prototipo-feicit/documentacao/AVALIACAO_SEMANTICA_CLIENTE.md).
 - [Filesystem MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem) e [Git MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/git).
 
-**Estado deste documento:** desenho do Teste do MCP Sentry definido. Etapa 3 concluída quanto ao fluxo em 05/10/2026, com limites registrados em RESULTADO_PILOTO_GIT.md. Ambiente da etapa 1 preparado e conferido em 06/10/2026 com adaptações documentadas. Criação dos casos e revisões da etapa 4 pendentes; etapa 5 parcial. Compatibilidade do prompt privado, versões, revisões e resultados futuros precisam ser registrados conforme forem executados.
+**Estado deste documento (07/10/2026):** piloto e preparação concluídos, com adaptações e limites documentados. Os 24 casos foram congelados e duas baterias de 48 revisões foram concluídas: Sentry 0.8.1 com GPT-6.1 Sol/médio e Sentry 0.9.1 com GPT-6 Luna/médio. A tentativa parcial 0.9.0 e uma R3 diagnóstica foram preservadas separadamente. A evolução está documentada em VALIDACAO_0.9.1.md; relatório e dados públicos estão disponíveis no pacote de resultados acima. A etapa 5 continua parcial, dependendo da incorporação desses resultados aos materiais finais.

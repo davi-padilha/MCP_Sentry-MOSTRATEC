@@ -1,5 +1,12 @@
 # Resultados
 
+## MOSTRATEC — Teste do MCP Sentry
+
+[04_mostratec_mcp_sentry/](04_mostratec_mcp_sentry/README.md) contém o relatório
+público, a comparação das baterias Sol/0.8.1 e Luna/0.9.1, métricas e registros
+com campos selecionados. Gabarito, patches e transcrições permanecem privados.
+Essas séries são separadas das campanhas FEICIT listadas abaixo.
+
 ## Leitura recomendada
 
 1. `03_planilhas_para_leitura/` — visão mais simples dos resultados;

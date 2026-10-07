@@ -6,8 +6,8 @@ confere os arquivos e a configuração aprovados e só então inicia uma cópia
 verificada do servidor protegido. Se houver mudança, o servidor permanece
 parado até uma revisão e uma decisão do operador.
 
-Esta pasta contém o instalador da candidata **0.8.1**, o wheel **0.8.0**
-preservado para reproduzir o piloto original, e estas instruções.
+Esta pasta contém o instalador da candidata **0.9.1**, os wheels **0.9.0**, **0.8.1** e
+**0.8.0** preservados para reproduzir os testes anteriores, e estas instruções.
 Esta é a pasta inteira a entregar ao usuário: basta receber este README e o
 arquivo `.whl`, sem baixar o restante do repositório. O wheel é um instalador
 Python, não um executável independente; Python 3.11+ deve estar instalado.
@@ -19,6 +19,17 @@ O pacote não contém o servidor MCP protegido, credenciais, dados de um projeto
 de um cliente específico. Cada servidor protegido precisa de seu próprio
 manifesto e diretório de estado.
 
+Na 0.9.0, o mascaramento evita interpretar literais como `"password="` como
+atribuições e preserva linhas físicas do código apresentado. Há uma política
+opcional de privacidade, aprovada separadamente pelo operador e exibida no
+dossiê da IA. Ela orienta a revisão; não filtra respostas do backend em
+execução. Consulte [PRIVACIDADE.md](PRIVACIDADE.md) para declarar regras e
+conferir os limites. A candidata usa `mcp-sentry-review-v2`; a nova série de
+testes deve ter seus próprios estados, versões fixadas e registros.
+
+A 0.9.1 corrige o esquema da ferramenta de registro para anunciar a mesma
+versão v2 exigida na validação do parecer. Não muda as ferramentas nativas.
+
 ## Requisitos e instalação
 
 - Windows com Python 3.11 ou posterior.
@@ -29,7 +40,7 @@ No PowerShell, abra esta pasta e instale o gateway em um ambiente virtual:
 
 ```powershell
 py -3 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install .\mcp_sentry_gateway-0.8.1-py3-none-any.whl
+.\.venv\Scripts\python.exe -m pip install .\mcp_sentry_gateway-0.9.1-py3-none-any.whl
 ```
 
 O gateway não requer uma instalação separada do SDK MCP. O servidor protegido
