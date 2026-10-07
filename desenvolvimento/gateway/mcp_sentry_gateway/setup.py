@@ -498,6 +498,12 @@ def run_setup(config_path: Path, state_root: Path, *, requested_name=None, input
     if _ask("Digite SUBSTITUIR para aplicar a configuração:", input_fn, output) != "SUBSTITUIR":
         return {"status": "approved_not_connected", "manifest": str(manifest_path)}
     backup = _save_config(config_path, original, updated)
+    from .administration import installation_record
+    try:
+        receipt_path = installation_record(config_path, backup, original, updated, name, store.parent/"codex-installation.json")
+    except (OSError, ValueError) as exc:
+        _restore_config(config_path, original, updated)
+        raise SentryError("registro de instalação falhou; configuração original restaurada") from exc
     diagnosis = doctor(manifest_path, store, config_path, name)
     if diagnosis["status"] != "ready":
         try:
@@ -509,6 +515,7 @@ def run_setup(config_path: Path, state_root: Path, *, requested_name=None, input
         "status": "connected_restart_required", "server": name,
         "manifest": str(manifest_path), "backup": str(backup),
         "config": str(config_path), "tools": diagnosis["tools"],
+        "installation_record": str(receipt_path),
     }
 
 

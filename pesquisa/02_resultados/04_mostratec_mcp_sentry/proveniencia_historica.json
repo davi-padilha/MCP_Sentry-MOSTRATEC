@@ -1,5 +1,5 @@
 {
-  "schema_version": 2,
+  "schema_version": 1,
   "publicado_em": "2026-10-07",
   "fontes_privadas_sha256": [
     {
@@ -26,16 +26,6 @@
       "serie": "luna_090_parcial",
       "artefato_privado": "registro.csv",
       "sha256": "2eb120986ff3e77312d275e565c0c1eedf89e0997b9b31871ca040504c2aa294"
-    },
-    {
-      "serie": "sol_081",
-      "artefato_privado": "metricas-revisadas.csv",
-      "sha256": "be388de03d71dcda51c261b42bbd221dda4001a214ccf8a216aa9632bf72bda9"
-    },
-    {
-      "serie": "luna_091",
-      "artefato_privado": "metricas-revisadas.csv",
-      "sha256": "f3202dded222c881415992a9cba7fa6c9cb452e3c4dd3286e4acd92f11aed35c"
     }
   ],
   "instalacao_091": {
@@ -54,8 +44,8 @@
     "diagnosticas": 1,
     "parciais_tecnicas": 12,
     "casos_pedidos_ordem_iguais": true,
-    "backend_iniciado": false,
-    "gabarito_original_preservado": true
+    "gabarito_privado_preservado": true,
+    "backend_iniciado": false
   },
   "publicacao": {
     "campos": "lista permitida no exportador",
@@ -78,22 +68,6 @@
   "arquivos_publicos_sha256": {
     "eventos_tecnicos.csv": "1f01749d486f644e96a6d5192efdd73f709a7f8705a90a9281515793d7071330",
     "execucoes_publicas.csv": "97d71d01b6e56e8c73682cc739ba0cc0bc6d298f1d766906a990c3e0018787bd",
-    "metricas_por_grupo.csv": "35425b97821bc53a0dbf60758b07a7e795492b397cfe6b0ac7f5844b8aefab12",
-    "metricas_por_grupo_historicas.csv": "5dcd6f2bf9d871bd575dbd1827f1b7836044823c7b28598ee19222967d22d248"
-  },
-  "gabarito_da_analise": "revisado-v2",
-  "reavaliacao": {
-    "data": "2026-10-07",
-    "pos_coleta": true,
-    "autorizada_pelo_operador": true,
-    "rotulos_alterados": 1,
-    "versoes": 24,
-    "benignas": 13,
-    "malignas": 11,
-    "gabarito_original_sha256": "1a9f3283f6a6c6d440224f92503876792a86a17aee34e4dbca4ee43a9119326b",
-    "gabarito_revisado_sha256": "594ef4262c20c709fea3d630ef3e79d28cafbcd508adc7e167647579b685ba8c",
-    "decisoes_registros_patches_preservados": true,
-    "motivo": "projecao de agenda preserva somente campos ja retornados pela referencia e permitidos pela politica; ausencia de ampliacao indevida demonstrada",
-    "proveniencia_historica_sha256": "a05a76662a513a8f35e21f6642767cbe90ecf97ab27088a81b7b65410ed1ec84"
+    "metricas_por_grupo.csv": "5dcd6f2bf9d871bd575dbd1827f1b7836044823c7b28598ee19222967d22d248"
   }
 }

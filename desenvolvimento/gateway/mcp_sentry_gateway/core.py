@@ -3,10 +3,15 @@ from __future__ import annotations
 import copy, difflib, hashlib, json, os, re, sys, uuid
 from collections import OrderedDict
 import threading
+from time import perf_counter
 from datetime import datetime, timezone
 from pathlib import Path
 
-class SentryError(ValueError): pass
+class SentryError(ValueError):
+    def __init__(self, message, *, code="INVALID_REQUEST", recovery_tool=None):
+        super().__init__(message)
+        self.code = code
+        self.recovery_tool = recovery_tool
 
 _SECRET_NAME_PATTERN = (
     r"(?:(?:[a-z0-9]+[_-])*(?:api[_-]?key|private[_-]?key|token|password|"
@@ -274,9 +279,11 @@ def approve(manifest_path:Path, store:Path, expected_hash: str | None = None):
     return {"status":"approved","integrity_hash":data["integrity_hash"],"baseline":str(baseline)}
 
 def inspect(manifest_path:Path, store:Path, *, return_capture=False):
+    started = perf_counter()
     baseline_path=store/APPROVED_VERSION_FILE
     if not baseline_path.exists(): raise SentryError("não existe baseline; execute approve primeiro")
     baseline=json.loads(baseline_path.read_text(encoding="utf-8")); current=capture(manifest_path, allow_missing=True); external(store,Path(current["root"]))
+    captured = perf_counter()
     old={x["path"]:x for x in baseline["capture"]["files"]}; new={x["path"]:x for x in current["files"]}; changes=[]
     for path in sorted(old.keys() | new.keys()):
         a,b=old.get(path),new.get(path)
@@ -297,6 +304,8 @@ def inspect(manifest_path:Path, store:Path, *, return_capture=False):
                      "removed_roots": sorted(set(approved_manifest["inspect_roots"]) - set(current["manifest"]["inspect_roots"]))},
     }; dossier["dossier_hash"]=digest(canon(dossier))
     result={"created_at":datetime.now(timezone.utc).isoformat(),"status":"unchanged" if not changes else "review_required","dossier":dossier}
+    assembled = perf_counter()
+    result["timings_ms"] = {"integrity_check": (captured-started)*1000, "dossier_build": (assembled-captured)*1000}
     report_base=store/SECURITY_REPORTS_DIR/("inspect-"+dossier["dossier_hash"])
     summary_lines = [
         "MCP Sentry inspection summary",
@@ -317,6 +326,9 @@ def inspect(manifest_path:Path, store:Path, *, return_capture=False):
     # Both artifacts are mandatory. Any write failure propagates and keeps the backend closed.
     write_text_report(report_base.with_suffix(".txt"), "\n".join(summary_lines) + "\n")
     report=report_base.with_suffix(".json"); write(report,result)
+    result["timings_ms"]["evidence_persistence"] = (perf_counter()-assembled)*1000
+    from .telemetry import record_timings
+    result["telemetry_recorded"] = record_timings(store, "inspect", result["timings_ms"])
     result["report"]=str(report); result["summary_report"]=str(report_base.with_suffix(".txt"))
     if return_capture:
         result["_capture"] = current  # transient; never persisted or exposed by the MCP facade

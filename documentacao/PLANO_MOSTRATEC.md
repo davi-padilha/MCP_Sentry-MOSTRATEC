@@ -74,6 +74,12 @@ As versões estão detalhadas no mapeamento do teste, que é o gabarito e **não
 
 **Totais:** 24 versões, 12 benignas e 12 malignas. Em cada lado, 9 mudam só no código e 3 só na descrição.
 
+Esses são os totais do desenho e gabarito originais v1. Na reanálise autorizada
+em 07/10/2026, uma variante de código foi reclassificada: a v2 tem 13 benignas
+(10 de código, 3 de descrição) e 11 malignas (8 de código, 3 de descrição).
+As duas baterias foram recalculadas sem repetir revisões, com v1 preservada;
+ver [reavaliação e resultados](../pesquisa/02_resultados/04_mostratec_mcp_sentry/REAVALIACAO-CLASSIFICACAO.md).
+
 **Regras do desenho:**
 
 - **Só benignas e malignas.** As classes da FEICIT não entram na análise; a origem de cada mudança fica registrada para rastrear.

@@ -10,6 +10,9 @@ from .review import approve_review_execution
 
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] in {"status", "restore-codex"}:
+        from .administration import main as administration_main
+        return administration_main(sys.argv[1:])
     if len(sys.argv) > 1 and sys.argv[1] == "materialize":
         from .materialize import main as materialize_main
         return materialize_main(sys.argv[2:])
@@ -30,7 +33,7 @@ def main():
         return onboarding_main(sys.argv[1:])
     parser = argparse.ArgumentParser(
         description="MCP Sentry local operator commands",
-        epilog="Também disponíveis: setup, prepare-server, materialize, prepare-codex, prepare-profile, doctor, review-update. Use COMANDO --help.",
+        epilog="Também disponíveis: status, restore-codex, setup, prepare-server, materialize, prepare-codex, prepare-profile, doctor, review-update. Use COMANDO --help.",
     )
     parser.add_argument("command", choices=(
         "approve", "inspect", "accept-current", "promote-execution-envelope",

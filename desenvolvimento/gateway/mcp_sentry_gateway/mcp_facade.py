@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import secrets
 import threading
 
 from .core import APPROVED_VERSION_FILE, SentryError
@@ -105,11 +106,37 @@ VERDICT_OUTPUT_SCHEMA["properties"].update({
     "required_user_confirmation": {"const": CONVERSATION_CONFIRMATION},
 })
 
+REVIEW_BINDING_SCHEMA = {"type": "object", "properties": {
+    key: VERDICT_SCHEMA["properties"][key] for key in ("review_id", "reviewed_hash", "dossier_hash", "policy_version")
+}, "required": ["review_id", "reviewed_hash", "dossier_hash", "policy_version"], "additionalProperties": False}
+RECEIPT_SCHEMA = {"type": "object", "properties": {
+    **REVIEW_BINDING_SCHEMA["properties"],
+    "schema_version": {"const": 1}, "persisted": {"const": True},
+    "decision": VERDICT_SCHEMA["properties"]["decision"],
+    "justification": {"type": "string"}, "risks": VERDICT_SCHEMA["properties"]["risks"],
+    "recorded_at": {"type": "string"}, "execution_authorized": {"const": False},
+}, "additionalProperties": False}
+RECEIPT_SCHEMA["required"] = list(RECEIPT_SCHEMA["properties"])
+for schema in (PENDING_OUTPUT_SCHEMA, CURRENT_REVIEW_OUTPUT_SCHEMA):
+    schema["properties"]["review_binding"] = REVIEW_BINDING_SCHEMA
+    schema["properties"]["timings_ms"] = {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}}
+    schema["properties"]["telemetry_recorded"] = {"type": "boolean"}
+    schema["required"].append("review_binding")
+    schema["properties"]["review_token"] = {"type": "string", "minLength": 1}
+VERDICT_OUTPUT_SCHEMA["properties"].update({
+    "receipt": RECEIPT_SCHEMA, "timings_ms": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}},
+    "telemetry_recorded": {"type": "boolean"},
+})
+VERDICT_OUTPUT_SCHEMA["required"].append("receipt")
+
 ERROR_OUTPUT_SCHEMA = {
     "type": "object",
     "properties": {
         "status": {"const": "security_blocked"},
         "reason": {"type": "string"},
+        "code": {"type": "string"}, "recoverable": {"type": "boolean"},
+        "recovery_tool": {"const": "sentry_review_current_block"},
+        "recovery_instruction": {"type": "string"},
     },
     "required": ["status", "reason"],
     "additionalProperties": False,
@@ -129,6 +156,19 @@ CONTROL_TOOLS = [
 for tool, schema in zip(CONTROL_TOOLS, (STATUS_OUTPUT_SCHEMA, CURRENT_REVIEW_OUTPUT_SCHEMA, PENDING_OUTPUT_SCHEMA, VERDICT_OUTPUT_SCHEMA)):
     tool["outputSchema"] = with_error_output(schema)
     tool["annotations"] = {"readOnlyHint": tool["name"] != "sentry_record_assessment", "destructiveHint": False, "openWorldHint": False}
+
+TOKEN_ASSESSMENT_SCHEMA = {"type": "object", "properties": {
+    "review_token": {"type": "string", "minLength": 1},
+    **{key: VERDICT_SCHEMA["properties"][key] for key in ("decision", "justification", "risks")},
+}, "required": ["review_token", "decision", "justification", "risks"], "additionalProperties": False}
+CONTROL_TOOLS[3]["inputSchema"] = {"type": "object", "properties": {
+    **CONTROL_TOOLS[3]["inputSchema"]["properties"], **TOKEN_ASSESSMENT_SCHEMA["properties"],
+}, "oneOf": [CONTROL_TOOLS[3]["inputSchema"], TOKEN_ASSESSMENT_SCHEMA], "additionalProperties": False}
+CONTROL_TOOLS[3]["description"] += (
+    " Prefer review_token, decision, justification and risks from a complete evidence read "
+    "in this connection. The token binds exactly the evidence read, never a newer update. "
+    "The legacy verdict object remains supported. Do not combine the two formats."
+)
 
 CONVERSATION_AUTHORIZATION_TOOL = {
     "name": "sentry_authorize_once",
@@ -201,6 +241,20 @@ class MinimumMcp:
         self.control_tools = CONTROL_TOOLS + ([CONVERSATION_AUTHORIZATION_TOOL] if conversation_approval else [])
         self._evidence_read = {}
         self._evidence_lock = threading.Lock()
+        self._review_tokens = {}
+        self._tokens_for_review = {}
+
+    def _with_review_token(self, evidence):
+        key = (evidence["review_id"], evidence["dossier_hash"])
+        with self._evidence_lock:
+            if len(self._evidence_read.get(key, set())) == evidence["total_changes"]:
+                token = self._tokens_for_review.get(key)
+                if token is None:
+                    token = secrets.token_urlsafe(24)
+                    self._tokens_for_review[key] = token
+                    self._review_tokens[token] = dict(evidence["review_binding"])
+                return {**evidence, "review_token": token}
+        return evidence
 
     def tools_list(self):
         baseline = self.store / APPROVED_VERSION_FILE
@@ -241,7 +295,7 @@ class MinimumMcp:
             "sentry_security_status": set(),
             "sentry_review_current_block": set(),
             "sentry_review_evidence": {"review_id", "page", "page_size"},
-            "sentry_record_assessment": {"verdict"},
+            "sentry_record_assessment": {"verdict", "review_token", "decision", "justification", "risks"},
             "sentry_authorize_once": {"review_id", "reviewed_hash", "dossier_hash", "confirmation"},
             "sentry_get_pending_review": {"review_id", "page", "page_size"},
             "sentry_submit_verdict": {"verdict"},
@@ -254,7 +308,9 @@ class MinimumMcp:
             raise SentryError(f"{name} does not accept arguments")
         if name in {"sentry_get_pending_review", "sentry_review_evidence"} and "review_id" not in arguments:
             raise SentryError("review_id is required")
-        if name in {"sentry_submit_verdict", "sentry_record_assessment"} and "verdict" not in arguments:
+        if name == "sentry_record_assessment" and set(arguments) not in ({"verdict"}, {"review_token", "decision", "justification", "risks"}):
+            raise SentryError("use verdict OR review_token, decision, justification and risks; do not mix formats")
+        if name == "sentry_submit_verdict" and "verdict" not in arguments:
             raise SentryError("verdict is required")
         if name == "sentry_authorize_once" and set(arguments) != allowed:
             raise SentryError("review_id, reviewed_hash, dossier_hash and confirmation are required")
@@ -290,7 +346,7 @@ class MinimumMcp:
                 key = (evidence["review_id"], evidence["dossier_hash"])
                 with self._evidence_lock:
                     self._evidence_read[key] = set(range(evidence["total_changes"]))
-                return self.tool_result({key: value for key, value in evidence.items() if key not in {"page", "page_size", "total_pages", "has_more", "next_page"}})
+                return self.tool_result(self._with_review_token({key: value for key, value in evidence.items() if key not in {"page", "page_size", "total_pages", "has_more", "next_page"}}))
             if name == "sentry_review_evidence":
                 evidence = get_pending(self.manifest_path, self.store, **arguments)
                 key = (evidence["review_id"], evidence["dossier_hash"])
@@ -298,16 +354,23 @@ class MinimumMcp:
                     read_indices = self._evidence_read.setdefault(key, set())
                     start = (evidence["page"] - 1) * evidence["page_size"]
                     read_indices.update(range(start, start + len(evidence["changes"])))
-                return self.tool_result(evidence)
+                return self.tool_result(self._with_review_token(evidence))
             if name == "sentry_record_assessment":
                 verdict = arguments.get("verdict")
+                if "review_token" in arguments:
+                    token = arguments["review_token"]
+                    with self._evidence_lock:
+                        binding = self._review_tokens.get(token) if isinstance(token, str) else None
+                    if binding is None:
+                        raise SentryError("token de revisão inválido ou de outra conexão", code="REVIEW_TOKEN_INVALID", recovery_tool="sentry_review_current_block")
+                    verdict = {**binding, **{key: arguments[key] for key in ("decision", "justification", "risks")}}
                 if not isinstance(verdict, dict):
                     raise SentryError("schema de parecer inválido")
                 evidence = get_pending(self.manifest_path, self.store, verdict.get("review_id"))
                 key = (evidence["review_id"], evidence["dossier_hash"])
                 with self._evidence_lock:
                     if len(self._evidence_read.get(key, set())) != evidence["total_changes"]:
-                        raise SentryError("complete review evidence has not been read in this gateway session")
+                        raise SentryError("complete review evidence has not been read in this gateway session", code="EVIDENCE_INCOMPLETE", recovery_tool="sentry_review_current_block")
                 result = submit_verdict(self.manifest_path, self.store, verdict, source="client_submitted")
                 if self.conversation_approval and result["status"] == "awaiting_human_approval":
                     result.update(authorization_tool="sentry_authorize_once", required_user_confirmation=CONVERSATION_CONFIRMATION)
@@ -333,4 +396,16 @@ class MinimumMcp:
             # its own verified-copy and pre-spawn checks have succeeded.
             return self.tool_result({"status": "integrity_ok"})
         except (OSError, ValueError, SentryError) as exc:
-            return self.tool_result({"status": "security_blocked", "reason": str(exc)}, is_error=True)
+            recovery = getattr(exc, "recovery_tool", None)
+            payload = {"status": "security_blocked", "reason": str(exc),
+                       "code": getattr(exc, "code", "IO_ERROR" if isinstance(exc, OSError) else "INVALID_REQUEST"),
+                       "recoverable": recovery is not None}
+            if recovery is not None:
+                payload["recovery_tool"] = recovery
+                payload["recovery_instruction"] = (
+                    "Releia as evidências completas com sentry_review_current_block nesta conexão. "
+                    "Analise o dossiê retornado e, se o usuário pediu o registro, reenvie o parecer "
+                    "com o review_token retornado ou com todos os campos de review_binding. "
+                    "Não invente identificadores nem reutilize vínculos de outra revisão."
+                )
+            return self.tool_result(payload, is_error=True)

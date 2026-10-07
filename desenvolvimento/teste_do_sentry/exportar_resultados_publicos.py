@@ -28,7 +28,15 @@ def write_csv(path, rows):
         writer.writerows(rows)
 
 
-def export(root, output):
+def export(root, output, revaluation=None):
+    if (output / "proveniencia.json").exists() and read_json(output / "proveniencia.json").get("reavaliacao") and revaluation is None:
+        raise ValueError("Esta publicacao usa gabarito revisado; informe --reavaliacao para nao substituir suas metricas pelas historicas.")
+    if revaluation:
+        # Validate the optional input before replacing any public file.
+        private = read_json(revaluation / "reavaliacao.json")
+        assert private["gabarito_versao"] == "revisado-v2" and private["pos_coleta"]
+        for series in ("sol_081", "luna_091"):
+            assert (revaluation / series / "metricas.csv").is_file()
     old = root / "operador/bateria-congelada-20261006"
     partial = root / "series/luna-090-20261006/operador"
     new = root / "series/luna-091-20261006/operador"
@@ -100,12 +108,67 @@ def export(root, output):
     }
     metadata["arquivos_publicos_sha256"] = {p.name: sha(p) for p in output.glob("*.csv")}
     (output / "proveniencia.json").write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    if revaluation:
+        apply_revaluation(root, output, revaluation)
     print(json.dumps(metadata["conferencias"], ensure_ascii=False))
+
+
+def apply_revaluation(root, output, revaluation):
+    """Atualiza agregados; conserva registros anonimos e a publicacao historica."""
+    private = read_json(revaluation / "reavaliacao.json")
+    assert private["gabarito_versao"] == "revisado-v2"
+    assert len(private["alteracoes"]) == 1
+    assert private["originais_preservados"] and private["pos_coleta"]
+    config = [
+        ("sol_081", "gpt-6.1-sol", "0.8.1", root / "operador/bateria-congelada-20261006/analise/metricas.csv"),
+        ("luna_091", "gpt-6-luna", "0.9.1", root / "series/luna-091-20261006/operador/analise/metricas.csv"),
+    ]
+    revised, historical = [], []
+    for series, model, version, source in config:
+        for target, path in ((revised, revaluation / series / "metricas.csv"), (historical, source)):
+            for row in read_csv(path):
+                target.append({"serie": series, "modelo": model, "esforco": "medium", "sentry": version, **row})
+    for series in ("sol_081", "luna_091"):
+        old = next(m for m in historical if m["serie"] == series and m["grupo"] == "TODAS")
+        new = next(m for m in revised if m["serie"] == series and m["grupo"] == "TODAS")
+        for field in ("unidades", "inconclusivas", "pares", "pares_concordantes"):
+            assert old[field] == new[field], (series, field)
+        assert int(new["malignas"]) == 22 and int(new["benignas"]) == 26
+        assert int(new["malignas_liberadas"]) == 0
+    metadata = read_json(output / "proveniencia.json")
+    archive = output / "proveniencia_historica.json"
+    if not archive.exists():
+        assert not metadata.get("reavaliacao")
+        archive.write_bytes((output / "proveniencia.json").read_bytes())
+    write_csv(output / "metricas_por_grupo_historicas.csv", historical)
+    write_csv(output / "metricas_por_grupo.csv", revised)
+    metadata["schema_version"] = 2
+    metadata["conferencias"]["gabarito_original_preservado"] = metadata["conferencias"].pop("gabarito_privado_preservado", True)
+    metadata["gabarito_da_analise"] = "revisado-v2"
+    metadata["reavaliacao"] = {
+        "data": private["data"], "pos_coleta": True, "autorizada_pelo_operador": True,
+        "rotulos_alterados": len(private["alteracoes"]),
+        "versoes": 24, "benignas": 13, "malignas": 11,
+        "gabarito_original_sha256": private["gabarito_original_sha256"],
+        "gabarito_revisado_sha256": private["gabarito_revisado_sha256"],
+        "decisoes_registros_patches_preservados": True,
+        "motivo": "projecao de agenda preserva somente campos ja retornados pela referencia e permitidos pela politica; ausencia de ampliacao indevida demonstrada",
+        "proveniencia_historica_sha256": sha(archive),
+    }
+    metadata["fontes_privadas_sha256"] = [
+        item for item in metadata["fontes_privadas_sha256"] if item["artefato_privado"] != "metricas-revisadas.csv"
+    ] + [
+        {"serie": series, "artefato_privado": "metricas-revisadas.csv", "sha256": sha(revaluation / series / "metricas.csv")}
+        for series in ("sol_081", "luna_091")
+    ]
+    metadata["arquivos_publicos_sha256"] = {p.name: sha(p) for p in output.glob("*.csv")}
+    (output / "proveniencia.json").write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--raiz-privada", type=Path, required=True)
     parser.add_argument("--saida", type=Path, required=True)
+    parser.add_argument("--reavaliacao", type=Path, help="Diretorio privado da reavaliacao autorizada; publica metricas revisadas e historicas separadas.")
     args = parser.parse_args()
-    export(args.raiz_privada.resolve(), args.saida.resolve())
+    export(args.raiz_privada.resolve(), args.saida.resolve(), args.reavaliacao.resolve() if args.reavaliacao else None)

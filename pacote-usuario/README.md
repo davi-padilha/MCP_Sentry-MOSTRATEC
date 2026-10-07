@@ -6,7 +6,7 @@ confere os arquivos e a configuração aprovados e só então inicia uma cópia
 verificada do servidor protegido. Se houver mudança, o servidor permanece
 parado até uma revisão e uma decisão do operador.
 
-Esta pasta contém o instalador da candidata **0.9.1**, os wheels **0.9.0**, **0.8.1** e
+Esta pasta contém o instalador da candidata **0.11.0**, os wheels **0.10.0**, **0.9.1**, **0.9.0**, **0.8.1** e
 **0.8.0** preservados para reproduzir os testes anteriores, e estas instruções.
 Esta é a pasta inteira a entregar ao usuário: basta receber este README e o
 arquivo `.whl`, sem baixar o restante do repositório. O wheel é um instalador
@@ -40,7 +40,7 @@ No PowerShell, abra esta pasta e instale o gateway em um ambiente virtual:
 
 ```powershell
 py -3 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install .\mcp_sentry_gateway-0.9.1-py3-none-any.whl
+.\.venv\Scripts\python.exe -m pip install .\mcp_sentry_gateway-0.11.0-py3-none-any.whl
 ```
 
 O gateway não requer uma instalação separada do SDK MCP. O servidor protegido
@@ -374,3 +374,33 @@ ferramentas ou comandos automáticos.
   no diretório de estado e nas dependências externas não incluídas nas raízes.
 - Não é sandbox, antivírus nem mecanismo de autenticação. Os relatórios podem
   conter trechos de código; mantenha o diretório de estado privado.
+
+## Operacao da candidata 0.11.0
+
+O registro pode enviar `review_token`, `decision`, `justification` e `risks`.
+O token e emitido depois da leitura completa das evidencias e vale para o
+mesmo dossie e conexao. O formato `verdict` permanece aceito. Um token nao
+autoriza executar e nao autentica o usuario.
+
+Para consultar todas as conexoes protegidas, sem iniciar servidores:
+
+```powershell
+.\.venv\Scripts\mcp-sentry.exe status --codex-config "$env:USERPROFILE\.codex\config.toml"
+```
+
+O setup retorna o caminho de `codex-installation.json`. Confira a restauracao
+seletiva e depois aplique, se desejado:
+
+```powershell
+.\.venv\Scripts\mcp-sentry.exe restore-codex --installation-record "CAMINHO\codex-installation.json"
+.\.venv\Scripts\mcp-sentry.exe restore-codex --installation-record "CAMINHO\codex-installation.json" --apply
+```
+
+Outras opcoes e edicoes posteriores sao preservadas. Conflitos nas entradas
+selecionadas interrompem a restauracao. Ha um novo backup; pacotes,
+credenciais e estado nao sao removidos. Reinicie as conexoes depois de aplicar.
+Instalacoes antigas sem o registro exigem conferir o backup manualmente.
+
+As medidas de inicializacao ficam fora dos hashes e das respostas nativas.
+O total contem as etapas; os tempos do gateway estao contidos nos turnos.
+As medidas opcionais nao autorizam nem impedem execucao por si mesmas.

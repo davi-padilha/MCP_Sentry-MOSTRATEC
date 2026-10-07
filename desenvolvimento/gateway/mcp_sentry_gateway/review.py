@@ -6,6 +6,7 @@ import os
 import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from time import perf_counter
 
 from .core import APPROVED_VERSION_FILE, SECURITY_REPORTS_DIR, UPDATE_REVIEWS_DIR, SentryError, canon, capture, digest, execution_envelope, inspect, load_execution_envelope, safe_text, write, write_text_report
 
@@ -151,8 +152,9 @@ def _security_status(manifest_path: Path, store: Path):
 
 def get_pending(manifest_path: Path, store: Path, review_id: str, page: int = 1, page_size: int = 20):
     if not isinstance(page, int) or not isinstance(page_size, int) or page < 1 or not 1 <= page_size <= 100: raise SentryError("paginação inválida")
-    record, _ = ensure_pending(manifest_path, store)
-    if record is None or record["review_id"] != review_id: raise SentryError("revisão pendente inexistente")
+    record, result = ensure_pending(manifest_path, store)
+    if record is None or record["review_id"] != review_id:
+        raise SentryError("revisão pendente inexistente", code="REVIEW_ID_MISMATCH", recovery_tool="sentry_review_current_block")
     changes = record["dossier"]["changes"]; start = (page - 1) * page_size
     total_pages = (len(changes) + page_size - 1) // page_size
     if page > max(total_pages, 1): raise SentryError("página inexistente")
@@ -164,17 +166,23 @@ def get_pending(manifest_path: Path, store: Path, review_id: str, page: int = 1,
             "next_page": page + 1 if has_more else None, "changes": changes[start:start + page_size],
             "metadata": record["dossier"]["metadata"], "configuration": record["dossier"]["configuration"],
             "coverage": record["dossier"].get("coverage", {}),
-            "privacy": record["dossier"]["privacy"]}
+            "privacy": record["dossier"]["privacy"],
+            "review_binding": {"review_id": record["review_id"], "reviewed_hash": record["dossier"]["current_hash"],
+                               "dossier_hash": record["dossier"]["dossier_hash"], "policy_version": POLICY_VERSION},
+            "timings_ms": result.get("timings_ms", {}), "telemetry_recorded": result.get("telemetry_recorded", False)}
 
 def submit_verdict(manifest_path: Path, store: Path, verdict, *, source="local_operator_or_fixture", model=None):
     if source not in {"local_operator_or_fixture", "client_submitted"}:
         raise SentryError("origem de parecer inválida")
     if not isinstance(verdict, dict) or set(verdict) != VERDICT_FIELDS: raise SentryError("schema de veredito inválido")
-    if verdict.get("policy_version") != POLICY_VERSION or verdict.get("decision") not in {"allow", "block"}: raise SentryError("política ou decisão inválida")
+    if verdict.get("policy_version") != POLICY_VERSION:
+        raise SentryError("política ou decisão inválida", code="POLICY_VERSION_MISMATCH", recovery_tool="sentry_review_current_block")
+    if verdict.get("decision") not in {"allow", "block"}: raise SentryError("política ou decisão inválida")
     if not isinstance(verdict.get("justification"), str) or not verdict["justification"].strip(): raise SentryError("justificativa inválida")
     if not isinstance(verdict.get("risks"), list) or not all(isinstance(item, str) for item in verdict["risks"]): raise SentryError("riscos inválidos")
     record, result = ensure_pending(manifest_path, store)
-    if record is None or record["review_id"] != verdict["review_id"]: raise SentryError("revisão pendente inexistente")
+    if record is None or record["review_id"] != verdict["review_id"]:
+        raise SentryError("revisão pendente inexistente", code="REVIEW_ID_MISMATCH", recovery_tool="sentry_review_current_block")
     lock = store / UPDATE_REVIEWS_DIR / f"{record['review_id']}.submit.lock"
     try:
         fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
@@ -189,7 +197,7 @@ def submit_verdict(manifest_path: Path, store: Path, verdict, *, source="local_o
         if dossier["current_hash"] != result["dossier"]["current_hash"]:
             raise SentryError("estado mudou durante a submissão do veredito")
         if verdict["reviewed_hash"] != dossier["current_hash"] or verdict["dossier_hash"] != dossier["dossier_hash"]:
-            raise SentryError("veredito não vinculado ao dossiê atual")
+            raise SentryError("veredito não vinculado ao dossiê atual", code="REVIEW_BINDING_MISMATCH", recovery_tool="sentry_review_current_block")
         if record["status"] != "pending": raise SentryError("revisão já concluída")
         record["status"] = "awaiting_human_approval" if verdict["decision"] == "allow" else "blocked"
         record["verdict"] = {
@@ -203,10 +211,20 @@ def submit_verdict(manifest_path: Path, store: Path, verdict, *, source="local_o
                 raise SentryError("modelo de parecer inválido")
             record["assessment_model"] = safe_text(model.encode("utf-8"))
         record["decided_at"] = _now()
+        persistence_started = perf_counter()
         write_text_report(staged_report, _decision_summary(record))
         write(_path(store, record["review_id"]), record)
         os.replace(staged_report, store / SECURITY_REPORTS_DIR / f"review-{record['review_id']}.txt")
-        return {"status": record["status"], "review_id": record["review_id"], "current_hash": dossier["current_hash"]}
+        timings = {"assessment_persistence": (perf_counter()-persistence_started)*1000}
+        from .telemetry import record_timings
+        receipt = {"schema_version": 1, "persisted": True, "review_id": record["review_id"],
+                   "reviewed_hash": dossier["current_hash"], "dossier_hash": dossier["dossier_hash"],
+                   "policy_version": record["policy_version"], "decision": record["verdict"]["decision"],
+                   "justification": record["verdict"]["justification"], "risks": record["verdict"]["risks"],
+                   "recorded_at": record["decided_at"], "execution_authorized": False}
+        return {"status": record["status"], "review_id": record["review_id"], "current_hash": dossier["current_hash"],
+                "receipt": receipt, "timings_ms": timings,
+                "telemetry_recorded": record_timings(store, "record_assessment", timings)}
     finally:
         staged_report.unlink(missing_ok=True)
         lock.unlink(missing_ok=True)

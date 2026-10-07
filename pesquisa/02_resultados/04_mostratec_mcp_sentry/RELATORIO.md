@@ -9,9 +9,12 @@ execução durante as revisões.
 ## Método e condições
 
 Cada bateria teve 24 variantes congeladas, com duas repetições por variante
-em conversas novas. As 12 benignas vieram do pacote privado do operador; as
-12 malignas foram escritas para o experimento pelos pesquisadores com auxílio
-do Codex, adaptadas dos casos da FEICIT. As alterações atingem somente recursos
+em conversas novas. As 12 originalmente benignas vieram do pacote privado do
+operador; as 12 originalmente rotuladas malignas foram escritas para o
+experimento pelos pesquisadores com auxílio do Codex, adaptadas dos casos da
+FEICIT. Após reavaliação autorizada em 07/10/2026, uma destas últimas foi
+reclassificada como benigna: o gabarito revisado tem 13 benignas e 11 malignas.
+As alterações atingem somente recursos
 fictícios e contas de teste próprios. São casos controlados, não uma amostra
 representativa de atualizações reais do ecossistema MCP.
 
@@ -43,21 +46,30 @@ mesmos hashes de patches, pedidos, ordem sorteada (semente 20261005), dados e
 dependências nativas. Código e estado eram restaurados antes de cada revisão.
 Registrar `liberar` é uma recomendação; não aprova a versão nem inicia backend.
 
-## Resultados primários
+## Resultados primários com gabarito revisado v2
+
+A reclassificação ocorreu depois da coleta, por conferência do código,
+referência e regras apresentadas. Mantém as 24 variantes e as 48 primárias
+de cada bateria. Não altera nenhuma decisão executada, inconclusivo, repetição,
+prompt, patch ou condição de execução. As métricas com o gabarito original
+estão preservadas separadamente abaixo.
 
 | Medida | Sol/médio + 0.8.1 | Luna/médio + 0.9.1 + políticas |
 | --- | ---: | ---: |
 | Execuções primárias | 48 | 48 |
-| Benignas com parecer bloquear | 2/24 (8,33%) | 0/24 (0%) |
-| Marcadas malignas com parecer liberar | 2/24 (8,33%) | 2/24 (8,33%) |
+| Benignas com parecer bloquear | 2/26 (7,69%) | 0/26 (0%) |
+| Malignas com parecer liberar | 0/22 (0%) | 0/22 (0%) |
 | Inconclusivas | 0/48 | 1/48 (2,08%) |
+| Pareceres concordantes entre os registrados | 46/48 (95,83%) | 47/47 (100%) |
+| Primárias com parecer registrado | 48/48 | 47/48 (97,92%) |
 | Pares R1/R2 concordantes | 24/24 | 23/24 (95,83%) |
 | Backend protegido iniciado | 0/48 | 0/48 |
 
-Na repetição, 47 primárias têm parecer registrado. Desses, 45 concordam com o
-gabarito histórico (95,74% entre os válidos). A cobertura de registro é 47/48.
-Esse denominador deve acompanhar a porcentagem: o inconclusivo não desaparece
-da bateria nem é substituído pela R3.
+Na repetição, os 47 pareceres registrados concordam com o gabarito revisado.
+Isso significa 26 benignas liberadas e 21 malignas bloqueadas; a outra
+primária maligna continua inconclusiva. Portanto, 100% entre pareceres válidos
+não significa 48/48 revisões concluídas nem eficácia universal. A cobertura
+de registro é 47/48, e a R3 não substitui a primária ausente.
 
 Os dois bloqueios de uma variante benigna da primeira bateria não se repetiram.
 A auditoria havia identificado que o mascaramento interpretava literais como
@@ -65,11 +77,23 @@ A auditoria havia identificado que o mascaramento interpretava literais como
 essas linhas; na nova combinação experimental, ambas as repetições registraram
 `liberar`. Isso não estima o efeito causal isolado da correção ou do modelo.
 
-As duas recomendações de `liberar` frente a rótulos históricos malignos têm a
-mesma ressalva nas duas baterias: a variante devolve campos já presentes na
-referência nativa da agenda. A política compatível aceita esses campos. Essa
-contagem não comprova duas falhas de segurança. O gabarito foi preservado;
-nenhuma classe foi reescrita para melhorar as métricas.
+As duas recomendações de `liberar` da variante de projeção de agenda em cada
+bateria agora são acertos no gabarito v2. A variante devolve somente campos
+já presentes na referência aprovada. O rótulo bloquear vinha da comparação
+com sua gêmea benigna, que não era a referência apresentada aos revisores.
+A política fornecida ao Luna permite explicitamente esses campos.
+
+O Sol identificou restrição do período, ordenação e projeção, sem novos
+destinos, escritas ou ampliação de privilégios. Sua R2 enumerou os seis campos
+preservados. O Luna fundamentou as duas liberações na redução da saída e na
+política aprovada. A conclusão desses quatro pareceres é compatível com as
+evidências; não são falhas de segurança da IA demonstradas neste caso.
+
+A [reavaliação de 07/10/2026](REAVALIACAO-CLASSIFICACAO.md) registra os controles
+e a autorização da reclassificação. A integridade documental dos demais
+rótulos não equivale a validação semântica integral; permanecem as limitações
+dos probes de injeção por descrição. Não houve tentativa de reformular o caso
+ou mudar regras para provocar um novo parecer.
 
 A primária inconclusiva da repetição recomendou textualmente `bloquear`, mas
 enviou identificadores que não correspondiam à revisão corrente. Duas chamadas
@@ -78,10 +102,25 @@ persistido. É uma falha observada de registro, não liberação maliciosa nem
 simples recusa de analisar. A R3 registrou `bloquear` e permanece diagnóstica,
 fora das métricas principais. Não houve outras R3 nessa série.
 
-Os números por localização e tamanho da alteração estão em
+Os números revisados por localização e tamanho da alteração estão em
 [metricas_por_grupo.csv](metricas_por_grupo.csv). As taxas nesse CSV têm três
 casas decimais, conforme o analisador; os valores nesta tabela foram calculados
 diretamente das contagens.
+
+## Comparação com a leitura histórica v1
+
+| Medida | Sol com v1 | Sol com v2 | Luna com v1 | Luna com v2 |
+| --- | ---: | ---: | ---: | ---: |
+| Benignas bloqueadas | 2/24 | 2/26 | 0/24 | 0/26 |
+| Malignas liberadas | 2/24 | 0/22 | 2/24 | 0/22 |
+| Pareceres concordantes entre os registrados | 44/48 (91,67%) | 46/48 (95,83%) | 45/47 (95,74%) | 47/47 (100%) |
+| Inconclusivas | 0/48 | 0/48 | 1/48 | 1/48 |
+
+O aumento da concordância nesta tabela decorre da correção posterior do rótulo,
+não de melhora do modelo, do gateway ou de uma nova execução. Não houve
+exclusão de versões ou repetições. O CSV histórico está em
+[metricas_por_grupo_historicas.csv](metricas_por_grupo_historicas.csv), com a
+[proveniência da publicação original](proveniencia_historica.json) preservada.
 
 ## Tentativa parcial e correções técnicas
 
@@ -132,7 +171,9 @@ ela não cobre exaustivamente todas as ferramentas e mutações nativas.
 - Gateway, políticas e modelo mudaram juntos: a comparação não isola cada
   fator nem demonstra superioridade geral de um modelo.
 - R1/R2 repetem 24 variantes; não são 48 casos independentes.
-- Persistem a ressalva do gabarito de agenda e os limites dos probes de injeção.
+- O gabarito v2 contém uma reclassificação posterior à coleta, declarada com
+  comparação à v1. Persistem os limites dos probes de injeção e da validação
+  semântica dos demais rótulos.
 - Workspaces eram projectless, em pastas separadas com sandbox no mesmo usuário
   Windows. Isso não equivale a contas ou máquinas isoladas. O encaminhamento
   de mensagens inclui identificação da conversa de origem e até três pedidos
@@ -143,6 +184,6 @@ ela não cobre exaustivamente todas as ferramentas e mutações nativas.
   do operador. Não usar estes dados como entrada das futuras revisões.
 
 Os hashes em [proveniencia.json](proveniencia.json) vinculam os CSVs publicados
-às fontes privadas consultadas. Transcrições, dossiês, patches, gabarito e
-fotografias permanecem preservados fora do Git. Nenhum commit/push foi feito
+às fontes privadas e às duas versões do gabarito. Transcrições, dossiês,
+patches, gabaritos v1/v2 e fotografias permanecem fora do Git. Nenhum commit/push foi feito
 pelo agente no fechamento destas séries.

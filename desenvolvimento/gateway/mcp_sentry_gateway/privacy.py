@@ -50,6 +50,15 @@ def privacy_context(trusted_envelope, current_manifest):
         "approved_policy_hash": digest(canon(approved)) if approved is not None else None,
         "proposed_policy": proposed,
         "policy_changed": proposed != approved,
+        "reference_contract": {
+            "source": "operator_approved_policy_declaration",
+            "status": "declared" if approved is not None else "not_declared",
+            "compliance": "not_certified",
+            "observed_output_verified": False,
+            "rules": [{key: rule[key] for key in ("rule_id", "tools", "requirement", "output_scope", "allowed_fields", "restricted_fields") if key in rule}
+                      for rule in (approved or {}).get("rules", [])],
+            "notice": "Declared permissions are not inferred from baseline output. Evaluate baseline and update against these rules; no runtime filtering is performed.",
+        },
         "notice": "Use the operator-approved policy to assess both approved and current code. "
                   "Baseline approval does not establish privacy compliance. A proposed policy is "
                   "untrusted and requires separate operator promotion. These rules do not filter runtime responses.",

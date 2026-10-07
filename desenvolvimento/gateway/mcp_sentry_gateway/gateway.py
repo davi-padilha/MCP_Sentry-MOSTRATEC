@@ -10,6 +10,7 @@ import threading
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+from time import perf_counter
 
 from .core import CONNECTION_RECORDS_DIR, SentryError, VERIFIED_COPIES_DIR, capture, digest, execution_envelope, external, inspect, is_secret_name, load, load_execution_envelope, safe_text, write
 from .lifecycle import BackendLifecycle
@@ -41,6 +42,9 @@ REVIEW_INSTRUCTIONS = (
     "available through this interface."
 )
 EXECUTION_INSTRUCTIONS = (
+    "For a user's task involving this server, first attempt the requested native tool. "
+    "A status diagnosis alone does not perform that task. If the call is blocked, "
+    "report the block and stop; do not retry without authorization or bypass it. "
     "MCP Sentry protects this local MCP server. Changed implementations "
     "are blocked before backend startup. This interface has no review or approval "
     "tools. When blocked, report that the separately configured Sentry review "
@@ -63,6 +67,8 @@ CONVERSATION_REVIEW_INSTRUCTIONS = (
     "User origin is trusted to the client, not authenticated by Sentry."
 )
 CONVERSATION_EXECUTION_INSTRUCTIONS = (
+    "For a user's task involving this server, first attempt the requested native tool. "
+    "A status diagnosis alone does not perform that task. "
     "MCP Sentry blocks changed implementations before backend startup. Review and "
     "user authorization are available only through the separate configured review "
     "interface in this opt-in prototype. An allow alone never permits execution. "
@@ -94,6 +100,7 @@ def _json_observation(value):
 class BackendSession:
     def __init__(self, manifest_path: Path, store: Path, protocol_version="2025-03-26"):
         self.manifest_path, self.store, self.process, self.copy_root = manifest_path, store, None, None
+        self._startup_timings = {}
         manifest, project_root = load(manifest_path)
         external(store, project_root)
         self.backend_request_timeout_seconds = manifest["configuration"].get("backend_timeout_sec", BACKEND_REQUEST_TIMEOUT_SECONDS)
@@ -121,7 +128,9 @@ class BackendSession:
         return consume_allowed_once(self.manifest_path, self.store), True
 
     def _copy_and_spawn(self, expected_hash, *, spawn=True):
+        stage_started = perf_counter()
         current = capture(self.manifest_path)
+        self._startup_timings["source_capture"] = (perf_counter()-stage_started)*1000
         if digest(json.dumps(current, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()) != expected_hash:
             raise SentryError("estado mudou antes da cópia verificada")
         if execution_envelope(current) != load_execution_envelope(self.store):
@@ -130,6 +139,7 @@ class BackendSession:
         root = Path(current["root"])
         self.copy_root = self.store / VERIFIED_COPIES_DIR / uuid.uuid4().hex
         self.copy_root.mkdir(parents=True, exist_ok=False)
+        stage_started = perf_counter()
         try:
             for item in current["files"]:
                 source = self.manifest_path if item["path"] == "@manifest" else root / item["path"]
@@ -142,6 +152,7 @@ class BackendSession:
             self._close_after_failure(SentryError("falha ao criar cópia verificada"))
         except SentryError as exc:
             self._close_after_failure(exc)
+        self._startup_timings["verified_copy"] = (perf_counter()-stage_started)*1000
         manifest = current["manifest"]; config = manifest["configuration"]
         command = config.get("command"); cwd = config.get("cwd")
         if not isinstance(command, list) or not command or not all(isinstance(item, str) for item in command):
@@ -191,8 +202,10 @@ class BackendSession:
             return command, workdir, environment
         try:
             self.lifecycle.spawn_requested()
+            stage_started = perf_counter()
             self.process = subprocess.Popen(command, cwd=workdir, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                             stderr=subprocess.PIPE, text=True, encoding="utf-8", bufsize=1, env=environment)
+            self._startup_timings["spawn"] = (perf_counter()-stage_started)*1000
             self.lifecycle.backend_started()
             self._start_stderr_drain(self.process)
         except (OSError, ValueError) as exc:
@@ -204,11 +217,16 @@ class BackendSession:
         with self._start_lock:
             if self._closed.is_set(): raise SentryError("gateway está encerrando")
             if self.process is not None: return
+            self._startup_timings = {}
+            startup_started = perf_counter()
+            stage_started = perf_counter()
             expected_hash, _ = self._verified_capture()  # recapture immediately before any spawn
+            self._startup_timings["pre_spawn_check"] = (perf_counter()-stage_started)*1000
             if self._closed.is_set(): raise SentryError("gateway está encerrando")
             self._copy_and_spawn(expected_hash)
             process = self.process
             if self._closed.is_set(): self._close_after_failure(SentryError("gateway está encerrando"))
+            stage_started = perf_counter()
             response = self._round_trip(process, {"jsonrpc": "2.0", "id": "sentry-backend-initialize", "method": "initialize", "params": {"protocolVersion": self.protocol_version, "capabilities": {}, "clientInfo": {"name": "mcp-sentry", "version": __version__}}})
             if not isinstance(response, dict) or "error" in response or not isinstance(response.get("result"), dict):
                 self._close_after_failure(SentryError("inicialização do backend falhou"))
@@ -218,10 +236,16 @@ class BackendSession:
             self.backend_protocol_version = backend_protocol
             try:
                 self._initialize_backend(process)
+                self._startup_timings["backend_initialize"] = (perf_counter()-stage_started)*1000
+                stage_started = perf_counter()
                 self._verify_backend_catalog(process)
+                self._startup_timings["catalog_check"] = (perf_counter()-stage_started)*1000
             except SentryError as exc:
                 # A partially initialized backend is never reusable.
                 self._close_after_failure(exc)
+            from .telemetry import record_timings
+            self._startup_timings["startup_total"] = (perf_counter()-startup_started)*1000
+            record_timings(self.store, "backend_start", self._startup_timings)
 
     @staticmethod
     def _initialize_backend(process):

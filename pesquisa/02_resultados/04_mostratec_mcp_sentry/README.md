@@ -8,14 +8,29 @@ das execuções sem publicar o gabarito por caso, os patches ou as transcriçõe
 ## Leitura e arquivos
 
 1. [Relatório e comparação](RELATORIO.md): método, resultados, erros e limites.
-2. [Métricas por grupo](metricas_por_grupo.csv): mesma definição do analisador
-   original, para as duas baterias completas; R3 e tentativa parcial excluídas.
+2. [Métricas por grupo](metricas_por_grupo.csv): gabarito revisado v2, para as
+   duas baterias completas; R3 e tentativa parcial excluídas. A leitura v1 está
+   em [métricas históricas](metricas_por_grupo_historicas.csv).
 3. [Execuções públicas](execucoes_publicas.csv): 109 registros com campos
    selecionados e identificadores anônimos, incluindo R3 e tentativa parcial.
 4. [Eventos técnicos](eventos_tecnicos.csv): incompatibilidade da 0.9.0,
    correções da coleta e falha de registro preservada na série corrigida.
-5. [Proveniência](proveniencia.json): hashes das fontes privadas e dos CSVs
-   publicados, versão instalada, conferências e limites da publicação.
+5. [Proveniência](proveniencia.json): hashes das fontes privadas, gabaritos
+   v1/v2 e CSVs publicados, conferências e limites. A
+   [proveniência histórica](proveniencia_historica.json) conserva a publicação v1.
+6. [Tempos e consumo do Luna](TEMPOS-E-CONSUMO.md): apuração posterior dos logs,
+   estimativas com ressalvas e propostas de melhoria do gateway.
+7. [Reavaliação da classificação de agenda](REAVALIACAO-CLASSIFICACAO.md):
+   reclassificação autorizada, conclusão semântica e efeitos nas duas baterias.
+
+Em 07/10/2026, o operador autorizou uma correção posterior à coleta: uma
+variante passou de bloquear para liberar. O gabarito v2 tem 13 benignas e
+11 malignas. Nenhum parecer ou registro executado mudou; somente a comparação
+com a classe esperada. As métricas históricas permanecem disponíveis.
+
+Na proveniência histórica, o nome `metricas_por_grupo.csv` corresponde à
+primeira exportação; seu hash é o do arquivo agora preservado como
+`metricas_por_grupo_historicas.csv`. A proveniência atual lista ambos os nomes.
 
 ## Séries
 
@@ -52,18 +67,28 @@ substitui a inspeção da fonte nem demonstra sozinho a validade do gabarito.
 
 O [exportador](../../../desenvolvimento/teste_do_sentry/exportar_resultados_publicos.py)
 usa uma lista explícita de campos permitidos. Ele confere os totais e os
-pares contra as métricas originais, sem alterar os arquivos de origem:
+pares e publica a v1 e a v2 separadamente, sem alterar as fontes congeladas:
 
 ```powershell
 py -3 desenvolvimento/teste_do_sentry/exportar_resultados_publicos.py `
   --raiz-privada C:\CAMINHO_PRIVADO `
-  --saida pesquisa/02_resultados/04_mostratec_mcp_sentry
+  --saida pesquisa/02_resultados/04_mostratec_mcp_sentry `
+  --reavaliacao C:\CAMINHO_PRIVADO\operador\reavaliacao-20261007
 ```
 
 A chave de anonimização é efêmera e não é publicada nem gravada. Uma nova
 exportação gera IDs diferentes; decisões, tempos e métricas permanecem os
-mesmos se as fontes não mudarem. Não usar a reexportação para misturar séries
+mesmos se as fontes não mudarem. Nesta reavaliação os registros públicos e
+seus IDs foram mantidos byte a byte: só os agregados e a proveniência mudaram.
+O exportador recusa substituir uma publicação revisada pela leitura histórica
+sem o parâmetro de reavaliação. Não usar a reexportação para misturar séries
 ou substituir recusas e erros. O exportador é específico deste fechamento.
+
+O script [reavaliar_gabarito.py](../../../desenvolvimento/teste_do_sentry/reavaliar_gabarito.py)
+criou a versão privada v2 e recalculou as duas séries, preservando hashes dos
+registros, patches e gabarito original. Não executa novas revisões. O código
+de criação do gabarito a partir do mapeamento original continua produzindo v1;
+ele não incorpora automaticamente a reclassificação documentada.
 
 Credenciais, contas, caminhos locais, IDs Google, IDs de conversas, argumentos
 MCP, justificativas e fotografias não entram no pacote. Isso não anonimiza os

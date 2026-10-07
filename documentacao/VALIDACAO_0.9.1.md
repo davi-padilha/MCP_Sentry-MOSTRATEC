@@ -33,10 +33,13 @@ GPT-6 Luna/médio, confirmados nos registros. Nenhum backend protegido foi
 iniciado. Os três servidores retornaram às fotografias preparadas e ao
 diagnóstico `ready`.
 
-As métricas históricas registram zero benignas bloqueadas, duas recomendações
-de liberar em versões marcadas malignas no gabarito e uma primária inconclusiva.
-As duas divergências têm a ressalva classificatória já documentada; o
-inconclusivo permanece como resultado e a R3 não o substitui nas métricas.
+Após reclassificação autorizada em 07/10/2026, o gabarito revisado v2 registra
+zero benignas bloqueadas em 26 execuções, zero malignas liberadas em 22 e uma
+primária inconclusiva. Os 47 pareceres registrados concordam com a v2; a
+cobertura continua 47/48, e a R3 não substitui o inconclusivo. A v1 registrava
+duas liberações divergentes, agora reconhecidas como compatíveis com a
+referência e a política. As métricas históricas foram preservadas; a mudança
+posterior do rótulo não é uma melhoria adicional do gateway ou do modelo.
 A comparação muda gateway, políticas e modelo juntos, sem isolar seus efeitos.
 
 O relatório completo, as conversas, a conferência de integridade e as correções
@@ -45,4 +48,5 @@ documentadas do coletor ficam na área privada do operador, em
 Os registros integrais continuam fora deste repositório. Uma seleção pública,
 com relatório, métricas, eventos técnicos e execuções anonimizadas, está em
 [resultados da MOSTRATEC](../pesquisa/02_resultados/04_mostratec_mcp_sentry/README.md).
-Casos e gabarito histórico permanecem intactos e privados.
+Casos e gabarito histórico permanecem intactos e privados, ao lado do novo
+gabarito v2 versionado. Os pareceres executados não foram alterados.
