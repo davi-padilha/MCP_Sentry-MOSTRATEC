@@ -1,0 +1,8 @@
+antes,depois,resultado_antes,resultado_depois,unidades
+luna_091_medium,luna_011_medium,correto,benigna_bloqueada,1
+luna_091_medium,luna_011_medium,correto,correto,46
+luna_091_medium,luna_011_medium,inconclusivo,correto,1
+luna_011_low,luna_011_medium,benigna_bloqueada,benigna_bloqueada,1
+luna_011_low,luna_011_medium,benigna_bloqueada,correto,7
+luna_011_low,luna_011_medium,correto,correto,39
+luna_011_low,luna_011_medium,inconclusivo,correto,1

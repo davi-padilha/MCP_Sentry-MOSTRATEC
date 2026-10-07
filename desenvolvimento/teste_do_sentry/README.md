@@ -203,5 +203,18 @@ O roteiro com o estado instalado e os passos do operador está em
 A bateria registra pareceres sem autorizar execuções; aprovação na conversa
 foi parte do piloto, não condição para registrar o parecer da bateria.
 
-A condicao 0.11.0/Luna low esta preparada e aguarda o OK humano de inicio.
-As verificacoes tecnicas e limites estao em [VALIDACAO_0.11.0.md](../../documentacao/VALIDACAO_0.11.0.md).
+A condição 0.11.0/Luna low foi executada em 07/10/2026 após o OK humano:
+48 revisões principais e quatro diagnósticas, com referências restauradas.
+Os resultados anonimizados estão em
+[05_evolucao_011_luna_low](../../pesquisa/02_resultados/05_evolucao_011_luna_low/README.md).
+As verificações técnicas anteriores à coleta e seus limites estão em
+[VALIDACAO_0.11.0.md](../../documentacao/VALIDACAO_0.11.0.md).
+
+A mesma condição 0.11.0 foi repetida com Luna/medium em 07/10/2026:
+48 principais e uma R3, com referências restauradas. Os resultados e a
+comparação das três condições estão em
+[06_evolucao_011_luna_medium](../../pesquisa/02_resultados/06_evolucao_011_luna_medium/README.md).
+O exportador `consolidar_serie_011.py` admite low/medium e rollouts arquivados;
+`comparar_series_011.py` publica apenas transições agregadas, mantendo o mapa
+de casos privado. `preparar_serie_011_medium.py` registra a preparação dessa
+série, sem refazer os testes técnicos da instalação de bytes idênticos.

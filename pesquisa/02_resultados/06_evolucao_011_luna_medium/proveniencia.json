@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "serie": "luna_medium_011",
+  "modelo": "gpt-6-luna",
+  "esforco": "medium",
+  "sentry": "0.11.0",
+  "wheel_sha256": "a3e16dcdca8b71ebe5569be9da5d924ef486325727269d006338c96acb58c8ba",
+  "gabarito_da_analise": "revisado-v2",
+  "gabarito_sha256": "594ef4262c20c709fea3d630ef3e79d28cafbcd508adc7e167647579b685ba8c",
+  "conferencias": {
+    "primarias": 48,
+    "diagnosticas": 1,
+    "pareceres_persistidos_primarias": 48,
+    "recibos_conferidos_primarias": 48,
+    "malignas_bloqueadas": 22,
+    "malignas_liberadas": 0,
+    "benignas_liberadas": 25,
+    "benignas_bloqueadas": 1,
+    "inconclusivas": 0,
+    "acordos_gabarito": 47,
+    "pares_concordantes": 23,
+    "pares": 24,
+    "conversas_com_desvio_roteiro": 0,
+    "primarias_com_erro_registro": 2,
+    "erros_registro_primarias": 2,
+    "tentativas_registro_primarias": 50,
+    "backend_iniciado": false,
+    "modelo_esforco_confirmados": true,
+    "modulos_iguais_wheel_fonte_instalacao": 16,
+    "codigo_nativo_e_aprovacoes_restaurados": true,
+    "casos_pedidos_ordem_gabarito_preservados": true
+  },
+  "fontes_privadas_sha256": {
+    "registro.csv": "e1f65a0f592afa3c2495488bb4b8099742d6fa21ce04e69ec32697df1fb4ac65",
+    "metricas.csv": "ca94912c180a45f984b4badbe9e98afb2da9c92edece9bbd1757b2d8494d0764",
+    "auditoria-final.json": "a92958627b49f40c779381e0d4b97abcfef59782f725fe52b0b2864a465d4333",
+    "consolidacao-privada.json": "8da4d3977ac773a05b236ee6684d25210c882c26422573a9feeb27b6f7c0390b",
+    "congelamento.json": "5cadc9e7779245883245b1eedc67d5a0a01a9c3b96d03809f9cf2cfae7ea6b59"
+  },
+  "publicacao": {
+    "ids": "HMAC com chave efemera nao publicada; mapa somente no arquivo privado de auditoria",
+    "ordem": "por ID anonimo; nao representa ordem de execucao",
+    "nao_incluido": [
+      "gabarito por caso",
+      "casos originais",
+      "patches",
+      "transcricoes",
+      "justificativas",
+      "credenciais",
+      "contas",
+      "caminhos",
+      "IDs de conversas",
+      "argumentos e retornos MCP"
+    ]
+  },
+  "arquivos_publicos_sha256": {
+    "COMPARACAO.md": "1a29da74dd5d2ff17abd89c54e9ba43e2d777b380eded041cb4372fc61e14d8c",
+    "comparacao_proveniencia.json": "446d5792d2df89c6a00f9f7dd13b9f3678f6d5bec6c2bb70a27b0d15889a2054",
+    "comparacao_transicoes.csv": "d8de5fe15b23b8b1c24ee04a01287e5026dddd44d4c1a6bf1f5efa00f034580e",
+    "execucoes_publicas.csv": "962d16c8d0bb6c11d58093ad8ca87c1145b160478b03d5486f3880b6fd8d84a7",
+    "metricas_por_grupo.csv": "ca94912c180a45f984b4badbe9e98afb2da9c92edece9bbd1757b2d8494d0764",
+    "README.md": "c9b96a5f98ebc05a58c4bf5aec69c2ba008ed66a4a469dc843464840c54c854c",
+    "tempos-e-consumo.json": "9a6b188f1ec5d78e4820697b57bf0bf518815e8c800478e9d42c5c9711b5be96",
+    "tempos_gateway.csv": "209a9c856abc960e70c2218cfa39b117bcfdba422fecfcab35f76cc38c21d8ee",
+    "turnos_publicos.csv": "cab2f5bb582678d3bc3ce9884614670787512a9a5ead4866dad122151e3b55be"
+  },
+  "exportador_sha256": "bc7373a3d37e787214455b62ff2036b56584c37718837f14f9e9cc9d48168a85",
+  "comparador_sha256": "2d73fc93663b3a8b59d839ace78b526a92a572aec95e66ca63372f1effec2404",
+  "eventos_operacionais": [
+    {
+      "evento": "fechamento_de_sessoes_antes_revisao_33",
+      "pareceres_alterados": false,
+      "tratamento": "arquivamento reversivel e fechamento de gateways proprios; logs privados preservados"
+    }
+  ]
+}

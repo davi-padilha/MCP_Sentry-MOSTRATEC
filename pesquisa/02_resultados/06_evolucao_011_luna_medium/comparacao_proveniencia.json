@@ -1,0 +1,15 @@
+{
+  "gabarito": "revisado-v2",
+  "gabarito_sha256": "594ef4262c20c709fea3d630ef3e79d28cafbcd508adc7e167647579b685ba8c",
+  "fontes_privadas_sha256": {
+    "luna_091_medium": "568f7956ce45d5712fa5b645719921bca54a914eb47ca17a61410b79bfe5ffc8",
+    "luna_011_low": "35b5f62bed708d2af478210bca290ababc48d1845b2a0a8668e4cb6260c010b6",
+    "luna_011_medium": "e1f65a0f592afa3c2495488bb4b8099742d6fa21ce04e69ec32697df1fb4ac65"
+  },
+  "comparacao_privada_sha256": "8b29e5afafe13c7eedbb23237a12aaae9f54405b7e0faa3847c6aee235ce5d8c",
+  "patches_pedidos_ordem_iguais": true,
+  "wheel_011_low_medium_igual": true,
+  "politicas_011_low_medium_iguais": true,
+  "politicas_091_011_iguais": true,
+  "publicacao": "Somente contagens agregadas. Nenhum ID original, vinculo entre IDs anonimos ou gabarito por caso publicado."
+}

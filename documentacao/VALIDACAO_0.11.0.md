@@ -84,3 +84,20 @@ para os tres servidores. A configuracao ativa do aplicativo foi preservada;
 a proposta da nova serie so sera ativada depois do OK. Nenhuma autorizacao
 de inicio esta ativa. A revisao preliminar anterior da 0.10.0 e todas as
 series historicas continuam separadas e preservadas. Sem commit ou push.
+
+## Atualização após a coleta — 07/10/2026
+
+O texto anterior registra a preparação, antes da autorização de início.
+Após o OK humano, foram concluídas 48 revisões principais e quatro R3
+diagnósticas com GPT-6 Luna/low confirmado nos registros efetivos. Os mesmos
+24 patches, pedidos, ordem, políticas e gabarito v2 foram preservados.
+Os códigos e estados aprovados foram restaurados; os três servidores estão
+`doctor: ready`. O resultado completo está em
+[05_evolucao_011_luna_low](../pesquisa/02_resultados/05_evolucao_011_luna_low/README.md).
+Nenhuma correção posterior foi incorporada à versão durante a bateria.
+
+Após novo pedido humano, a mesma versão foi testada também com Luna/medium:
+48 revisões principais e uma R3, modelo/esforço efetivos confirmados,
+referências restauradas. A conferência reutilizou os controles técnicos
+da instalação de bytes idênticos. Resultado e diagnóstico comparativo:
+[06_evolucao_011_luna_medium](../pesquisa/02_resultados/06_evolucao_011_luna_medium/COMPARACAO.md).
