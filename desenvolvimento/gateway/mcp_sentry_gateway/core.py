@@ -56,14 +56,8 @@ _TEXT_CACHE_BYTES = 0
 _TEXT_CACHE_LIMIT = 32 * 1024 * 1024
 
 
-def _capture_text(sha256, raw):
-    """Cache redacted display text only; every capture still reads and hashes bytes."""
+def _remember_text(sha256, text):
     global _TEXT_CACHE_BYTES
-    with _TEXT_CACHE_LOCK:
-        if sha256 in _TEXT_CACHE:
-            _TEXT_CACHE.move_to_end(sha256)
-            return _TEXT_CACHE[sha256][0]
-    text = safe_text(raw)
     size = len(text.encode("utf-8"))
     if size <= _TEXT_CACHE_LIMIT:
         with _TEXT_CACHE_LOCK:
@@ -73,7 +67,29 @@ def _capture_text(sha256, raw):
                     _TEXT_CACHE_BYTES -= removed_size
                 _TEXT_CACHE[sha256] = (text, size)
                 _TEXT_CACHE_BYTES += size
+
+
+def _capture_text(sha256, raw):
+    """Cache redacted display text only; every capture still reads and hashes bytes."""
+    with _TEXT_CACHE_LOCK:
+        if sha256 in _TEXT_CACHE:
+            _TEXT_CACHE.move_to_end(sha256)
+            return _TEXT_CACHE[sha256][0]
+    text = safe_text(raw)
+    _remember_text(sha256, text)
     return text
+
+
+def _seed_text_cache(captured_files):
+    """P1: reuse redacted text already stored for the same bytes in a trusted capture.
+
+    Text is a function of the bytes (keyed by SHA-256), so files whose hash is
+    unchanged skip the secret-masking regexes. Bytes are still read and hashed
+    on every capture; changed or new files are always redacted afresh.
+    """
+    for item in captured_files:
+        if isinstance(item.get("sha256"), str) and isinstance(item.get("content"), str):
+            _remember_text(item["sha256"], item["content"])
 
 def is_secret_name(value):
     """Recognize common secret-bearing keys across snake, kebab and camel case."""
@@ -197,6 +213,10 @@ def capture(manifest_path, roots_override=None, *, allow_missing=False):
     manifest_raw = manifest_path.read_bytes()
     files = [{"path":"@manifest", "sha256":digest(manifest_raw), "content":safe_text(manifest_raw)}]
     seen=set(); missing=[]
+    # Same test as `root in resolved.parents` for resolved absolute paths, as a
+    # string prefix: Path.parents comparisons dominated capture time (P2).
+    root_prefix = os.path.normcase(str(root)).rstrip("\\/") + os.sep
+    def inside_root(resolved): return os.path.normcase(str(resolved)).startswith(root_prefix)
     for item in roots:
         candidate=(root/item).resolve()
         if not (candidate == root or root in candidate.parents): raise SentryError("raiz de inspeção escapa project_root")
@@ -215,11 +235,11 @@ def capture(manifest_path, roots_override=None, *, allow_missing=False):
             if file.name.startswith(".env") or file.name.lower() in {"credentials.json", "token.json", "client_secret.json"}:
                 raise SentryError("retire credenciais das raízes inspecionadas")
             resolved_file = file.resolve()
-            if not (resolved_file == root or root in resolved_file.parents):
+            if not (resolved_file == root or inside_root(resolved_file)):
                 raise SentryError("arquivo inspecionado escapa project_root")
             if file in seen: continue
             seen.add(file); raw=file.read_bytes(); sha256=digest(raw)
-            files.append({"path":file.relative_to(root).as_posix(), "sha256":sha256, "content":_capture_text(sha256, raw)})
+            files.append({"path":relative.as_posix(), "sha256":sha256, "content":_capture_text(sha256, raw)})
     result = {"manifest":manifest, "root":str(root), "files":sorted(files, key=lambda x:x["path"])}
     if missing:
         result["missing_roots"] = missing
@@ -286,7 +306,8 @@ def inspect(manifest_path:Path, store:Path, *, return_capture=False):
     started = perf_counter()
     baseline_path=store/APPROVED_VERSION_FILE
     if not baseline_path.exists(): raise SentryError("não existe baseline; execute approve primeiro")
-    baseline=json.loads(baseline_path.read_text(encoding="utf-8")); current=capture(manifest_path, allow_missing=True); external(store,Path(current["root"]))
+    baseline=json.loads(baseline_path.read_text(encoding="utf-8")); _seed_text_cache(baseline["capture"]["files"])
+    current=capture(manifest_path, allow_missing=True); external(store,Path(current["root"]))
     captured = perf_counter()
     old={x["path"]:x for x in baseline["capture"]["files"]}; new={x["path"]:x for x in current["files"]}; changes=[]
     for path in sorted(old.keys() | new.keys()):

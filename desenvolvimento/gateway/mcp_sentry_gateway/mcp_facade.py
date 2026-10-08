@@ -6,7 +6,7 @@ import secrets
 import threading
 
 from .core import APPROVED_VERSION_FILE, SentryError
-from .review import POLICY_VERSION, CONVERSATION_CONFIRMATION, authorize_conversation_execution, get_pending, security_status, submit_verdict
+from .review import POLICY_VERSION, CONVERSATION_CONFIRMATION, authorize_conversation_execution, ensure_pending, get_pending, security_status, submit_verdict
 
 VERDICT_SCHEMA = {
     "type": "object",
@@ -243,6 +243,7 @@ class MinimumMcp:
         self.conversation_approval = conversation_approval
         self.control_tools = CONTROL_TOOLS + ([CONVERSATION_AUTHORIZATION_TOOL] if conversation_approval else [])
         self._evidence_read = {}
+        self._evidence_total = {}
         self._evidence_lock = threading.Lock()
         self._review_tokens = {}
         self._tokens_for_review = {}
@@ -341,10 +342,13 @@ class MinimumMcp:
                     public["backend_lifecycle"] = status["backend_lifecycle"]
                 return self.tool_result(public)
             if name == "sentry_review_current_block":
-                status = security_status(self.manifest_path, self.store)
+                # N1: one inspection serves the status and every page, so a
+                # reading never mixes versions. Registration re-inspects.
+                snapshot = ensure_pending(self.manifest_path, self.store)
+                status = security_status(self.manifest_path, self.store, snapshot=snapshot)
                 if not status.get("review_required"):
                     raise SentryError("there is no current review-required block")
-                evidence = get_pending(self.manifest_path, self.store, status["review_id"], page=1, page_size=100)
+                evidence = get_pending(self.manifest_path, self.store, status["review_id"], page=1, page_size=100, snapshot=snapshot)
                 if evidence["has_more"]:
                     # The public evidence API has an explicit size cap. This
                     # convenience call consumes every page so the caller need
@@ -352,19 +356,21 @@ class MinimumMcp:
                     pages = [evidence]
                     page = evidence["next_page"]
                     while page is not None:
-                        item = get_pending(self.manifest_path, self.store, status["review_id"], page=page, page_size=100)
+                        item = get_pending(self.manifest_path, self.store, status["review_id"], page=page, page_size=100, snapshot=snapshot)
                         pages.append(item)
                         page = item["next_page"]
                     evidence = {**evidence, "changes": [change for item in pages for change in item["changes"]], "has_more": False, "next_page": None}
                 key = (evidence["review_id"], evidence["dossier_hash"])
                 with self._evidence_lock:
                     self._evidence_read[key] = set(range(evidence["total_changes"]))
+                    self._evidence_total[key] = evidence["total_changes"]
                 return self.tool_result(self._with_review_token({key: value for key, value in evidence.items() if key not in {"page", "page_size", "total_pages", "has_more", "next_page"}}))
             if name == "sentry_review_evidence":
                 evidence = get_pending(self.manifest_path, self.store, **arguments)
                 key = (evidence["review_id"], evidence["dossier_hash"])
                 with self._evidence_lock:
                     read_indices = self._evidence_read.setdefault(key, set())
+                    self._evidence_total[key] = evidence["total_changes"]
                     start = (evidence["page"] - 1) * evidence["page_size"]
                     read_indices.update(range(start, start + len(evidence["changes"])))
                 return self.tool_result(self._with_review_token(evidence))
@@ -379,11 +385,19 @@ class MinimumMcp:
                     verdict = {**binding, **{key: arguments[key] for key in ("decision", "justification", "risks")}}
                 if not isinstance(verdict, dict):
                     raise SentryError("schema de parecer inválido")
-                evidence = get_pending(self.manifest_path, self.store, verdict.get("review_id"))
-                key = (evidence["review_id"], evidence["dossier_hash"])
+                # N1: a dossier fully read in this session already proves the
+                # evidence condition; submit_verdict then makes the fresh
+                # inspection and rejects any change since that reading.
+                claimed = (verdict.get("review_id"), verdict.get("dossier_hash"))
                 with self._evidence_lock:
-                    if len(self._evidence_read.get(key, set())) != evidence["total_changes"]:
-                        raise SentryError("complete review evidence has not been read in this gateway session", code="EVIDENCE_INCOMPLETE", recovery_tool="sentry_review_current_block")
+                    fully_read = (all(isinstance(part, str) for part in claimed) and claimed in self._evidence_total and
+                                  len(self._evidence_read.get(claimed, set())) == self._evidence_total[claimed])
+                if not fully_read:
+                    evidence = get_pending(self.manifest_path, self.store, verdict.get("review_id"))
+                    key = (evidence["review_id"], evidence["dossier_hash"])
+                    with self._evidence_lock:
+                        if len(self._evidence_read.get(key, set())) != evidence["total_changes"]:
+                            raise SentryError("complete review evidence has not been read in this gateway session", code="EVIDENCE_INCOMPLETE", recovery_tool="sentry_review_current_block")
                 result = submit_verdict(self.manifest_path, self.store, verdict, source="client_submitted")
                 if self.conversation_approval and result["status"] == "awaiting_human_approval":
                     result.update(authorization_tool="sentry_authorize_once", required_user_confirmation=CONVERSATION_CONFIRMATION)

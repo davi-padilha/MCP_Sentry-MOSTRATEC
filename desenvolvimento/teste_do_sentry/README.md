@@ -94,6 +94,20 @@ modelo via tudo o que mudou, como no dossiê do Sentry: D no N‑INT, C2 no
 Connor e C1 no MCPTox. Os casos S0 (sem mudança) ficam de fora, porque o
 Sentry nem chamaria a IA. As outras condições estão no CSV para consulta.
 
+## Tempo de início sem o Codex
+
+`medir_inicio.py` repete o que o Codex faz numa conversa nova (initialize,
+tools/list e uma chamada fixa) direto no gateway de execução e lê os tempos
+internos do Sentry. Serve para comparar antes e depois de uma otimização no
+mesmo computador, trocando só a branch. Feche o Codex antes de medir.
+
+```powershell
+C:\MCP-Sentry-Dev\sentry\Scripts\python.exe desenvolvimento\teste_do_sentry\medir_inicio.py --servidor filesystem --vezes 5 --rotulo antes --saida C:\MCP-Sentry-Dev\medicoes
+```
+
+A primeira rodada fica fora da mediana "a quente". O CSV registra branch,
+commit e se o gateway tinha alterações locais.
+
 ## Tokens e tempos reais (rollouts do Codex)
 
 `medir_tokens_rollouts.py` lê os arquivos de sessão do Codex

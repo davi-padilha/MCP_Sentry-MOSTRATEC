@@ -1,8 +1,15 @@
 # Desenvolvimento do gateway atual
 
-Código-fonte da distribuição 1.0.0 do protótipo. O usuário recebe a pasta
-[instalar-mcp-sentry/](../../instalar-mcp-sentry/README.md), com o wheel e seu manual.
+Código-fonte da versão 1.1.0 do protótipo, ainda em validação. O usuário recebe a pasta
+[instalar-mcp-sentry/](../../instalar-mcp-sentry/README.md), com o wheel e seu manual;
+ela continua entregando a 1.0.0 validada até a validação da 1.1.0.
 O protótipo antigo está em [prototipo-feicit/](../../prototipo-feicit/README.md).
+
+A 1.1.0 reduz o tempo local sem mudar o que a IA recebe: reuso estrito da cópia
+verificada (P4), texto mascarado reaproveitado para bytes idênticos (P1),
+reconferência mais barata antes da cópia (P2 parcial) e uma inspeção por
+leitura do dossiê (N1). Testes de equivalência e medições estão na seção 10 de
+[ANALISE_OTIMIZACOES.md](../../documentacao/ANALISE_OTIMIZACOES.md).
 
 A 1.0.0 distingue erros de campos ausentes e formatos misturados, com instruções
 de recuperação e rejeição de vínculos inválidos. O diff contém 12 linhas de

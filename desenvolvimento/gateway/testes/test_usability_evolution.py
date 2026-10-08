@@ -92,9 +92,10 @@ class RegistrationTests(unittest.TestCase):
         self.assertEqual(result,{"content":[{"type":"text","text":"native value"}]})
         events=[json.loads(p.read_text()) for p in (self.state/"relatorios-de-seguranca/performance").glob("*.json")]
         timings=next(x["timings_ms"] for x in events if x["operation"]=="backend_start")
-        self.assertEqual(set(timings),{"pre_spawn_check","source_capture","verified_copy","spawn","backend_initialize","catalog_check","startup_total"})
+        self.assertEqual(set(timings),{"pre_spawn_check","source_capture","verified_copy","spawn","backend_initialize","catalog_check","startup_total","copy_reused"})
+        self.assertIn(timings["copy_reused"],(0,1))
         self.assertTrue(all(x>=0 for x in timings.values()))
-        self.assertGreaterEqual(timings["startup_total"],sum(v for k,v in timings.items() if k!="startup_total"))
+        self.assertGreaterEqual(timings["startup_total"],sum(v for k,v in timings.items() if k not in {"startup_total","copy_reused"}))
 
 
 class AdministrationTests(unittest.TestCase):

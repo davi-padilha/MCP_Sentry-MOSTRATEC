@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mcp-sentry-gateway"
-version = "1.0.0"
+version = "1.1.0"
 description = "Local integrity gateway for MCP servers over stdio"
 readme = "README.md"
 requires-python = ">=3.11"

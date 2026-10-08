@@ -115,7 +115,10 @@ class UpdateTests(unittest.TestCase):
         gateway, response = self.call()
         self.assertEqual(response["result"]["content"][0]["text"], "ok")
         gateway.backend.close()
-        self.assertFalse(any((self.state / "copias-verificadas").iterdir()))
+        # The discovery copy is gone; only the accepted baseline may be kept for reuse.
+        kept = [path.name for path in (self.state / "copias-verificadas").iterdir() if path.is_dir()]
+        self.assertLessEqual(len(kept), 1)
+        self.assertTrue(all(name.startswith(digest(canon(capture(self.manifest)))[:16]) for name in kept))
 
     def test_catalog_cancel_does_not_spawn(self):
         approve(self.manifest, self.state)
