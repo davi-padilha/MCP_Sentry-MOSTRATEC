@@ -1,0 +1,152 @@
+{
+  "principal": {
+    "duracao_turnos_segundos": {
+      "n": 48,
+      "min": 13.542,
+      "mediana": 22.034,
+      "media": 37.61485416666667,
+      "max": 140.133,
+      "soma": 1805.513
+    },
+    "pausas_entre_turnos_segundos": {
+      "n": 48,
+      "min": 5.0,
+      "mediana": 9.0,
+      "media": 9.25,
+      "max": 19.0,
+      "soma": 444.0
+    },
+    "intervalo_observado_segundos": {
+      "n": 48,
+      "min": 21.0,
+      "mediana": 31.0,
+      "media": 46.854166666666664,
+      "max": 150.0,
+      "soma": 2249.0
+    },
+    "tempo_operacional_min": {
+      "n": 48,
+      "min": 0.35,
+      "mediana": 0.517,
+      "media": 0.7809166666666667,
+      "max": 2.5,
+      "soma": 37.484
+    },
+    "tokens": {
+      "input_tokens": 14641783,
+      "cached_input_tokens": 12993792,
+      "output_tokens": 55873,
+      "reasoning_output_tokens": 18413,
+      "total_tokens": 14697656
+    },
+    "gateway_por_etapa_ms": {
+      "assessment_persistence": {
+        "n": 48,
+        "min": 5.329000006895512,
+        "mediana": 6.115299998782575,
+        "media": 6.327499999315478,
+        "max": 8.549799997126684,
+        "soma": 303.71999996714294
+      },
+      "dossier_build": {
+        "n": 258,
+        "min": 1.3466000091284513,
+        "mediana": 2.7322999958414584,
+        "media": 77.67621395263872,
+        "max": 287.72759999264963,
+        "soma": 20040.46319978079
+      },
+      "evidence_persistence": {
+        "n": 258,
+        "min": 7.338600000366569,
+        "mediana": 10.627499999827705,
+        "media": 13.728839922615132,
+        "max": 424.4831000105478,
+        "soma": 3542.040700034704
+      },
+      "integrity_check": {
+        "n": 258,
+        "min": 9.038099989993498,
+        "mediana": 29.468299995642155,
+        "media": 2947.3417720933626,
+        "max": 44398.07110000402,
+        "soma": 760414.1772000876
+      }
+    }
+  },
+  "diagnostico": {
+    "duracao_turnos_segundos": {
+      "n": 1,
+      "min": 18.517,
+      "mediana": 18.517,
+      "media": 18.517,
+      "max": 18.517,
+      "soma": 18.517
+    },
+    "pausas_entre_turnos_segundos": {
+      "n": 1,
+      "min": 8.0,
+      "mediana": 8.0,
+      "media": 8.0,
+      "max": 8.0,
+      "soma": 8.0
+    },
+    "intervalo_observado_segundos": {
+      "n": 1,
+      "min": 27.0,
+      "mediana": 27.0,
+      "media": 27.0,
+      "max": 27.0,
+      "soma": 27.0
+    },
+    "tempo_operacional_min": {
+      "n": 1,
+      "min": 0.45,
+      "mediana": 0.45,
+      "media": 0.45,
+      "max": 0.45,
+      "soma": 0.45
+    },
+    "tokens": {
+      "input_tokens": 279636,
+      "cached_input_tokens": 248064,
+      "output_tokens": 1016,
+      "reasoning_output_tokens": 285,
+      "total_tokens": 280652
+    },
+    "gateway_por_etapa_ms": {
+      "assessment_persistence": {
+        "n": 1,
+        "min": 23.19869998609647,
+        "mediana": 23.19869998609647,
+        "media": 23.19869998609647,
+        "max": 23.19869998609647,
+        "soma": 23.19869998609647
+      },
+      "dossier_build": {
+        "n": 5,
+        "min": 2.2084999945946038,
+        "mediana": 2.497900015441701,
+        "media": 2.981300005922094,
+        "max": 4.153700021561235,
+        "soma": 14.90650002961047
+      },
+      "evidence_persistence": {
+        "n": 5,
+        "min": 9.172799997031689,
+        "mediana": 10.607000003801659,
+        "media": 11.13547999993898,
+        "max": 15.425299992784858,
+        "soma": 55.6773999996949
+      },
+      "integrity_check": {
+        "n": 5,
+        "min": 12.712900002952665,
+        "mediana": 15.921799989882857,
+        "media": 48.87471999390982,
+        "max": 171.70399997849017,
+        "soma": 244.3735999695491
+      }
+    }
+  }
+}

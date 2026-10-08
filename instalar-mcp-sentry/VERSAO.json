@@ -1,0 +1,44 @@
+{
+  "versao": "1.0.0",
+  "data_validacao": "2026-10-07",
+  "escopo": "Prototipo Windows; ferramentas MCP locais stdio",
+  "wheel": "mcp_sentry_gateway-1.0.0-py3-none-any.whl",
+  "wheel_sha256": "90c4f944160c03fbf90e9f7b1fc4777a86c567b9c223a92c2d08ce38c7cc4b4f",
+  "validacao_tecnica": {
+    "testes_total": 110,
+    "passaram": 109,
+    "ignorados": 1,
+    "motivo_ignorado": "symlink no Windows",
+    "python_suite_instalador": "3.12.14",
+    "python_testes_novos_sdk": "3.14.5",
+    "conexoes_sdk": 5,
+    "schemas_validos": true,
+    "leituras_nativas": [
+      "git_log",
+      "list_directory",
+      "consultar_agenda"
+    ],
+    "instalacao_limpa": true,
+    "upgrade_011_para_100": true,
+    "modulos_fonte_wheel_instalacao_identicos": 16,
+    "backend_alterado_iniciado": false
+  },
+  "baterias_modelo": {
+    "estado": "adiada pelo usuario; tentativa parcial cancelada e excluida dos resultados finais",
+    "bateria_100_concluida": false,
+    "evidencias_parciais": "somente na area privada, identificadas como tentativa cancelada",
+    "futura_coleta": {
+      "modelo": "gpt-6-luna",
+      "esforcos": [
+        "low",
+        "medium"
+      ],
+      "primarias_planejadas": 96,
+      "casos_congelados": 24,
+      "repeticoes_primarias": 2,
+      "r3": "diagnostica somente se R1/R2 discordarem",
+      "gabarito": "revisado-v2",
+      "inicio": "somente apos nova requisicao humana"
+    }
+  }
+}

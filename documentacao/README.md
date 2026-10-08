@@ -1,6 +1,8 @@
 # Documentação e planejamento atuais
 
 - [Plano MOSTRATEC](PLANO_MOSTRATEC.md): etapas, prioridades e critérios de conclusão.
+- [Análise antes da 1.0](ANALISE_PRE_1.0.md): funcionamento, ajustes remanescentes,
+  achados estáticos e critérios para fechar a primeira versão estável do protótipo.
 - [Resultados MOSTRATEC](../pesquisa/02_resultados/04_mostratec_mcp_sentry/README.md): comparação das duas baterias e dados públicos sem gabarito por caso.
 - [Validação 0.9.1](VALIDACAO_0.9.1.md): correção de protocolo e encerramento da repetição Luna/médio.
 - [Guia do piloto](GUIA_PILOTO.md): preparação e verificações técnicas.
@@ -10,4 +12,6 @@
 
 Os caminhos dos comandos foram atualizados após a reorganização. Os registros
 históricos descrevem testes já realizados; a reorganização não representa um novo piloto.
-Para instalação e uso pelo usuário, consulte [pacote-usuario/README.md](../pacote-usuario/README.md).
+Para instalação e uso pelo usuário, consulte [instalar-mcp-sentry/README.md](../instalar-mcp-sentry/README.md).
+
+- [Validação 1.0.0](VALIDACAO_1.0.0.md): distribuição e regressão do protótipo.

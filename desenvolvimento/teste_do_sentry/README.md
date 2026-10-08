@@ -232,3 +232,14 @@ O exportador `consolidar_serie_011.py` admite low/medium e rollouts arquivados;
 `comparar_series_011.py` publica apenas transições agregadas, mantendo o mapa
 de casos privado. `preparar_serie_011_medium.py` registra a preparação dessa
 série, sem refazer os testes técnicos da instalação de bytes idênticos.
+
+A coleta nova Sentry 1.0.0 / Luna medium foi concluída em 07/10/2026:
+48 principais e uma R3; auditoria estrita aprovada, títulos conferidos,
+conversas arquivadas e referências restauradas. Relatório e dados:
+[08_evolucao_100_luna_medium](../../pesquisa/02_resultados/08_evolucao_100_luna_medium/README.md).
+
+A coleta nova Sentry 1.0.0 / Luna high foi concluída em 07/10/2026:
+48 principais e uma R3; auditoria estrita aprovada, títulos conferidos,
+conversas arquivadas e referências restauradas. Preparador e consolidador
+aceitam high, mantendo os controles. Relatório e dados:
+[09_evolucao_100_luna_high](../../pesquisa/02_resultados/09_evolucao_100_luna_high/README.md).

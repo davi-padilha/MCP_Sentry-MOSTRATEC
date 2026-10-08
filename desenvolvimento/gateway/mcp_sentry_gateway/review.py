@@ -167,6 +167,7 @@ def get_pending(manifest_path: Path, store: Path, review_id: str, page: int = 1,
             "metadata": record["dossier"]["metadata"], "configuration": record["dossier"]["configuration"],
             "coverage": record["dossier"].get("coverage", {}),
             "privacy": record["dossier"]["privacy"],
+            "review_guidance": record["dossier"].get("review_guidance", {}),
             "review_binding": {"review_id": record["review_id"], "reviewed_hash": record["dossier"]["current_hash"],
                                "dossier_hash": record["dossier"]["dossier_hash"], "policy_version": POLICY_VERSION},
             "timings_ms": result.get("timings_ms", {}), "telemetry_recorded": result.get("telemetry_recorded", False)}

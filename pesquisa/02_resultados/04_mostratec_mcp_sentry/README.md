@@ -21,10 +21,14 @@ das execuções sem publicar o gabarito por caso, os patches ou as transcriçõe
 6. [Tempos e consumo do Luna](TEMPOS-E-CONSUMO.md): apuração posterior dos logs,
    estimativas com ressalvas e propostas de melhoria do gateway.
 7. [Reavaliação da classificação de agenda](REAVALIACAO-CLASSIFICACAO.md):
-   reclassificação autorizada, conclusão semântica e efeitos nas duas baterias.
+   reclassificação autorizada e adendo de revisão das 24 variantes, com limites
+   metodológicos e conferência das quatro baterias completas.
 8. [Tokens e tempos das 109 conversas históricas](TOKENS_E_TEMPOS.md):
    contadores por turno e série, cache, tamanho dos dossiês e duração;
    primárias, R3 e tentativa parcial separadas, sem novas revisões.
+9. [Conferência das 24 variantes](CONFERENCIA-SEMANTICA-24.json): agregado
+   da revisão semântica, contagens e hashes de reprodução; confirma a v2,
+   sem divulgar o mapeamento privado ou substituir resultados anteriores.
 
 Em 07/10/2026, o operador autorizou uma correção posterior à coleta: uma
 variante passou de bloquear para liberar. O gabarito v2 tem 13 benignas e

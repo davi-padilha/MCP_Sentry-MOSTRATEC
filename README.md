@@ -30,17 +30,19 @@ cliente precisa de uma forma de detectar mudanças antes de iniciar o serviço.
 ## Guia rápido da estrutura
 
 **Para entregar o MCP Sentry a um usuário, envie somente a pasta
-[pacote-usuario/](pacote-usuario/README.md).** Ela contém:
+[instalar-mcp-sentry/](instalar-mcp-sentry/README.md).** Ela contém:
 
-- `mcp_sentry_gateway-0.8.0-py3-none-any.whl`: instalador Python do gateway.
-- `README.md`: requisitos, instalação, configuração e uso.
+- `mcp_sentry_gateway-1.0.0-py3-none-any.whl`: pacote Python do gateway.
+- `instalar.ps1`: instalação local assistida.
+- Guias de instalação, configuração, privacidade, diagnóstico e somas SHA-256.
 
 O usuário precisa ter Python 3.11+ e o runtime do servidor protegido. Os MCPs,
 suas credenciais e dados são específicos de cada usuário e não integram este pacote.
 
 | Pasta | Finalidade |
 | --- | --- |
-| `pacote-usuario/` | Os arquivos que o usuário recebe. |
+| `instalar-mcp-sentry/` | Distribuição atual para instalar e usar o gateway. |
+| `pacote-usuario/` | Distribuições anteriores preservadas para reprodução. |
 | `desenvolvimento/gateway/` | Código, testes e empacotamento da versão atual. |
 | `prototipo-feicit/` | Versão anterior e cenários da FEICIT, preservados para reprodução. |
 | `documentacao/` | Guias do piloto e registros técnicos. |
@@ -134,7 +136,7 @@ textuais em `documentacao/VALIDACAO_*.md` foram mantidos como histórico.
 
 ## Por onde começar
 
-1. Para instalar e usar o gateway, consulte [pacote-usuario/](pacote-usuario/README.md).
+1. Para instalar e usar o gateway, consulte [instalar-mcp-sentry/](instalar-mcp-sentry/README.md).
 2. Para continuar o projeto, siga o [plano MOSTRATEC](documentacao/PLANO_MOSTRATEC.md):
    etapa 2 encerrada por enquanto; sequência 1 → 3 → 4 e etapa 5 em paralelo.
 3. Para consultar a pesquisa, comece por [pesquisa/02_resultados/](pesquisa/02_resultados/README.md).

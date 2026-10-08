@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "serie": "luna_high_100",
+  "modelo": "gpt-6-luna",
+  "esforco": "high",
+  "sentry": "1.0.0",
+  "wheel_sha256": "90c4f944160c03fbf90e9f7b1fc4777a86c567b9c223a92c2d08ce38c7cc4b4f",
+  "gabarito_da_analise": "revisado-v2",
+  "gabarito_sha256": "594ef4262c20c709fea3d630ef3e79d28cafbcd508adc7e167647579b685ba8c",
+  "conferencias": {
+    "primarias": 48,
+    "diagnosticas": 1,
+    "pareceres_persistidos_primarias": 48,
+    "recibos_conferidos_primarias": 48,
+    "malignas_bloqueadas": 22,
+    "malignas_liberadas": 0,
+    "benignas_liberadas": 25,
+    "benignas_bloqueadas": 1,
+    "inconclusivas": 0,
+    "acordos_gabarito": 47,
+    "pares_concordantes": 23,
+    "pares": 24,
+    "conversas_com_desvio_roteiro": 0,
+    "primarias_com_erro_registro": 1,
+    "erros_registro_primarias": 1,
+    "tentativas_registro_primarias": 49,
+    "backend_iniciado": false,
+    "modelo_esforco_confirmados": true,
+    "modulos_iguais_wheel_fonte_instalacao": 16,
+    "codigo_nativo_e_aprovacoes_restaurados": true,
+    "casos_pedidos_ordem_gabarito_preservados": true
+  },
+  "fontes_privadas_sha256": {
+    "registro.csv": "639f405aa834a69a2e2f5f47f8e44f90d44c7bdb88b6085417b69993d7ae0133",
+    "metricas.csv": "ca94912c180a45f984b4badbe9e98afb2da9c92edece9bbd1757b2d8494d0764",
+    "auditoria-final.json": "443d759c2435ff8f3dff209bc7f3360ad5310b8d42211b421893ed16d3fc8f7c",
+    "consolidacao-privada.json": "f6e1a2fc58641f4ad25db15cfc836fc7621e11a0dccdf8294e22fae73602ae23",
+    "congelamento.json": "0a7c13ccef6b5dbed9bd9335cd930592f99291c5fdfd5b0994e86bbe2b4f0018"
+  },
+  "publicacao": {
+    "ids": "HMAC com chave efemera nao publicada; mapa somente no arquivo privado de auditoria",
+    "ordem": "por ID anonimo; nao representa ordem de execucao",
+    "nao_incluido": [
+      "gabarito por caso",
+      "casos originais",
+      "patches",
+      "transcricoes",
+      "justificativas",
+      "credenciais",
+      "contas",
+      "caminhos",
+      "IDs de conversas",
+      "argumentos e retornos MCP"
+    ]
+  },
+  "arquivos_publicos_sha256": {
+    "execucoes_publicas.csv": "dc836a440e3dc8c9d186706032cf1d283526088bcb859d204560386a300889a4",
+    "metricas_por_grupo.csv": "ca94912c180a45f984b4badbe9e98afb2da9c92edece9bbd1757b2d8494d0764",
+    "tempos-e-consumo.json": "79ac6d484bd6a4db726008fc86e1a14d9e079cb4fa710c7cc798df2f9399f190",
+    "tempos_gateway.csv": "2eda20a57ebea09d71d26f2029011719699b2aa71b265b8c9e3d2a381c424a5f",
+    "turnos_publicos.csv": "f058b1e01cecbc73feea79a62fca5b8a9f5a0e9a9a8863c4ebd72d269e742375"
+  }
+}

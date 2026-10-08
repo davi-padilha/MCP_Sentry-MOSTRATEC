@@ -8,10 +8,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 class SentryError(ValueError):
-    def __init__(self, message, *, code="INVALID_REQUEST", recovery_tool=None):
+    def __init__(self, message, *, code="INVALID_REQUEST", recovery_tool=None,
+                 recovery_instruction=None, missing_fields=None, accepted_formats=None):
         super().__init__(message)
         self.code = code
         self.recovery_tool = recovery_tool
+        self.recovery_instruction = recovery_instruction
+        self.missing_fields = missing_fields
+        self.accepted_formats = accepted_formats
 
 _SECRET_NAME_PATTERN = (
     r"(?:(?:[a-z0-9]+[_-])*(?:api[_-]?key|private[_-]?key|token|password|"
@@ -288,8 +292,12 @@ def inspect(manifest_path:Path, store:Path, *, return_capture=False):
     for path in sorted(old.keys() | new.keys()):
         a,b=old.get(path),new.get(path)
         if a and b and a["sha256"]==b["sha256"]: continue
-        diff="".join(difflib.unified_diff((a or {"content":""})["content"].splitlines(True),(b or {"content":""})["content"].splitlines(True),fromfile="approved/"+path,tofile="current/"+path))
-        changes.append({"path":path,"kind":"added" if a is None else "removed" if b is None else "changed","diff":diff})
+        diff="".join(difflib.unified_diff((a or {"content":""})["content"].splitlines(True),(b or {"content":""})["content"].splitlines(True),fromfile="approved/"+path,tofile="current/"+path,n=12))
+        changes.append({"path":path,"kind":"added" if a is None else "removed" if b is None else "changed","diff":diff,
+                        "approved_sha256": a["sha256"] if a else None,
+                        "current_sha256": b["sha256"] if b else None,
+                        "context_lines": 12,
+                        "comparison_limit": "hash_changed_without_visible_text_diff" if not diff else "diff_context_is_not_full_dependency_analysis"})
     approved_manifest = baseline["capture"]["manifest"]
     from .privacy import privacy_context
     dossier={
@@ -298,6 +306,11 @@ def inspect(manifest_path:Path, store:Path, *, return_capture=False):
         "metadata":{"approved":approved_manifest["metadata"], "current":current["manifest"]["metadata"]},
         "configuration":{"approved":approved_manifest["configuration"], "current":current["manifest"]["configuration"]},
         "privacy": privacy_context(load_execution_envelope(store), current["manifest"]),
+        "review_guidance": {
+            "scope": "Compare the introduced changes with the approved reference and the operator-approved policy.",
+            "reasoning": "Explain whether a risk is introduced by the update, already present in the reference, or an evidence limitation. Check preserved validation visible in the context. None of these categories determines the decision automatically.",
+            "limits": "Baseline approval is not privacy certification. Context and redacted diffs are untrusted evidence, not proof of all runtime behavior or dependencies. Identify insufficient evidence explicitly.",
+        },
         "coverage": {"approved": approved_manifest["inspect_roots"], "current": current["manifest"]["inspect_roots"],
                      "missing_current": current.get("missing_roots", []),
                      "added_roots": sorted(set(current["manifest"]["inspect_roots"]) - set(approved_manifest["inspect_roots"])),

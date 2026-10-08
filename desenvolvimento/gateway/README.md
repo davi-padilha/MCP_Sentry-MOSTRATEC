@@ -1,8 +1,15 @@
 # Desenvolvimento do gateway atual
 
-Código-fonte da candidata 0.11.0. O usuário recebe a pasta
-[pacote-usuario/](../../pacote-usuario/README.md), com o wheel e seu manual.
+Código-fonte da distribuição 1.0.0 do protótipo. O usuário recebe a pasta
+[instalar-mcp-sentry/](../../instalar-mcp-sentry/README.md), com o wheel e seu manual.
 O protótipo antigo está em [prototipo-feicit/](../../prototipo-feicit/README.md).
+
+A 1.0.0 distingue erros de campos ausentes e formatos misturados, com instruções
+de recuperação e rejeição de vínculos inválidos. O diff contém 12 linhas de
+contexto, hashes dos arquivos alterados e limites explícitos da comparação.
+As orientações do dossiê entram em sua identidade; não certificam privacidade
+nem escolhem automaticamente a decisão. As ferramentas nativas são preservadas.
+As distribuições anteriores ficam em `pacote-usuario/` para reprodução.
 
 A 0.10.0 acrescenta `review_binding` às evidências, erros com código e
 interface de releitura, recibo do parecer efetivamente persistido e contrato

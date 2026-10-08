@@ -118,6 +118,7 @@ RECEIPT_SCHEMA = {"type": "object", "properties": {
 }, "additionalProperties": False}
 RECEIPT_SCHEMA["required"] = list(RECEIPT_SCHEMA["properties"])
 for schema in (PENDING_OUTPUT_SCHEMA, CURRENT_REVIEW_OUTPUT_SCHEMA):
+    schema["properties"]["review_guidance"] = {"type": "object"}
     schema["properties"]["review_binding"] = REVIEW_BINDING_SCHEMA
     schema["properties"]["timings_ms"] = {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}}
     schema["properties"]["telemetry_recorded"] = {"type": "boolean"}
@@ -137,6 +138,8 @@ ERROR_OUTPUT_SCHEMA = {
         "code": {"type": "string"}, "recoverable": {"type": "boolean"},
         "recovery_tool": {"const": "sentry_review_current_block"},
         "recovery_instruction": {"type": "string"},
+        "missing_fields": {"type": "array", "items": {"type": "string"}},
+        "accepted_formats": {"type": "array", "items": {"type": "array", "items": {"type": "string"}}},
     },
     "required": ["status", "reason"],
     "additionalProperties": False,
@@ -308,8 +311,18 @@ class MinimumMcp:
             raise SentryError(f"{name} does not accept arguments")
         if name in {"sentry_get_pending_review", "sentry_review_evidence"} and "review_id" not in arguments:
             raise SentryError("review_id is required")
-        if name == "sentry_record_assessment" and set(arguments) not in ({"verdict"}, {"review_token", "decision", "justification", "risks"}):
-            raise SentryError("use verdict OR review_token, decision, justification and risks; do not mix formats")
+        if name == "sentry_record_assessment":
+            token_fields = {"review_token", "decision", "justification", "risks"}
+            formats = [sorted(token_fields), ["verdict"]]
+            if "verdict" in arguments and len(arguments) != 1:
+                raise SentryError("use only one assessment format", code="ASSESSMENT_FORMAT_MIXED",
+                                 accepted_formats=formats,
+                                 recovery_instruction="Reenvie apenas review_token, decision, justification e risks, ou apenas o objeto verdict. Não misture os formatos; não invente vínculos.")
+            if "verdict" not in arguments and set(arguments) != token_fields:
+                missing = sorted(token_fields - set(arguments))
+                raise SentryError("assessment fields are missing", code="ASSESSMENT_FIELDS_MISSING",
+                                 missing_fields=missing, accepted_formats=formats,
+                                 recovery_instruction="Complete os campos ausentes usando o review_token da leitura completa nesta conexão e reenvie, se o usuário pediu o registro. Se não possui o token ou a revisão mudou, releia com sentry_review_current_block. Não invente o token.")
         if name == "sentry_submit_verdict" and "verdict" not in arguments:
             raise SentryError("verdict is required")
         if name == "sentry_authorize_once" and set(arguments) != allowed:
@@ -399,7 +412,11 @@ class MinimumMcp:
             recovery = getattr(exc, "recovery_tool", None)
             payload = {"status": "security_blocked", "reason": str(exc),
                        "code": getattr(exc, "code", "IO_ERROR" if isinstance(exc, OSError) else "INVALID_REQUEST"),
-                       "recoverable": recovery is not None}
+                       "recoverable": recovery is not None or bool(getattr(exc, "recovery_instruction", None))}
+            for field in ("missing_fields", "accepted_formats"):
+                value = getattr(exc, field, None)
+                if value is not None:
+                    payload[field] = value
             if recovery is not None:
                 payload["recovery_tool"] = recovery
                 payload["recovery_instruction"] = (
@@ -408,4 +425,6 @@ class MinimumMcp:
                     "com o review_token retornado ou com todos os campos de review_binding. "
                     "Não invente identificadores nem reutilize vínculos de outra revisão."
                 )
+            if getattr(exc, "recovery_instruction", None):
+                payload["recovery_instruction"] = exc.recovery_instruction
             return self.tool_result(payload, is_error=True)
