@@ -14,7 +14,7 @@ from time import perf_counter
 
 from .core import CONNECTION_RECORDS_DIR, SentryError, VERIFIED_COPIES_DIR, capture, digest, execution_envelope, external, inspect, is_secret_name, load, load_execution_envelope, safe_text, write
 from .lifecycle import BackendLifecycle
-from . import verified_copies
+from . import process_tree, verified_copies
 from . import __version__
 from .mcp_facade import MinimumMcp
 from .review import consume_allowed_once
@@ -103,6 +103,7 @@ class BackendSession:
         self.manifest_path, self.store, self.process, self.copy_root = manifest_path, store, None, None
         self._startup_timings = {}
         self._copy_lease, self._reusable_copy, self._copy_failed = None, False, False
+        self._process_tree = None
         manifest, project_root = load(manifest_path)
         external(store, project_root)
         self.backend_request_timeout_seconds = manifest["configuration"].get("backend_timeout_sec", BACKEND_REQUEST_TIMEOUT_SECONDS)
@@ -141,11 +142,13 @@ class BackendSession:
         root = Path(current["root"])
         stage_started = perf_counter()
         try:
-            # A kept copy is reused only for the permanent baseline and only if
-            # it holds exactly the approved bytes and nothing else (P4).
+            # A kept copy is reused only for the permanent baseline, only where
+            # the whole backend process tree can be contained, and only if it
+            # holds exactly the approved bytes and nothing else (P4).
             self._copy_lease = verified_copies.lease(
                 self.store / VERIFIED_COPIES_DIR, expected_hash, current["files"],
-                current["manifest"]["configuration"].get("cwd", "."), reusable=self._reusable_copy)
+                current["manifest"]["configuration"].get("cwd", "."),
+                reusable=self._reusable_copy and process_tree.supported())
             self.copy_root = self._copy_lease.root
             self._startup_timings["copy_reused"] = 1 if self._copy_lease.reused else 0
             for item in [] if self._copy_lease.reused else current["files"]:
@@ -211,7 +214,10 @@ class BackendSession:
             self.lifecycle.spawn_requested()
             stage_started = perf_counter()
             self.process = subprocess.Popen(command, cwd=workdir, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                            stderr=subprocess.PIPE, text=True, encoding="utf-8", bufsize=1, env=environment)
+                                            stderr=subprocess.PIPE, text=True, encoding="utf-8", bufsize=1, env=environment,
+                                            creationflags=process_tree.creation_flags())
+            # Started suspended; every descendant is created inside the job.
+            self._process_tree = process_tree.ProcessTree.contain(self.process)
             self._startup_timings["spawn"] = (perf_counter()-stage_started)*1000
             self.lifecycle.backend_started()
             self._start_stderr_drain(self.process)
@@ -381,15 +387,19 @@ class BackendSession:
             for stream in (self.process.stdin, self.process.stdout, self.process.stderr):
                 if stream is not None: stream.close()
             self.process = None
+        # Descendants of the backend die with it; a copy is kept only when the
+        # whole tree is confirmed gone, so no survivor can write into it.
+        tree_gone = self._process_tree.terminate() if self._process_tree is not None else False
+        self._process_tree = None
         if self._stderr_thread is not None:
             self._stderr_thread.join(timeout=1)
             self._stderr_thread = None
         if self._copy_lease is not None:
             lease, self._copy_lease = self._copy_lease, None
             try:
-                # Only a copy that served a backend without failure may be kept;
-                # it is fully rechecked before any later reuse.
-                lease.release(keep=not self._copy_failed)
+                # Only a copy that served a contained backend without failure
+                # may be kept; it is fully rechecked before any later reuse.
+                lease.release(keep=not self._copy_failed and tree_gone)
             except OSError as exc:
                 # Preserve the path for diagnosis and make incomplete cleanup
                 # observable instead of silently declaring success.

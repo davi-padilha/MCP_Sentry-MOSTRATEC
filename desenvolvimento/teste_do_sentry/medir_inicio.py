@@ -157,6 +157,25 @@ def git(*args):
         return ""
 
 
+PACOTE = r"""
+import hashlib, json, pathlib, mcp_sentry_gateway as m
+pasta = pathlib.Path(m.__file__).parent
+h = hashlib.sha256()
+for f in sorted(pasta.glob("*.py")):
+    h.update(f.name.encode() + b"\0" + f.read_bytes() + b"\0")
+print(json.dumps({"pacote": str(pasta), "versao": m.__version__, "pacote_sha256": h.hexdigest()}))
+"""
+
+
+def pacote_importado(python):
+    """Caminho, versão e hash do código que o gateway medido realmente importa."""
+    try:
+        saida = subprocess.run([python, "-c", PACOTE], capture_output=True, text=True, encoding="utf-8", timeout=30)
+        return json.loads(saida.stdout)
+    except (OSError, ValueError, subprocess.TimeoutExpired):
+        return {"pacote": "", "versao": "", "pacote_sha256": ""}
+
+
 def resumir(linhas):
     campos = ("ate_primeiro_resultado_ms", "tools_list_ms", "primeira_chamada_ms",
               "inspecao_integrity_check_ms", "verified_copy_ms", "source_capture_ms", "pre_spawn_check_ms", "startup_total_ms")
@@ -200,9 +219,10 @@ def main(argv=None):
     contexto = {"servidor": args.servidor, "rotulo": args.rotulo, "branch": git("branch", "--show-current"),
                 "commit": git("rev-parse", "--short", "HEAD"),
                 "alteracoes_locais": "sim" if git("status", "--porcelain", "--", "desenvolvimento/gateway") else "nao",
-                "momento": momento}
+                "momento": momento, **pacote_importado(args.python)}
     print(f"{args.servidor}: branch {contexto['branch']} @ {contexto['commit']}"
           f" (gateway com alterações locais: {contexto['alteracoes_locais']})")
+    print(f"pacote medido: {contexto['pacote']} — versão {contexto['versao']}, sha256 {contexto['pacote_sha256'][:16]}…")
 
     linhas, brutos = [], []
     for numero in range(1, args.vezes + 1):

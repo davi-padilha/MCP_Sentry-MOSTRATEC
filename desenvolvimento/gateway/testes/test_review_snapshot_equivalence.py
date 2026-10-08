@@ -37,6 +37,19 @@ def reference_current_block(manifest, store):
     return {key: value for key, value in evidence.items() if key not in {"page", "page_size", "total_pages", "has_more", "next_page"}}
 
 
+def write_bytes(path, data):
+    """Fixture writes retry while an antivirus still holds a just-read file (Windows)."""
+    for attempt in range(40):
+        try:
+            path.write_bytes(data)
+            return
+        except OSError:
+            if attempt == 39:
+                raise
+            import time
+            time.sleep(0.025)
+
+
 def stable(payload):
     return {key: value for key, value in payload.items() if key not in VOLATILE}
 
@@ -47,12 +60,12 @@ class ReviewSnapshotEquivalenceTests(unittest.TestCase):
     request = staticmethod(fixtures.UniversalGatewayTests.request)
 
     def change(self, marker="update", extra_files=0):
-        (self.project / "server.py").write_bytes((fixtures.SERVER_SOURCE + f"\n# {marker}\n").encode())
+        write_bytes(self.project / "server.py", (fixtures.SERVER_SOURCE + f"\n# {marker}\n").encode())
         if extra_files:
             folder = self.project / "lib"
             folder.mkdir(exist_ok=True)
             for number in range(extra_files):
-                (folder / f"m{number:03}.py").write_bytes(f"value = {number}  # {marker}\n".encode())
+                write_bytes(folder / f"m{number:03}.py", f"value = {number}  # {marker}\n".encode())
 
     def prepare(self, extra_files=0):
         if extra_files:

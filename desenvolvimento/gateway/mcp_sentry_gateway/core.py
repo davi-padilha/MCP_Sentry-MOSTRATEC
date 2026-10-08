@@ -1,6 +1,6 @@
 """Capture local MCP server files without importing or running them."""
 from __future__ import annotations
-import copy, difflib, hashlib, json, os, re, sys, uuid
+import copy, difflib, hashlib, json, os, re, sys, time, uuid
 from collections import OrderedDict
 import threading
 from time import perf_counter
@@ -56,36 +56,61 @@ _TEXT_CACHE_BYTES = 0
 _TEXT_CACHE_LIMIT = 32 * 1024 * 1024
 
 
+TEXT_CONFIRMATION_FILE = "texto-da-referencia-confirmado.json"
+
+
 def _remember_text(sha256, text):
+    """Cache entries are keyed by the redaction rules as well as by the bytes."""
     global _TEXT_CACHE_BYTES
+    key = (TEXT_RULES_FINGERPRINT, sha256)
     size = len(text.encode("utf-8"))
     if size <= _TEXT_CACHE_LIMIT:
         with _TEXT_CACHE_LOCK:
-            if sha256 not in _TEXT_CACHE:
+            if key not in _TEXT_CACHE:
                 while _TEXT_CACHE and _TEXT_CACHE_BYTES + size > _TEXT_CACHE_LIMIT:
                     _, (_, removed_size) = _TEXT_CACHE.popitem(last=False)
                     _TEXT_CACHE_BYTES -= removed_size
-                _TEXT_CACHE[sha256] = (text, size)
+                _TEXT_CACHE[key] = (text, size)
                 _TEXT_CACHE_BYTES += size
 
 
 def _capture_text(sha256, raw):
     """Cache redacted display text only; every capture still reads and hashes bytes."""
+    key = (TEXT_RULES_FINGERPRINT, sha256)
     with _TEXT_CACHE_LOCK:
-        if sha256 in _TEXT_CACHE:
-            _TEXT_CACHE.move_to_end(sha256)
-            return _TEXT_CACHE[sha256][0]
+        if key in _TEXT_CACHE:
+            _TEXT_CACHE.move_to_end(key)
+            return _TEXT_CACHE[key][0]
     text = safe_text(raw)
     _remember_text(sha256, text)
     return text
 
 
-def _seed_text_cache(captured_files):
-    """P1: reuse redacted text already stored for the same bytes in a trusted capture.
+def _baseline_text_confirmed(store, baseline):
+    """True if the stored text of this baseline is known to equal the current rules' output."""
+    if TEXT_RULES_FINGERPRINT is None:
+        return False
+    try:
+        marker = json.loads((store / SECURITY_REPORTS_DIR / TEXT_CONFIRMATION_FILE).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return False
+    return (isinstance(marker, dict) and marker.get("text_rules") == TEXT_RULES_FINGERPRINT
+            and marker.get("integrity_hash") == baseline.get("integrity_hash"))
 
-    Text is a function of the bytes (keyed by SHA-256), so files whose hash is
-    unchanged skip the secret-masking regexes. Bytes are still read and hashed
-    on every capture; changed or new files are always redacted afresh.
+
+def _confirm_baseline_text(store, integrity_hash):
+    """Record that a baseline's text was produced by the current redaction rules."""
+    if TEXT_RULES_FINGERPRINT is not None:
+        write(store / SECURITY_REPORTS_DIR / TEXT_CONFIRMATION_FILE,
+              {"schema_version": 1, "text_rules": TEXT_RULES_FINGERPRINT, "integrity_hash": integrity_hash})
+
+
+def _seed_text_cache(captured_files):
+    """P1: reuse redacted text stored in a baseline confirmed for the current rules.
+
+    Callers seed only after _baseline_text_confirmed(), so a seeded entry always
+    equals what safe_text() would produce now. Bytes are still read and hashed
+    on every capture; bytes not present in the baseline are redacted afresh.
     """
     for item in captured_files:
         if isinstance(item.get("sha256"), str) and isinstance(item.get("content"), str):
@@ -109,7 +134,16 @@ def _atomic_write_bytes(path, payload):
             stream.write(payload)
             stream.flush()
             os.fsync(stream.fileno())
-        os.replace(temporary, path)
+        for attempt in range(40):
+            try:
+                os.replace(temporary, path)
+                break
+            except PermissionError:
+                # Windows refuses to replace a file that an antivirus or indexer
+                # still holds open for a moment; the write stays atomic.
+                if os.name != "nt" or attempt == 39:
+                    raise
+                time.sleep(0.025)
     finally:
         temporary.unlink(missing_ok=True)
 
@@ -208,6 +242,26 @@ def safe_text(raw):
     return _SECRET_UNQUOTED_ASSIGNMENT.sub(lambda m: f"{m.group(1)}[REDACTED]", text)
 
 
+def _text_rules_fingerprint():
+    """Identity of the redaction rules: their patterns and the code applying them."""
+    import inspect as _source
+    try:
+        parts = [_source.getsource(safe_text), _source.getsource(_mask_value)]
+    except (OSError, TypeError):
+        return None  # without source the rules cannot be identified; no reuse of stored text
+    parts += [pattern.pattern for pattern in (_SECRET_ASSIGNMENT, _SECRET_UNQUOTED_ASSIGNMENT, _PEM_PRIVATE_KEY)]
+    return digest("\n\0".join(parts).encode("utf-8"))
+
+
+TEXT_RULES_FINGERPRINT = _text_rules_fingerprint()
+
+
+def _root_prefix(root, pathmod=os.path):
+    """Normalized `root` plus one separator, keeping characters that belong to a name."""
+    separators = pathmod.sep + (pathmod.altsep or "")
+    return pathmod.normcase(str(root)).rstrip(separators) + pathmod.sep
+
+
 def capture(manifest_path, roots_override=None, *, allow_missing=False):
     manifest, root = load(manifest_path); roots = roots_override or manifest["inspect_roots"]
     manifest_raw = manifest_path.read_bytes()
@@ -215,7 +269,7 @@ def capture(manifest_path, roots_override=None, *, allow_missing=False):
     seen=set(); missing=[]
     # Same test as `root in resolved.parents` for resolved absolute paths, as a
     # string prefix: Path.parents comparisons dominated capture time (P2).
-    root_prefix = os.path.normcase(str(root)).rstrip("\\/") + os.sep
+    root_prefix = _root_prefix(root)
     def inside_root(resolved): return os.path.normcase(str(resolved)).startswith(root_prefix)
     for item in roots:
         candidate=(root/item).resolve()
@@ -300,16 +354,23 @@ def approve(manifest_path:Path, store:Path, expected_hash: str | None = None):
     if _envelope_path(store).exists(): raise SentryError("envelope de execução já existe; approve não o sobrescreve")
     write(_envelope_path(store), execution_envelope(current))
     data={"schema_version":1,"created_at":datetime.now(timezone.utc).isoformat(),"capture":current}; data["integrity_hash"]=digest(canon(current)); write(baseline,data)
+    _confirm_baseline_text(store, data["integrity_hash"])
     return {"status":"approved","integrity_hash":data["integrity_hash"],"baseline":str(baseline)}
 
 def inspect(manifest_path:Path, store:Path, *, return_capture=False):
     started = perf_counter()
     baseline_path=store/APPROVED_VERSION_FILE
     if not baseline_path.exists(): raise SentryError("não existe baseline; execute approve primeiro")
-    baseline=json.loads(baseline_path.read_text(encoding="utf-8")); _seed_text_cache(baseline["capture"]["files"])
+    baseline=json.loads(baseline_path.read_text(encoding="utf-8"))
+    text_confirmed = _baseline_text_confirmed(store, baseline)
+    if text_confirmed: _seed_text_cache(baseline["capture"]["files"])
     current=capture(manifest_path, allow_missing=True); external(store,Path(current["root"]))
     captured = perf_counter()
     old={x["path"]:x for x in baseline["capture"]["files"]}; new={x["path"]:x for x in current["files"]}; changes=[]
+    if (not text_confirmed and old.keys() == new.keys() and
+            all(old[path]["sha256"] == new[path]["sha256"] and old[path]["content"] == new[path]["content"] for path in old)):
+        # Every baseline text was just reproduced by the current rules (P1).
+        _confirm_baseline_text(store, baseline["integrity_hash"])
     for path in sorted(old.keys() | new.keys()):
         a,b=old.get(path),new.get(path)
         if a and b and a["sha256"]==b["sha256"]: continue
@@ -374,7 +435,8 @@ def accept_current(manifest_path:Path, store:Path, expected_hash: str | None = N
     current=capture(manifest_path); external(store,Path(current["root"]))
     if expected_hash is not None and digest(canon(current)) != expected_hash:
         raise SentryError("estado mudou desde a revisão exibida")
-    data={"schema_version":1,"created_at":datetime.now(timezone.utc).isoformat(),"capture":current}; data["integrity_hash"]=digest(canon(current)); write(baseline,data); return {"status":"accepted_current","integrity_hash":data["integrity_hash"]}
+    data={"schema_version":1,"created_at":datetime.now(timezone.utc).isoformat(),"capture":current}; data["integrity_hash"]=digest(canon(current)); write(baseline,data)
+    _confirm_baseline_text(store, data["integrity_hash"]); return {"status":"accepted_current","integrity_hash":data["integrity_hash"]}
 
 def promote_execution_envelope(manifest_path: Path, store: Path, human_confirmation: str, expected_hash=None):
     """Separate operator attestation for launch fields; this is not authentication.

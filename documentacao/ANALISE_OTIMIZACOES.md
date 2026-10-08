@@ -315,6 +315,29 @@ Medição numa cópia temporária do Filesystem (alteração benigna de um comen
 
 [test_review_snapshot_equivalence.py](../desenvolvimento/gateway/testes/test_review_snapshot_equivalence.py) (12 testes) compara o dossiê entregue com a reconstrução da 1.0.0 (uma e várias páginas) e fixa os resultados do registro: vínculo exato, mudança depois da leitura, parecer antigo sem leitura, com leitura parcial, com hashes, revisão ou política errados, token de outra conexão e mudança no meio da leitura. Com `review.py` e `mcp_facade.py` da 1.0.0, 11 passam e só o teste de quantidade de inspeções falha. Mutantes reprovados: registro sem leitura completa (1), leitura parcial como completa (1), registro sem inspeção fresca (4) e fotografia reaproveitada entre leituras (3). O teste de leitura parcial cobre um caso que antes não tinha teste.
 
+### Revisão independente e correções (08/10/2026)
+
+Uma revisão independente pelo Codex, só de leitura e com sondas em pasta temporária, recomendou não adotar o commit `cf11f29`. Os achados foram reproduzidos por testes próprios ([test_review_findings_110.py](../desenvolvimento/gateway/testes/test_review_findings_110.py)) antes da correção:
+
+| Achado | Gravidade | Correção |
+|---|---|---|
+| A — descendente do backend sobrevive (fechamento normal ou morte do gateway) e pode alterar a cópia guardada antes da próxima execução | Alto, regressão | [process_tree.py](../desenvolvimento/gateway/mcp_sentry_gateway/process_tree.py): backend criado suspenso dentro de um Job Object com `KILL_ON_JOB_CLOSE`, sem breakaway; no fechamento a árvore é encerrada e a cópia só é guardada se nenhum processo restar. Marca `.in-use`: cópia de conexão interrompida nunca é reutilizada. Sem Job Object (fora do Windows ou falha), não há reuso |
+| B — fluxos alternativos NTFS (ADS) atravessam conexões | Alto, regressão | A conferência rejeita qualquer fluxo além de `::$DATA` em arquivos e qualquer fluxo em pastas |
+| C — troca por junction durante a limpeza | Alto, já existia na 1.0.0 (`shutil.rmtree`) | Sem correção própria; com A, nenhum processo do backend permanece durante a limpeza. Escritor concorrente de fora continua fora do modelo de ameaça |
+| D — P1 depende do histórico do cache quando a regra de mascaramento muda | Médio | Cache por regra (impressão digital do código e padrões) e texto da referência reaproveitado só depois de confirmado igual ao da regra atual (`texto-da-referencia-confirmado.json`) |
+| E — liberações simultâneas guardam duas cópias | Baixo | Trava do conjunto (`pool.lock`) serializa empréstimo, retenção e remoção |
+| F — arquivos `.lock` se acumulam | Baixo | Limpeza de travas e marcas órfãs sob a trava do conjunto |
+| G — prefixo da P2 remove barra invertida de nome POSIX | Baixo | Remove só os separadores da plataforma |
+| Medição sem identificar o pacote importado | Observação | `medir_inicio.py` registra caminho, versão e SHA-256 do pacote medido |
+
+Durante a correção apareceu uma falha intermitente anterior: `os.replace` do relatório de inspeção recusado pelo Windows enquanto o antivírus ainda lia o arquivo anterior, o que bloqueava a chamada (falha fechada). A gravação continua atômica e agora tenta de novo por até 1 s no Windows.
+
+Desfazer cada correção faz testes reprovarem: sem conter a árvore (8), guardar sem confirmar a árvore vazia (1), reutilizar cópia interrompida (1), sem procurar ADS (2), semear sem confirmação (1), sem trava do conjunto (1), sem limpar travas órfãs (1) e prefixo antigo (1). Suíte completa: 169 testes, 3 ignorados, 8 rodadas seguidas sem falha.
+
+Depois das correções, o Filesystem ficou em 7,2 s até o primeiro resultado (5 rodadas, inclusive a primeira, com o estado já assentado); a verificação de ADS custa ~0,14 s. Uma rodada isolada logo após a troca de código levou 74 s: o Codex aberto mantinha a cópia guardada emprestada (cópia nova, 27,6 s), a confirmação do texto da P1 ainda não existia e havia processos de teste órfãos; os 43 s de inspeção dessa rodada não estão totalmente explicados.
+
+Limites que permanecem: o Job Object não é sandbox (um backend pode pedir a outro serviço do sistema, como WMI ou o agendador, que inicie um processo fora do Job); atributos estendidos (EA) não são conferidos; fora do Windows a P4 não reutiliza cópias.
+
 ### Limites e diferenças
 
 - Servidor que grava na própria pasta (por exemplo, Python sem `-B`) tem a cópia descartada a cada conexão: seguro, mas sem ganho.
