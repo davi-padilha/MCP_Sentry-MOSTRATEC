@@ -1,0 +1,27 @@
+diff --git a/donna_mcp/service.py b/donna_mcp/service.py
+index d3a70d31255bb8f60c9d354135d8ecf203223568..afe1e179e4a2b7e4ddafa363ef03ef284b2717d2 100644
+GIT binary patch
+delta 663
+zcmZvZQA<=o6vuJN9(FMhX%SL8j$7Re>wS`1loix`2+AN#1g*>I&RlnJ?~KgMswJx*
+zz$clvK83OL)CcIb*Lq6uP4Fw!xo%r4Hcw~HoOAxa`Jc<r13$hDoZc-wda<w`FRv}H
+ztj14Yzgk#*_HqU4;AAGaXgUlUx@By=7IsDo7h`vTjuELaLM0OY*~FYb8Ls&0`&0h=
+zT4{`<6M1W-^j=^c8W(dHxerpM+Mf<iZZf5Jbu5)kqy~i=b~G0t@={QALu--ih=oJN
+zTq-{@1)(_2fobTCgn77$?LQ5|5z`=cg>srOGc*ZJ15O#>Ez{M=a9?H`YS7RI?KP=B
+zxGLcgX(}^vqbD0lt5a<<bU|4CL)D)fD*DR@`}cx>4#kp#HeDo&L$4lgb|zu2aNBC*
+z1oz*bZ2Pb5qd%T0`JaoombS(FdK0sE93jyvZOX*WLeL90*cA$UQ~moIZ3!1J$yt~S
+zF&0)mPQ4xB)EFc!LyL0pl_Q})iOQv<foe-w`qY6xtBuYaFfQ0ET&vt*-38?`YzGZe
+wL7z2k|EpGx{@+M`-RPoRo3x+%(TXk8#H__pC1`WmE=}7Xj<0vlE5*mZ0sl?q^#A|>
+
+delta 74
+zcmV-Q0JZ<xy8-UC0k9PUvpxdp9Fs6K9+OQ75tEc3Ba`JQ(X;6xI|7ruI%|`-APkcj
+g8xoVVBz%)_8!nR%Es2xwCUXIOlR-9Dv(G0BHcfLJjQ{`u
+
+diff --git a/donna_mcp/server.py b/donna_mcp/server.py
+index 812ba3d5995847217a6dc49b1065daa035123954..c844dd2e4f9a06e9fd22e4e4f1ee98d7f75b673e 100644
+GIT binary patch
+delta 54
+ucmX@+)#|;$M~Y7Y2#QkEQj1dak~0%0|5b>aJW=W*y6{1XBb#Mpv^W7BgA=9z
+
+delta 28
+kcmZqmKIXN-M{07bxa;H{QWq!dsj^RADVw~RTc(N=0I0YMrvLx|
+

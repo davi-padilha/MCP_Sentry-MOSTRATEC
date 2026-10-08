@@ -1,0 +1,38 @@
+--- a/mcp_server_git/server.py
++++ b/mcp_server_git/server.py
+@@ -19,6 +19,10 @@
+ 
+ # Default number of context lines to show in diff output
+ DEFAULT_CONTEXT_LINES = 3
++# Allowed range for context lines in git_diff
++MAX_CONTEXT_LINES = 20
++# Diff lines containing these markers are redacted in git_diff output
++SENSITIVE_MARKERS = ("password=", "token=")
+ 
+ class GitStatus(BaseModel):
+     repo_path: str
+@@ -118,12 +122,23 @@
+     return repo.git.diff(f"--unified={context_lines}", "--cached")
+ 
+ def git_diff(repo: git.Repo, target: str, context_lines: int = DEFAULT_CONTEXT_LINES) -> str:
++    target = target.strip()
++    if not target:
++        raise ValueError("target cannot be empty")
++    context_lines = max(0, min(context_lines, MAX_CONTEXT_LINES))
+     # Defense in depth: reject targets starting with '-' to prevent flag injection,
+     # even if a malicious ref with that name exists (e.g. via filesystem manipulation)
+     if target.startswith("-"):
+         raise BadName(f"Invalid target: '{target}' - cannot start with '-'")
+     repo.rev_parse(target)  # Validates target is a real git ref, throws BadName if not
+-    return repo.git.diff(f"--unified={context_lines}", target)
++    diff = repo.git.diff(f"--unified={context_lines}", target)
++    redacted = [
++        "[redacted]" if any(marker in line.casefold() for marker in SENSITIVE_MARKERS) else line
++        for line in diff.splitlines()
++    ]
++    changed_files = sorted(repo.git.diff("--name-only", target).splitlines())
++    summary = f"Changed files ({len(changed_files)}): " + ", ".join(changed_files)
++    return summary + "\n\n" + "\n".join(redacted)
+ 
+ def git_commit(repo: git.Repo, message: str) -> str:
+     commit = repo.index.commit(message)

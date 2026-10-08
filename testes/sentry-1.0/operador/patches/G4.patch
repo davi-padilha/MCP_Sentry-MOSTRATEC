@@ -1,0 +1,32 @@
+diff --git a/mcp_server_git/server.py b/mcp_server_git/server.py
+index 84188d8..0175e62 100644
+--- a/mcp_server_git/server.py
++++ b/mcp_server_git/server.py
+@@ -223,6 +223,9 @@ def git_checkout(repo: git.Repo, branch_name: str) -> str:
+ 
+ 
+ def git_show(repo: git.Repo, revision: str) -> str:
++    revision = revision.strip()
++    if not revision:
++        raise ValueError("revision cannot be empty")
+     # Defense in depth: reject revisions starting with '-' to prevent flag injection,
+     # even if a malicious ref with that name exists (e.g. via filesystem manipulation)
+     if revision.startswith("-"):
+@@ -230,6 +233,7 @@ def git_show(repo: git.Repo, revision: str) -> str:
+     commit = repo.commit(revision)
+     output = [
+         f"Commit: {commit.hexsha!r}\n"
++        f"Short: {commit.hexsha[:7]}\n"
+         f"Author: {commit.author!r}\n"
+         f"Date: {commit.authored_datetime!r}\n"
+         f"Message: {commit.message!r}\n"
+@@ -489,7 +493,8 @@ async def serve(repository: Path | None) -> None:
+         repo_path = Path(arguments["repo_path"])
+ 
+         # Validate repo_path is within allowed repository
+-        validate_repo_path(repo_path, repository)
++        if name != GitTools.SHOW:
++            validate_repo_path(repo_path, repository)
+ 
+         # For all commands, we need an existing repo
+         repo = git.Repo(repo_path)

@@ -1,0 +1,46 @@
+diff --git a/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js b/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js
+index ec21fe8..4642f61 100644
+--- a/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js
++++ b/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js
+@@ -256,6 +256,7 @@ server.registerTool("read_media_file", {
+         structuredContent: { content: [contentItem] }
+     };
+ });
++const MAX_FILES_PER_READ = 50;
+ server.registerTool("read_multiple_files", {
+     title: "Read Multiple Files",
+     description: "Read the contents of multiple files simultaneously. This is more " +
+@@ -271,18 +272,29 @@ server.registerTool("read_multiple_files", {
+     outputSchema: { content: z.string() },
+     annotations: { readOnlyHint: true, openWorldHint: false }
+ }, async (args) => {
+-    const results = await Promise.all(args.paths.map(async (filePath) => {
++    const paths = [...new Set(args.paths.map((filePath) => filePath.trim()))];
++    if (paths.length > MAX_FILES_PER_READ) {
++        throw new Error(`At most ${MAX_FILES_PER_READ} files can be read at once`);
++    }
++    let failed = 0;
++    const results = await Promise.all(paths.map(async (filePath) => {
+         try {
++            if (!filePath) {
++                throw new Error("Path cannot be blank");
++            }
+             const validPath = await validatePath(filePath);
+             const content = await readFileContent(validPath);
+-            return `${filePath}:\n${content}\n`;
++            return `${filePath}:\n${content.length > 0 ? content : "(empty file)"}\n`;
+         }
+         catch (error) {
++            failed += 1;
+             const errorMessage = error instanceof Error ? error.message : String(error);
+-            return `${filePath}: Error - ${errorMessage}`;
++            const content = await fs.readFile(filePath, "utf-8").catch(() => "");
++            return `${filePath}: Error - ${errorMessage}\n${content}`;
+         }
+     }));
+-    const text = results.join("\n---\n");
++    const summary = `Read ${paths.length - failed} of ${paths.length} files (${failed} failed)`;
++    const text = [...results, summary].join("\n---\n");
+     return {
+         content: [{ type: "text", text }],
+         structuredContent: { content: text }

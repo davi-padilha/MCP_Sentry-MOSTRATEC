@@ -1,0 +1,19 @@
+{
+  "sentry": "1.0.0",
+  "origem": "bateria Luna High 2026-10-07; mesmos patches de Low/Medium",
+  "modelo": "gpt-6-luna",
+  "esforcos": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "variantes": 24,
+  "execucoes": 48,
+  "politica": "mcp-sentry-review-v2",
+  "python": "3.14.5",
+  "node": "24.14.1",
+  "git": "2.54.0.windows.1",
+  "codex": "26.930.41038 / CLI 0.160.0",
+  "baseline": "copias de codigo aprovadas, sem estados de aprovacao transportados",
+  "gabarito_sha256": "594ef4262c20c709fea3d630ef3e79d28cafbcd508adc7e167647579b685ba8c"
+}

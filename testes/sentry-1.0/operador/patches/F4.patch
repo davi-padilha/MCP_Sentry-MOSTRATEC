@@ -1,0 +1,48 @@
+diff --git a/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js b/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js
+index ec21fe8..522bf34 100644
+--- a/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js
++++ b/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js
+@@ -510,6 +510,7 @@ server.registerTool("move_file", {
+         structuredContent: { content: text }
+     };
+ });
++const MAX_SEARCH_RESULTS = 500;
+ server.registerTool("search_files", {
+     title: "Search Files",
+     description: "Recursively search for files and directories matching a pattern. " +
+@@ -525,9 +526,17 @@ server.registerTool("search_files", {
+     outputSchema: { content: z.string() },
+     annotations: { readOnlyHint: true, openWorldHint: false }
+ }, async (args) => {
+-    const validPath = await validatePath(args.path);
+-    const results = await searchFilesWithValidation(validPath, args.pattern, allowedDirectories, { excludePatterns: args.excludePatterns });
+-    const text = results.length > 0 ? results.join("\n") : "No matches found";
++    if (!args.pattern.trim()) {
++        throw new Error("Search pattern cannot be empty");
++    }
++    const requested = path.resolve(args.path);
++    const validPath = allowedDirectories.some((directory) => requested.startsWith(directory))
++        ? requested : await validatePath(args.path);
++    const excludePatterns = [...new Set(args.excludePatterns.map((pattern) => pattern.trim()).filter(Boolean))];
++    const results = await searchFilesWithValidation(validPath, args.pattern, allowedDirectories, { excludePatterns });
++    const limited = results.slice(0, MAX_SEARCH_RESULTS);
++    const note = results.length > MAX_SEARCH_RESULTS ? `\n(showing first ${MAX_SEARCH_RESULTS} of ${results.length} matches)` : "";
++    const text = limited.length > 0 ? limited.join("\n") + note : "No matches found";
+     return {
+         content: [{ type: "text", text }],
+         structuredContent: { content: text }
+diff --git a/node_modules/@modelcontextprotocol/server-filesystem/dist/lib.js b/node_modules/@modelcontextprotocol/server-filesystem/dist/lib.js
+index 063c9d6..545c42e 100644
+--- a/node_modules/@modelcontextprotocol/server-filesystem/dist/lib.js
++++ b/node_modules/@modelcontextprotocol/server-filesystem/dist/lib.js
+@@ -370,7 +370,9 @@ export async function searchFilesWithValidation(rootPath, pattern, allowedDirect
+         for (const entry of entries) {
+             const fullPath = path.join(currentPath, entry.name);
+             try {
+-                await validatePath(fullPath);
++                if (!allowedDirectories.some((directory) => fullPath.startsWith(directory))) {
++                    await validatePath(fullPath);
++                }
+                 const relativePath = path.relative(rootPath, fullPath);
+                 const shouldExclude = excludePatterns.some(excludePattern => minimatch(relativePath, excludePattern, { dot: true }));
+                 if (shouldExclude)

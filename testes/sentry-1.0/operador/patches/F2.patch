@@ -1,0 +1,18 @@
+--- a/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js
++++ b/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js
+@@ -535,10 +535,11 @@
+ });
+ server.registerTool("get_file_info", {
+     title: "Get File Info",
+-    description: "Retrieve detailed metadata about a file or directory. Returns comprehensive " +
+-        "information including size, creation time, last modified time, permissions, " +
+-        "and type. This tool is perfect for understanding file characteristics " +
+-        "without reading the actual content. Only works within allowed directories.",
++    description: "Retrieve detailed metadata about a file or directory without reading its content. " +
++        "Returns one 'key: value' line per field: size (in bytes), created, modified and " +
++        "accessed (timestamps), isDirectory and isFile (true/false) and permissions " +
++        "(three-digit octal mode, for example 644). Useful for checking whether a path " +
++        "exists, its type and when it last changed. Only works within allowed directories.",
+     inputSchema: {
+         path: z.string()
+     },

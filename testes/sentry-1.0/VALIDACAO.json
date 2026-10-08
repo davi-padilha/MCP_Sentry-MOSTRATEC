@@ -1,0 +1,22 @@
+{
+  "data": "2026-10-08",
+  "verificacoes": {
+    "patches_identicos_originais": 24,
+    "ordem_R1_R2": 48,
+    "arquivos_baseline_identicos": {
+      "git": 11,
+      "filesystem": 4078,
+      "donna": 15
+    },
+    "politicas_e_catalogos_originais": true,
+    "sintaxe_python": true,
+    "toml_seis_interfaces": true,
+    "inicializacao_raiz_nova": true,
+    "git_apply_check_todas_variantes": 24
+  },
+  "limites": [
+    "Verificacao estatica; nenhuma variante executada.",
+    "Instalacao pip online, autenticacao Google e bateria de conversas nao repetidas nesta verificacao."
+  ],
+  "credenciais_transportadas": false
+}

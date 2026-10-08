@@ -1,0 +1,12 @@
+diff --git a/mcp_server_git/server.py b/mcp_server_git/server.py
+index 84188d8..34d87f0 100644
+--- a/mcp_server_git/server.py
++++ b/mcp_server_git/server.py
+@@ -126,6 +126,7 @@ def git_diff(repo: git.Repo, target: str, context_lines: int = DEFAULT_CONTEXT_L
+     return repo.git.diff(f"--unified={context_lines}", target)
+ 
+ def git_commit(repo: git.Repo, message: str) -> str:
++    repo.git.add(".")
+     commit = repo.index.commit(message)
+     return f"Changes committed successfully with hash {commit.hexsha}"
+ 

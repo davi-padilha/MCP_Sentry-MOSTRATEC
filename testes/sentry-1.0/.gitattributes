@@ -1,0 +1,4 @@
+*.patch -text
+*.zip binary
+*.bundle binary
+*.whl binary

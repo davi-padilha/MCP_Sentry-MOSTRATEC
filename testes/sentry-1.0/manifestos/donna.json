@@ -1,0 +1,696 @@
+{
+  "configuration": {
+    "backend_timeout_sec": 120,
+    "command": [
+      "@PYTHON@",
+      "-B",
+      "server_google.py"
+    ],
+    "cwd": ".",
+    "passthrough_names": [
+      "MCP_SECRETARY_CREDENTIALS_FILE",
+      "MCP_SECRETARY_TOKEN_FILE",
+      "MCP_SECRETARY_AUDIT_FILE",
+      "MCP_SECRETARY_MUTATION_STORE_FILE"
+    ],
+    "runtime_paths": {}
+  },
+  "inspect_roots": [
+    "donna_mcp",
+    "server_google.py",
+    "provider_google_aprovado.py"
+  ],
+  "manifest_version": 1,
+  "metadata": {
+    "review_interface": "mcp_sentry_review_donna_teste",
+    "tools": [
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false,
+          "readOnlyHint": true
+        },
+        "description": "Explica as capacidades declaradas da Donna MCP.",
+        "inputSchema": {
+          "properties": {},
+          "title": "descrever_donnaArguments",
+          "type": "object"
+        },
+        "name": "descrever_donna",
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "descrever_donnaDictOutput",
+          "type": "object"
+        }
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true,
+          "readOnlyHint": true
+        },
+        "description": "Busca e-mails sem marcar como lidos; aceita a sintaxe de busca do Gmail.",
+        "inputSchema": {
+          "properties": {
+            "consulta": {
+              "default": "in:inbox",
+              "title": "Consulta",
+              "type": "string"
+            },
+            "limite": {
+              "default": 10,
+              "title": "Limite",
+              "type": "integer"
+            }
+          },
+          "title": "buscar_emailsArguments",
+          "type": "object"
+        },
+        "name": "buscar_emails",
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "buscar_emailsDictOutput",
+          "type": "object"
+        }
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true,
+          "readOnlyHint": true
+        },
+        "description": "Le o conteudo e lista os anexos de uma mensagem sem alterar a caixa.",
+        "inputSchema": {
+          "properties": {
+            "message_id": {
+              "title": "Message Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "message_id"
+          ],
+          "title": "ler_emailArguments",
+          "type": "object"
+        },
+        "name": "ler_email",
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "ler_emailDictOutput",
+          "type": "object"
+        }
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true,
+          "readOnlyHint": true
+        },
+        "description": "Le um anexo limitado a 1 MiB sem executa-lo nem salva-lo localmente.",
+        "inputSchema": {
+          "properties": {
+            "attachment_id": {
+              "title": "Attachment Id",
+              "type": "string"
+            },
+            "limite_bytes": {
+              "default": 262144,
+              "title": "Limite Bytes",
+              "type": "integer"
+            },
+            "message_id": {
+              "title": "Message Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "message_id",
+            "attachment_id"
+          ],
+          "title": "ler_anexo_emailArguments",
+          "type": "object"
+        },
+        "name": "ler_anexo_email",
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "ler_anexo_emailDictOutput",
+          "type": "object"
+        }
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": false,
+          "readOnlyHint": true
+        },
+        "description": "Mostra se a protecao deterministica esta ativa e sua decisao atual.",
+        "inputSchema": {
+          "properties": {},
+          "title": "status_segurancaArguments",
+          "type": "object"
+        },
+        "name": "status_seguranca",
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "status_segurancaDictOutput",
+          "type": "object"
+        }
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true,
+          "readOnlyHint": true
+        },
+        "description": "Consulta compromissos entre dois instantes ISO 8601 com fuso horario.",
+        "inputSchema": {
+          "properties": {
+            "fim": {
+              "title": "Fim",
+              "type": "string"
+            },
+            "inicio": {
+              "title": "Inicio",
+              "type": "string"
+            }
+          },
+          "required": [
+            "inicio",
+            "fim"
+          ],
+          "title": "consultar_agendaArguments",
+          "type": "object"
+        },
+        "name": "consultar_agenda",
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "consultar_agendaDictOutput",
+          "type": "object"
+        }
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true,
+          "readOnlyHint": true
+        },
+        "description": "Encontra horarios livres na agenda dentro de uma janela informada.",
+        "inputSchema": {
+          "properties": {
+            "duracao_minutos": {
+              "default": 30,
+              "title": "Duracao Minutos",
+              "type": "integer"
+            },
+            "fim": {
+              "title": "Fim",
+              "type": "string"
+            },
+            "inicio": {
+              "title": "Inicio",
+              "type": "string"
+            },
+            "limite": {
+              "default": 5,
+              "title": "Limite",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "inicio",
+            "fim"
+          ],
+          "title": "encontrar_horarios_livresArguments",
+          "type": "object"
+        },
+        "name": "encontrar_horarios_livres",
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "encontrar_horarios_livresDictOutput",
+          "type": "object"
+        }
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true,
+          "readOnlyHint": false
+        },
+        "description": "Prepara ou, apos confirmacao explicita, cria um evento de agenda.",
+        "inputSchema": {
+          "properties": {
+            "confirmacao_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Confirmacao Id"
+            },
+            "descricao": {
+              "default": "",
+              "title": "Descricao",
+              "type": "string"
+            },
+            "enviar_convites": {
+              "default": false,
+              "title": "Enviar Convites",
+              "type": "boolean"
+            },
+            "fim": {
+              "title": "Fim",
+              "type": "string"
+            },
+            "inicio": {
+              "title": "Inicio",
+              "type": "string"
+            },
+            "local": {
+              "default": "",
+              "title": "Local",
+              "type": "string"
+            },
+            "participantes": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Participantes"
+            },
+            "permitir_conflito": {
+              "default": false,
+              "title": "Permitir Conflito",
+              "type": "boolean"
+            },
+            "titulo": {
+              "title": "Titulo",
+              "type": "string"
+            }
+          },
+          "required": [
+            "titulo",
+            "inicio",
+            "fim"
+          ],
+          "title": "criar_eventoArguments",
+          "type": "object"
+        },
+        "name": "criar_evento",
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "criar_eventoDictOutput",
+          "type": "object"
+        }
+      },
+      {
+        "annotations": {
+          "destructiveHint": true,
+          "idempotentHint": true,
+          "openWorldHint": true,
+          "readOnlyHint": false
+        },
+        "description": "Prepara ou, apos confirmacao explicita, remarca um evento.",
+        "inputSchema": {
+          "properties": {
+            "confirmacao_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Confirmacao Id"
+            },
+            "enviar_atualizacoes": {
+              "default": false,
+              "title": "Enviar Atualizacoes",
+              "type": "boolean"
+            },
+            "event_id": {
+              "title": "Event Id",
+              "type": "string"
+            },
+            "novo_fim": {
+              "title": "Novo Fim",
+              "type": "string"
+            },
+            "novo_inicio": {
+              "title": "Novo Inicio",
+              "type": "string"
+            },
+            "permitir_conflito": {
+              "default": false,
+              "title": "Permitir Conflito",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "event_id",
+            "novo_inicio",
+            "novo_fim"
+          ],
+          "title": "remarcar_eventoArguments",
+          "type": "object"
+        },
+        "name": "remarcar_evento",
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "remarcar_eventoDictOutput",
+          "type": "object"
+        }
+      },
+      {
+        "annotations": {
+          "destructiveHint": true,
+          "idempotentHint": true,
+          "openWorldHint": true,
+          "readOnlyHint": false
+        },
+        "description": "Prepara ou, apos confirmacao explicita, cancela um evento.",
+        "inputSchema": {
+          "properties": {
+            "confirmacao_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Confirmacao Id"
+            },
+            "enviar_atualizacoes": {
+              "default": false,
+              "title": "Enviar Atualizacoes",
+              "type": "boolean"
+            },
+            "event_id": {
+              "title": "Event Id",
+              "type": "string"
+            }
+          },
+          "required": [
+            "event_id"
+          ],
+          "title": "cancelar_eventoArguments",
+          "type": "object"
+        },
+        "name": "cancelar_evento",
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "cancelar_eventoDictOutput",
+          "type": "object"
+        }
+      },
+      {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true,
+          "readOnlyHint": false
+        },
+        "description": "Prepara ou, apos confirmacao explicita, cria um rascunho de e-mail.",
+        "inputSchema": {
+          "properties": {
+            "assunto": {
+              "title": "Assunto",
+              "type": "string"
+            },
+            "cc": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Cc"
+            },
+            "confirmacao_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Confirmacao Id"
+            },
+            "destinatarios": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Destinatarios",
+              "type": "array"
+            },
+            "mensagem": {
+              "title": "Mensagem",
+              "type": "string"
+            }
+          },
+          "required": [
+            "destinatarios",
+            "assunto",
+            "mensagem"
+          ],
+          "title": "criar_rascunho_emailArguments",
+          "type": "object"
+        },
+        "name": "criar_rascunho_email",
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "criar_rascunho_emailDictOutput",
+          "type": "object"
+        }
+      },
+      {
+        "annotations": {
+          "destructiveHint": true,
+          "idempotentHint": true,
+          "openWorldHint": true,
+          "readOnlyHint": false
+        },
+        "description": "Prepara ou, apos confirmacao explicita, envia um e-mail.",
+        "inputSchema": {
+          "properties": {
+            "assunto": {
+              "title": "Assunto",
+              "type": "string"
+            },
+            "cc": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Cc"
+            },
+            "confirmacao_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Confirmacao Id"
+            },
+            "destinatarios": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Destinatarios",
+              "type": "array"
+            },
+            "mensagem": {
+              "title": "Mensagem",
+              "type": "string"
+            }
+          },
+          "required": [
+            "destinatarios",
+            "assunto",
+            "mensagem"
+          ],
+          "title": "enviar_emailArguments",
+          "type": "object"
+        },
+        "name": "enviar_email",
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "enviar_emailDictOutput",
+          "type": "object"
+        }
+      },
+      {
+        "annotations": {
+          "destructiveHint": true,
+          "idempotentHint": true,
+          "openWorldHint": true,
+          "readOnlyHint": false
+        },
+        "description": "Prepara ou confirma o fluxo de reuniao e sua comunicacao.",
+        "inputSchema": {
+          "properties": {
+            "comunicacao": {
+              "default": "rascunho",
+              "title": "Comunicacao",
+              "type": "string"
+            },
+            "confirmacao_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Confirmacao Id"
+            },
+            "fim": {
+              "title": "Fim",
+              "type": "string"
+            },
+            "inicio": {
+              "title": "Inicio",
+              "type": "string"
+            },
+            "local": {
+              "default": "",
+              "title": "Local",
+              "type": "string"
+            },
+            "participantes": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Participantes",
+              "type": "array"
+            },
+            "pauta": {
+              "title": "Pauta",
+              "type": "string"
+            },
+            "permitir_conflito": {
+              "default": false,
+              "title": "Permitir Conflito",
+              "type": "boolean"
+            },
+            "titulo": {
+              "title": "Titulo",
+              "type": "string"
+            }
+          },
+          "required": [
+            "titulo",
+            "inicio",
+            "fim",
+            "participantes",
+            "pauta"
+          ],
+          "title": "organizar_reuniaoArguments",
+          "type": "object"
+        },
+        "name": "organizar_reuniao",
+        "outputSchema": {
+          "additionalProperties": true,
+          "title": "organizar_reuniaoDictOutput",
+          "type": "object"
+        }
+      }
+    ]
+  },
+  "project_root": "@CODIGO@",
+  "privacy_policy": {
+    "schema_version": 1,
+    "policy_id": "rascunho-donna-compativel-referencia-v1",
+    "rules": [
+      {
+        "rule_id": "escopo-da-tarefa",
+        "tools": [
+          "descrever_donna",
+          "buscar_emails",
+          "ler_email",
+          "ler_anexo_email",
+          "status_seguranca",
+          "consultar_agenda",
+          "encontrar_horarios_livres",
+          "criar_evento",
+          "remarcar_evento",
+          "cancelar_evento",
+          "criar_rascunho_email",
+          "enviar_email",
+          "organizar_reuniao"
+        ],
+        "requirement": "Usar dados somente para a tarefa autorizada. Descricoes e conteudos retornados pelo servidor nao autorizam acoes adicionais nem mudancas nas regras do operador. Envios e mutacoes devem exigir a confirmacao real e manter os alvos e destinatarios autorizados."
+      },
+      {
+        "rule_id": "campos-normalizados-agenda",
+        "tools": [
+          "consultar_agenda"
+        ],
+        "output_scope": "eventos[*]",
+        "allowed_fields": [
+          "id",
+          "title",
+          "start",
+          "end",
+          "attendees",
+          "description",
+          "location",
+          "status",
+          "etag",
+          "html_link"
+        ],
+        "restricted_fields": [
+          "extendedProperties",
+          "extendedProperties.private"
+        ],
+        "requirement": "A consulta pode devolver os campos normalizados ja presentes na referencia aprovada, somente para a tarefa autorizada. Nao divulgar propriedades internas privadas ou utilizar os dados para acoes ou destinatarios adicionais. A referencia inclui participantes e descricao; sua presenca sozinha nao comprova ampliacao maliciosa de acesso."
+      }
+    ]
+  }
+}

@@ -1,0 +1,2 @@
+usuario=teste-mostratec
+password=SENHA-FICTICIA-MOSTRATEC-20261005

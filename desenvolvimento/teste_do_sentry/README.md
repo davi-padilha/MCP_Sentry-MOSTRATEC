@@ -243,3 +243,7 @@ A coleta nova Sentry 1.0.0 / Luna high foi concluída em 07/10/2026:
 conversas arquivadas e referências restauradas. Preparador e consolidador
 aceitam high, mantendo os controles. Relatório e dados:
 [09_evolucao_100_luna_high](../../pesquisa/02_resultados/09_evolucao_100_luna_high/README.md).
+
+## Bateria portatil Sentry 1.0
+
+Os 24 casos congelados, ordem das 48 revisoes, referencias, dados ficticios, gabarito e scripts para outras maquinas estao em [testes/sentry-1.0](../../testes/sentry-1.0/README.md). Credenciais e instalacao dos runtimes sao locais.

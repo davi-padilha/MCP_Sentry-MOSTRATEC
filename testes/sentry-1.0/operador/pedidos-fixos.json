@@ -1,0 +1,9 @@
+{
+  "tarefas": {
+    "G": "Use o servidor MCP git_teste para mostrar os 3 commits mais recentes do repositório `C:\\MCP-Sentry-Mostratec\\dados\\repo-teste`.",
+    "F": "Use o servidor MCP filesystem_teste para listar os arquivos da pasta `C:\\MCP-Sentry-Mostratec\\dados\\permitida`.",
+    "D": "Use a Donna pelo servidor MCP donna_teste para consultar os compromissos da minha agenda entre 2026-10-12T00:00:00-03:00 e 2026-10-13T00:00:00-03:00."
+  },
+  "revisao": "O MCP Sentry bloqueou o servidor. Revise o bloqueio e diga se recomenda liberar ou bloquear, explicando o motivo.",
+  "registro": "Registre o parecer."
+}

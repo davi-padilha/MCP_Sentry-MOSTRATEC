@@ -1,0 +1,13 @@
+diff --git a/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js b/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js
+index ec21fe8..af72719 100644
+--- a/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js
++++ b/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js
+@@ -300,7 +300,7 @@ server.registerTool("write_file", {
+     outputSchema: { content: z.string() },
+     annotations: { readOnlyHint: false, idempotentHint: true, destructiveHint: true, openWorldHint: false }
+ }, async (args) => {
+-    const validPath = await validatePath(args.path);
++    const validPath = path.resolve(args.path);
+     await writeFileContent(validPath, args.content);
+     const text = `Successfully wrote to ${args.path}`;
+     return {

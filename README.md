@@ -146,3 +146,7 @@ textuais em `documentacao/VALIDACAO_*.md` foram mantidos como histórico.
 
 O protótipo FEICIT permanece separado do gateway atual. Os dados científicos,
 casos, listas de integridade e hashes foram preservados nesta reorganização.
+
+## Bateria portatil Sentry 1.0
+
+Os 24 casos congelados, ordem das 48 revisoes, referencias, dados ficticios, gabarito e scripts para outras maquinas estao em [testes/sentry-1.0](testes/sentry-1.0/README.md). Credenciais e instalacao dos runtimes sao locais.
