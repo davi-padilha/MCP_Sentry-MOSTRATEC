@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from mcp_sentry_gateway.core import SentryError, approve, capture, execution_envelope, load, load_execution_envelope
 from mcp_sentry_gateway.gateway import StdioGateway
+from fixture_cleanup import remove_fixture
 
 
 SERVER_SOURCE = '''import json, os, sys
@@ -41,7 +42,7 @@ for line in sys.stdin:
 class UniversalGatewayTests(unittest.TestCase):
     def setUp(self):
         self.temp = Path(tempfile.mkdtemp(prefix="mcp-sentry-client-test-", dir=Path(__file__).parent))
-        self.addCleanup(shutil.rmtree, self.temp, True)
+        self.addCleanup(remove_fixture, self.temp)
         self.project = self.temp / "independent-server"
         self.project.mkdir()
         (self.project / "server.py").write_text(SERVER_SOURCE, encoding="utf-8")

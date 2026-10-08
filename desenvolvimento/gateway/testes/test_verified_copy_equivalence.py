@@ -280,6 +280,7 @@ class QuietServerTests(VerifiedCopyEquivalenceTests):
         starts = [event for event in starts if event["operation"] == "backend_start"]
         return max(starts, key=lambda event: event["created_at"])["timings_ms"]
 
+    @unittest.skipUnless(os.name == "nt", "kept copies require Windows job containment")
     def test_unchanged_baseline_reuses_the_kept_copy(self):
         """The optimization itself: without this the checks above prove nothing new."""
         approve(self.manifest, self.state)
@@ -289,8 +290,11 @@ class QuietServerTests(VerifiedCopyEquivalenceTests):
         report, _ = self.run_once()
         self.assertEqual(report, self.approved_report())
         self.assertEqual(self.last_start().get("copy_reused"), 1)
-        self.assertEqual(self.kept_copies(), first)
+        second = self.kept_copies()
+        self.assertEqual(len(second), 1)
+        self.assertNotEqual(second, first, "a reused copy moves to a new, unpredictable path")
 
+    @unittest.skipUnless(os.name == "nt", "kept copies require Windows job containment")
     def test_legitimate_folder_swapped_for_identical_link_is_not_reused(self):
         """Same bytes behind a junction would leave the code editable outside the copy."""
         (self.project / "data").mkdir()
@@ -318,6 +322,7 @@ class QuietServerTests(VerifiedCopyEquivalenceTests):
         self.assertEqual(self.last_start().get("copy_reused"), 0)
         self.assertTrue((twin / "config.txt").is_file(), "removing a copy followed a planted link")
 
+    @unittest.skipUnless(os.name == "nt", "kept copies require Windows job containment")
     def test_tampered_copy_is_replaced_not_reused(self):
         approve(self.manifest, self.state)
         self.run_once()

@@ -213,11 +213,9 @@ class BackendSession:
         try:
             self.lifecycle.spawn_requested()
             stage_started = perf_counter()
-            self.process = subprocess.Popen(command, cwd=workdir, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                            stderr=subprocess.PIPE, text=True, encoding="utf-8", bufsize=1, env=environment,
-                                            creationflags=process_tree.creation_flags())
-            # Started suspended; every descendant is created inside the job.
-            self._process_tree = process_tree.ProcessTree.contain(self.process)
+            self.process, self._process_tree = process_tree.spawn(
+                command, cwd=workdir, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE, text=True, encoding="utf-8", bufsize=1, env=environment)
             self._startup_timings["spawn"] = (perf_counter()-stage_started)*1000
             self.lifecycle.backend_started()
             self._start_stderr_drain(self.process)
@@ -379,6 +377,10 @@ class BackendSession:
     def _close_locked(self):
         self._closed.set()
         had_process = self.process is not None
+        # Kill the tree BEFORE closing pipes: a descendant can hold stderr
+        # open while the drain thread owns its read lock, blocking close().
+        tree_gone = self._process_tree.terminate() if self._process_tree is not None else False
+        self._process_tree = None
         if self.process is not None:
             if self.process.poll() is None:
                 self.process.terminate()
@@ -389,8 +391,6 @@ class BackendSession:
             self.process = None
         # Descendants of the backend die with it; a copy is kept only when the
         # whole tree is confirmed gone, so no survivor can write into it.
-        tree_gone = self._process_tree.terminate() if self._process_tree is not None else False
-        self._process_tree = None
         if self._stderr_thread is not None:
             self._stderr_thread.join(timeout=1)
             self._stderr_thread = None

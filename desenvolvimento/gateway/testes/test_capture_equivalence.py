@@ -16,6 +16,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from mcp_sentry_gateway import core
+from fixture_cleanup import remove_fixture
 from mcp_sentry_gateway.core import (EXCLUDED_CAPTURE_PARTS, SentryError, approve, canon, digest,
                                      inspect, load, safe_text)
 
@@ -71,7 +72,7 @@ def make_link(link: Path, target: Path, directory: bool):
 class CaptureEquivalenceTests(unittest.TestCase):
     def setUp(self):
         self.temp = Path(tempfile.mkdtemp(prefix="mcp-sentry-capture-test-", dir=Path(__file__).parent))
-        self.addCleanup(shutil.rmtree, self.temp, True)
+        self.addCleanup(remove_fixture, self.temp)
         self.project = self.temp / "server"
         self.outside = self.temp / "outside"
         for folder in (self.project / "pkg" / "sub", self.project / "__pycache__", self.project / "pkg" / ".cache",

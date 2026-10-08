@@ -104,6 +104,7 @@ def wait_until(condition, seconds=5.0):
 
 
 @only_own_tests
+@unittest.skipUnless(WINDOWS, "descendant containment requires Windows jobs")
 class SurvivingDescendantTests(copies.QuietServerTests):
     """Finding A."""
 
@@ -160,6 +161,8 @@ class SurvivingDescendantTests(copies.QuietServerTests):
         finally:
             gateway.kill()  # abrupt death: no close() runs
             gateway.wait()
+            gateway.stdin.close()
+            gateway.stdout.close()
         self.assertTrue(wait_until(lambda: not process_alive(pid)),
                         "a descendant survived the death of the gateway")
         report, _ = self.run_once()
@@ -265,6 +268,7 @@ class RedactionRuleChangeTests(unittest.TestCase):
 
 
 @only_own_tests
+@unittest.skipUnless(WINDOWS, "kept copies require Windows jobs")
 class PoolCoordinationTests(copies.QuietServerTests):
     """Findings E and F."""
 
@@ -283,16 +287,30 @@ class PoolCoordinationTests(copies.QuietServerTests):
             for thread in threads: thread.join()
         self.assertLessEqual(len(self.kept_copies()), 1)
 
-    def test_copy_left_by_an_interrupted_connection_is_not_reused(self):
+    def test_copy_left_by_a_killed_connection_is_reused_only_at_a_new_path(self):
+        """Clients such as Codex kill the gateway; its job already killed the backend tree."""
         approve(self.manifest, self.state)
         self.run_once()
         copy = self.kept_copies()[0]
-        (copy.parent / (copy.name + verified_copies.IN_USE_SUFFIX)).touch()  # as left by a dead gateway
+        (copy.parent / (copy.name + verified_copies.IN_USE_SUFFIX)).touch()  # as left by a killed gateway
         report, _ = self.run_once()
         self.assertEqual(report, self.approved_report())
-        self.assertEqual(self.last_start().get("copy_reused"), 0)
+        self.assertEqual(self.last_start().get("copy_reused"), 1)
+        self.assertFalse(copy.exists(), "the old path must not remain usable")
+        self.assertNotIn(copy, self.kept_copies())
+
+    @unittest.skipUnless(WINDOWS, "Windows refuses to move a folder that is in use")
+    def test_copy_still_in_use_by_a_process_is_not_reused(self):
+        approve(self.manifest, self.state)
         self.run_once()
-        self.assertEqual(self.last_start().get("copy_reused"), 1, "the replacement is reusable after a clean release")
+        copy = self.kept_copies()[0]
+        holder = open(copy / "helper.py", "rb")  # a process still using the copy
+        try:
+            report, _ = self.run_once()
+        finally:
+            holder.close()
+        self.assertEqual(report, self.approved_report())
+        self.assertEqual(self.last_start().get("copy_reused"), 0)
 
     def test_lock_files_do_not_accumulate_across_versions(self):
         approve(self.manifest, self.state)

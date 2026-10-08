@@ -7,10 +7,13 @@ alternate data streams, and the SHA-256 of every file. Anything else discards
 the copy and a fresh one is made.
 
 Each copy is held by one connection at a time through an OS file lock, which
-is released automatically if the process dies. A copy is marked in use when
-leased and the mark is cleared only by a clean release, after the caller has
-confirmed that no backend process remains; a copy left by an interrupted
-connection is never reused. Decisions about the pool (which copy to lease,
+is released automatically if the process dies. Every reuse first moves the
+copy to a new, unpredictable path; Windows refuses that move while any process
+has a file open or its working directory inside. Copies are reused only where
+every backend runs in a kill-on-close job (process_tree), so a connection the
+client killed leaves no backend process behind. The in-use mark records a
+lease that was not released cleanly, for diagnosis and cleanup of orphans.
+Decisions about the pool (which copy to lease,
 keep or delete, and removal of orphaned lock files) are serialized by a pool
 lock, so at most one idle copy per version is kept.
 """
@@ -123,7 +126,13 @@ if os.name == "nt":
 
     def _streams(path):
         """Names of all data streams of a file or directory; None if unreadable."""
-        long_path = path if path.startswith("\\\\?\\") else "\\\\?\\" + path
+        path = os.path.abspath(path)
+        if path.startswith("\\\\?\\"):
+            long_path = path
+        elif path.startswith("\\\\"):
+            long_path = "\\\\?\\UNC\\" + path[2:]
+        else:
+            long_path = "\\\\?\\" + path
         data = _StreamData()
         handle = _kernel32.FindFirstStreamW(long_path, 0, ctypes.byref(data), 0)
         if handle == _INVALID_HANDLE:
@@ -272,8 +281,12 @@ def remove_other_versions(pool: Path, expected_hash: str):
             _unlock(descriptor)
 
 
+def _new_root(pool: Path, prefix: str) -> Path:
+    return pool / (prefix + uuid.uuid4().hex[:NAME_LENGTH - PREFIX_LENGTH])
+
+
 def lease(pool: Path, expected_hash: str, files, cwd: str, *, reusable: bool) -> CopyLease:
-    """Lease a verified copy; reused only when reusable, cleanly released and matching.
+    """Lease a verified copy; reused only when reusable, movable to a new path and matching.
 
     A returned lease with reused=False points to an empty, newly created
     directory that the caller fills and verifies byte by byte.
@@ -289,19 +302,36 @@ def lease(pool: Path, expected_hash: str, files, cwd: str, *, reusable: bool) ->
                 descriptor = _lock(_lock_path(copy))
                 if descriptor is None:
                     continue
+                moved_descriptor = None
                 try:
-                    interrupted = _in_use_path(copy).exists()
-                    _in_use_path(copy).touch()
-                    if not interrupted and matches(copy, files, cwd):
-                        return CopyLease(copy, descriptor, reused=True, reusable=True)
-                    _remove(copy)
-                    copy.mkdir()
-                except BaseException:
+                    # Every reuse first moves the copy to a new, unpredictable
+                    # path, so nothing that knew the old path can reach it.
+                    # Windows refuses the move while any process has a file
+                    # open or its working directory inside; a move therefore
+                    # also shows that no process is running from the copy.
+                    # This includes copies of connections the client killed:
+                    # their whole backend tree died with its kill-on-close job.
+                    target = _new_root(pool, copy.name[:PREFIX_LENGTH])
+                    moved_descriptor = _lock(_lock_path(target))
+                    if moved_descriptor is None:
+                        continue
+                    try:
+                        os.rename(copy, target)
+                    except OSError:
+                        continue  # still in use; left for a later cleanup
+                    _in_use_path(target).touch()
+                    _in_use_path(copy).unlink(missing_ok=True)
+                    if matches(target, files, cwd):
+                        reused, moved_descriptor = CopyLease(target, moved_descriptor, reused=True, reusable=True), None
+                        return reused
+                    _remove(target)
+                finally:
+                    if moved_descriptor is not None:
+                        _unlock(moved_descriptor)
                     _unlock(descriptor)
-                    raise
-                return CopyLease(copy, descriptor, reused=False, reusable=True)
+            _remove_orphaned_locks(pool)
         prefix = expected_hash[:PREFIX_LENGTH] if reusable else uuid.uuid4().hex[:PREFIX_LENGTH]
-        root = pool / (prefix + uuid.uuid4().hex[:NAME_LENGTH - PREFIX_LENGTH])
+        root = _new_root(pool, prefix)
         descriptor = _lock(_lock_path(root))
         if descriptor is None:
             raise OSError("cópia verificada nova já está em uso")

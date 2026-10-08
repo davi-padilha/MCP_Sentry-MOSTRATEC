@@ -338,10 +338,34 @@ Depois das correções, o Filesystem ficou em 7,2 s até o primeiro resultado (5
 
 Limites que permanecem: o Job Object não é sandbox (um backend pode pedir a outro serviço do sistema, como WMI ou o agendador, que inicie um processo fora do Job); atributos estendidos (EA) não são conferidos; fora do Windows a P4 não reutiliza cópias.
 
+### Correções após a segunda revisão (08/10/2026)
+
+A segunda revisão reproduziu execução de um arquivo não aprovado quando a criação ou atribuição do Job falhava: o backend era retomado sem contenção, um filho sobrevivia e alcançava a conexão seguinte porque a pasta interrompida era reconstruída no mesmo caminho, mesmo com `copy_reused = 0`. Também reproduziu fechamento bloqueado por `stderr` herdado, processo suspenso órfão antes da atribuição e colisão da impressão digital ao mudar flags de regex.
+
+Correções implementadas pelo próprio revisor, a pedido do operador; esta implementação **não constitui uma nova revisão independente**:
+
+- O gateway cria o backend com `CreateProcessW` e `PROC_THREAD_ATTRIBUTE_JOB_LIST`: a atribuição ao Job ocorre na própria criação, antes da retomada. No Windows, falha de criação/configuração/atribuição bloqueia o início, sem fallback sem contenção. Essa rota requer Windows 10 ou superior e usa a infraestrutura de pipes e espera do `Popen` do CPython; foi validada localmente com Python 3.12 e 3.14. A compatibilidade das demais versões de Python suportadas pelo pacote ainda precisa ser validada.
+- A árvore é encerrada antes de fechar os pipes. Uma segunda chamada de `terminate()` não transforma uma consulta anterior inconclusiva em confirmação de árvore vazia.
+- Cópia interrompida ou contaminada é substituída por uma pasta com identificador novo; seu caminho anterior não é reconstruído para outra conexão.
+- A impressão digital inclui as flags dos padrões. Caminhos UNC comuns são convertidos para `\\?\UNC\...` na enumeração de ADS.
+- `test_second_review_110.py` cobre as falhas acima, morte antes da retomada e Job aninhado com launcher de venv. Os testes de reuso ficam explicitamente condicionados ao Windows. As fixtures de captura e gateway removem links antes dos destinos e deixam de ignorar falhas de limpeza; o teste de morte abrupta fecha seus próprios pipes.
+
+Validação final em cópia temporária do pacote e dos testes: 179 testes, 3 casos ignorados por falta de privilégio para symlink, em três rodadas completas no CPython 3.14 (32,57 s; 32,77 s; 32,60 s) e uma no CPython 3.12 (31,30 s). Os dez testes novos passaram nas duas versões. Após aquecimento, a contagem de handles permaneceu em 141 antes e depois de quarenta lançamentos adicionais. Não houve processo de teste sobrevivente ao término da validação. Esses resultados são validação da implementação pelo autor das correções, não aprovação independente nem resultado da bateria do Davi.
+
+Os números de desempenho e de testes das subseções anteriores são históricos. Não houve execução contra a instalação ou estado reais nesta correção. Os limites de EA, serviços externos e escritor externo concorrente permanecem; o Job não passou a ser sandbox.
+
+### Ajuste após o teste real no Codex (08/10/2026)
+
+No Codex, Git e Filesystem funcionaram com a contenção por Job e com a cópia reaproveitada. Mas o Codex encerra o gateway à força ao fim de cada conversa: a marca `.in-use` sempre ficava, e a regra "cópia interrompida nunca é reaproveitada" fazia a conversa seguinte refazer a cópia (37,3 s em vez de 7,3 s), anulando a P4 no uso real.
+
+Ajuste: **todo reuso primeiro move a cópia para um caminho novo e imprevisível**, e só então faz a conferência completa. O Windows recusa mover uma pasta enquanto algum processo tem um arquivo aberto ou o diretório de trabalho dentro dela (verificado: arquivo aberto e processo com `cwd` na pasta recusam; pasta livre move). Uma cópia de conexão encerrada à força passa a ser reaproveitada, porque no Windows todo backend nasce num Job com `KILL_ON_JOB_CLOSE`, sem alternativa sem contenção: a morte do gateway encerra a árvore. Um eventual sobrevivente fora do Job (ver limites) perde o caminho. A marca `.in-use` permanece para diagnóstico e limpeza.
+
+Verificação com o servidor real: o gateway foi encerrado sozinho (sem matar a árvore pelo lado de fora); o processo Node do Filesystem, vivo antes, não existia depois; a conexão seguinte reaproveitou a cópia em 7,36 s. Testes: três testes que descreviam a regra anterior foram atualizados (cópia de conexão morta é reaproveitada só num caminho novo; o caminho antigo deixa de existir; reuso sempre muda o caminho) e um novo verifica que uma cópia ainda em uso por um processo não é reaproveitada. Suíte: 180 testes, 3 ignorados, 4 rodadas sem falha.
+
 ### Limites e diferenças
 
 - Servidor que grava na própria pasta (por exemplo, Python sem `-B`) tem a cópia descartada a cada conexão: seguro, mas sem ganho.
 - A cópia aprovada permanece no estado confiável entre sessões. A janela entre conferir e iniciar é a mesma da 1.0.0.
 - Arquivos `.lock` de cópias de uso único permanecem na pasta de cópias.
-- Se uma versão futura mudar a regra de mascaramento, arquivos inalterados mantêm o texto mascarado da aprovação; arquivos alterados usam a regra atual. Não expõe texto novo.
+- Se a regra de mascaramento mudar, a referência só semeia o cache após confirmação para a nova impressão digital; a captura atual usa o texto da regra atual. O texto histórico da referência não é reescrito.
 - Pendentes: confirmar o efeito do Defender por gravação de desempenho; repetir a medição no computador do Davi; rodar uma bateria curta no Codex antes de adotar.

@@ -249,7 +249,8 @@ def _text_rules_fingerprint():
         parts = [_source.getsource(safe_text), _source.getsource(_mask_value)]
     except (OSError, TypeError):
         return None  # without source the rules cannot be identified; no reuse of stored text
-    parts += [pattern.pattern for pattern in (_SECRET_ASSIGNMENT, _SECRET_UNQUOTED_ASSIGNMENT, _PEM_PRIVATE_KEY)]
+    parts += [repr((pattern.pattern, pattern.flags))
+              for pattern in (_SECRET_ASSIGNMENT, _SECRET_UNQUOTED_ASSIGNMENT, _PEM_PRIVATE_KEY)]
     return digest("\n\0".join(parts).encode("utf-8"))
 
 
