@@ -10,7 +10,7 @@ import sys
 import time
 from pathlib import Path
 
-BASE = Path(__file__).resolve().parents[1]
+BASE = Path(__file__).resolve().parents[2]
 SOURCE = BASE / 'desenvolvimento/gateway/mcp_sentry_gateway'
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(SOURCE.parent))
