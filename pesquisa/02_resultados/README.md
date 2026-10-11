@@ -7,6 +7,13 @@ público, a comparação das baterias Sol/0.8.1 e Luna/0.9.1, métricas e regist
 com campos selecionados. Gabarito, patches e transcrições permanecem privados.
 Essas séries são separadas das campanhas FEICIT listadas abaixo.
 
+## Evolução 1.1.0 — Luna médio
+
+[10_evolucao_110_luna_medium/](10_evolucao_110_luna_medium/README.md) contém
+a campanha de 11/10/2026: 48 revisões principais, duas diagnósticas, métricas
+anônimas, tempos, tokens, proveniência e comparação com 1.0.0 / Luna médio.
+O relatório registra também as limitações da coleta.
+
 ## Leitura recomendada
 
 1. `03_planilhas_para_leitura/` — visão mais simples dos resultados;
