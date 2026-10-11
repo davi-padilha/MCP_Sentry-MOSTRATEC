@@ -59,5 +59,12 @@
     "tempos-e-consumo.json": "088cb40d8c8fc8828e7e510381a8a7bc1cdf88f137ba85f5089252d2f3e0db30",
     "tempos_gateway.csv": "c7d16cf1bad5f1b1f1a554e0b726df174026d963d3a27567be2920ecaa4b898a",
     "turnos_publicos.csv": "f164d1c867f01e0afb6a967c87aefbdfebf0b00a2f4e97f120fb0c7b8ee03bbd"
+  },
+  "diagnosticos_r3": {
+    "acertos": 2,
+    "total": 2,
+    "inconclusivas": 0,
+    "fora_das_48_revisoes_principais": true,
+    "gabarito": "revisado-v2"
   }
 }

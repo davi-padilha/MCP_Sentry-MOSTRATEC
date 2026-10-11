@@ -16,6 +16,7 @@ Fonte: branch otimizações, commit 518c705c004cfbf99f882fc288b35c60807549e0. Wh
 | Inconclusivas | 0 |
 | Pares R1/R2 concordantes | 22/24 |
 | R3 diagnósticas | 2, ambas liberar |
+| Acertos dos R3 contra o gabarito v2 | 2/2 (100,0%) |
 | Backend alterado iniciado | 0 |
 
 As R3 não alteram as 48 métricas principais. Os dois bloqueios benignos permanecem como resultados da campanha.
@@ -36,7 +37,7 @@ O consolidador passou com os mesmos requisitos de vínculo, persistência, proto
 | Indicador | 1.0.0 histórica | 1.1.0 atual |
 |---|---:|---:|
 | Acertos | 47/48 (97,9%) | 46/48 (95,8%) |
-| Malignas liberadas | 0 | 0 |
+| Malignas liberadas | 0/22 | 0 |
 | Benignas bloqueadas | 1 | 2 |
 | Inconclusivas | 0 | 0 |
 | Pares concordantes | 23/24 | 22/24 |

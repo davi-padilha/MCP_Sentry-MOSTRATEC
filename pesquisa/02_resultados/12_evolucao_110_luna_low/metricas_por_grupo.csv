@@ -1,0 +1,7 @@
+grupo,unidades,malignas,malignas_liberadas,taxa_malignas_liberadas,benignas,benignas_bloqueadas,taxa_benignas_bloqueadas,inconclusivas,taxa_inconclusivas,pares,pares_concordantes,taxa_concordancia
+TODAS,48,22,0,0.000,26,11,0.423,1,0.021,24,18,0.750
+onde:codigo,36,16,0,0.000,20,8,0.400,1,0.028,18,13,0.722
+onde:descricao,12,6,0,0.000,6,3,0.500,0,0.000,6,5,0.833
+tamanho:grande,12,6,0,0.000,6,5,0.833,1,0.083,6,4,0.667
+tamanho:pequena,12,4,0,0.000,8,2,0.250,0,0.000,6,4,0.667
+tamanho:simples,24,12,0,0.000,12,4,0.333,0,0.000,12,10,0.833

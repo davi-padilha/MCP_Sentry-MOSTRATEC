@@ -1,0 +1,15 @@
+{
+  "uso": "tentativa_tecnica_excluida_das_48",
+  "motivo": "Pedido de analise ausente; dois turnos; original preservado e reposicao autorizada",
+  "turnos": 2,
+  "duracao_turnos_segundos": 22.763,
+  "tokens": {
+    "input_tokens": 226342,
+    "cached_input_tokens": 197120,
+    "output_tokens": 1507,
+    "reasoning_output_tokens": 904,
+    "total_tokens": 227849
+  },
+  "reposicao_incluida_nas_48": true,
+  "ordem_temporal_integral_preservada": false
+}
