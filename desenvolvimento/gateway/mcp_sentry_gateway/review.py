@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from time import perf_counter
 
-from .core import APPROVED_VERSION_FILE, SECURITY_REPORTS_DIR, UPDATE_REVIEWS_DIR, SentryError, canon, capture, digest, execution_envelope, inspect, load_execution_envelope, safe_text, write, write_text_report
+from .core import APPROVED_VERSION_FILE, SECURITY_REPORTS_DIR, UPDATE_REVIEWS_DIR, SentryError, accept_current, canon, capture, digest, execution_envelope, inspect, load_execution_envelope, safe_text, write, write_text_report
 
 POLICY_VERSION = "mcp-sentry-review-v2"
 VERDICT_FIELDS = {"review_id", "reviewed_hash", "dossier_hash", "policy_version", "decision", "justification", "risks"}
@@ -16,6 +16,7 @@ REVIEW_TTL_SECONDS = 30 * 60
 AUTHORIZATION_TTL_SECONDS = 5 * 60
 HUMAN_APPROVAL_TTL_SECONDS = 30 * 60
 CONVERSATION_CONFIRMATION = "APROVO UMA EXECUÇÃO DESTA VERSÃO."
+CONVERSATION_ACCEPT_CONFIRMATION = "ACEITO ESTA VERSÃO COMO REFERÊNCIA PERMANENTE."
 
 
 def _now(): return datetime.now(timezone.utc).isoformat()
@@ -136,17 +137,24 @@ def _security_status(manifest_path: Path, store: Path, *, snapshot=None):
         if record.get("assessment_model"):
             assessment["model"] = record["assessment_model"]
     if record is None:
-        return {"status": "unchanged", "current_hash": result["dossier"]["current_hash"], "review_required": False}
+        baseline = _load(store / APPROVED_VERSION_FILE)
+        return {"status": "unchanged", "current_hash": result["dossier"]["current_hash"], "review_required": False,
+                "authorization_state": "version_accepted" if baseline.get("acceptance") else "approved_reference",
+                "authorization_scope": "accepted_version"}
     if record["status"] == "blocked":
         return {"status": "blocked", "current_hash": record["dossier"]["current_hash"], "review_required": False, "review_id": record["review_id"], "assessment": assessment}
     if record["status"] == "allowed_once":
         if not (store / SECURITY_REPORTS_DIR / f"review-{record['review_id']}.txt").is_file() or not (store / SECURITY_REPORTS_DIR / f"operator-approval-{record['review_id']}.txt").is_file():
             return {"status": "blocked", "current_hash": record["dossier"]["current_hash"], "review_required": False, "review_id": record["review_id"], "reason": "decision_audit_report_missing"}
-        return {"status": "allowed_once", "current_hash": record["dossier"]["current_hash"], "review_required": False, "review_id": record["review_id"]}
+        return {"status": "allowed_once", "current_hash": record["dossier"]["current_hash"], "review_required": False, "review_id": record["review_id"],
+                "authorization_state": "once_available", "authorization_scope": "one_call"}
     if record["status"] == "awaiting_human_approval":
-        return {"status": "awaiting_human_approval", "current_hash": record["dossier"]["current_hash"], "review_required": False, "review_id": record["review_id"], "assessment": assessment}
+        return {"status": "awaiting_human_approval", "current_hash": record["dossier"]["current_hash"], "review_required": False, "review_id": record["review_id"], "assessment": assessment,
+                "authorization_state": "awaiting_user_confirmation", "authorization_scope": "none"}
     if record["status"] == "consumed":
-        return {"status": "blocked", "current_hash": record["dossier"]["current_hash"], "review_required": False, "review_id": record["review_id"]}
+        return {"status": "blocked", "current_hash": record["dossier"]["current_hash"], "review_required": False, "review_id": record["review_id"],
+                "authorization_state": "once_consumed", "authorization_scope": "none",
+                "reason": "one-call authorization was consumed; the version was not accepted as a permanent reference"}
     if record["status"] == "expired":
         return {"status": "blocked", "current_hash": record["dossier"]["current_hash"], "review_required": False, "review_id": record["review_id"], "reason": "review_or_authorization_expired"}
     return {"status": "review_required", "current_hash": record["dossier"]["current_hash"], "review_required": True, "review_id": record["review_id"]}
@@ -307,6 +315,48 @@ def authorize_conversation_execution(manifest_path, store, review_id, reviewed_h
         "APPROVE_REVIEW_EXECUTION", approval_source="client_attested_user_confirmation",
         user_confirmation=confirmation,
     )
+
+
+def accept_conversation_version(manifest_path, store, review_id, reviewed_hash, dossier_hash, confirmation):
+    """Accept exactly reviewed code; client attestation is not human authentication."""
+    if confirmation != CONVERSATION_ACCEPT_CONFIRMATION:
+        raise SentryError("aceitação permanente exige confirmação explícita distinta de uso único")
+    if not all(isinstance(value, str) and value for value in (review_id, reviewed_hash, dossier_hash)):
+        raise SentryError("identificadores de aceitação inválidos")
+    record, result = ensure_pending(manifest_path, store)
+    if record is None or record["review_id"] != review_id:
+        raise SentryError("revisão vigente não corresponde à aceitação")
+    # Share the once-approval lock: concurrent choices cannot commit both scopes.
+    lock = store / UPDATE_REVIEWS_DIR / f"{review_id}.operator-approval.lock"
+    try:
+        descriptor = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except FileExistsError as exc:
+        raise SentryError("aprovação desta revisão já está em andamento") from exc
+    os.close(descriptor)
+    try:
+        record = _expire_if_needed(_load(_path(store, review_id)), store)
+        dossier, verdict = record["dossier"], record.get("verdict")
+        if (record.get("status") != "awaiting_human_approval" or not isinstance(verdict, dict)
+                or verdict.get("decision") != "allow" or record.get("assessment_source") != "client_submitted"
+                or record.get("policy_version") != POLICY_VERSION or verdict.get("policy_version") != POLICY_VERSION
+                or verdict.get("review_id") != review_id or verdict.get("reviewed_hash") != reviewed_hash
+                or verdict.get("dossier_hash") != dossier_hash):
+            raise SentryError("aceitação exige parecer allow vigente registrado pelo client")
+        if (dossier["current_hash"] != reviewed_hash or dossier["dossier_hash"] != dossier_hash
+                or result["dossier"]["current_hash"] != reviewed_hash or result["dossier"]["dossier_hash"] != dossier_hash):
+            raise SentryError("aceitação não corresponde aos hashes revisados")
+        if not (store / SECURITY_REPORTS_DIR / f"review-{review_id}.txt").is_file():
+            raise SentryError("relatório obrigatório do parecer está ausente")
+        context = {"source": "client_attested_user_confirmation", "review_id": review_id,
+                   "reviewed_hash": reviewed_hash, "dossier_hash": dossier_hash, "policy_version": POLICY_VERSION,
+                   "user_confirmation": confirmation, "scope": "accepted_version"}
+        accepted = accept_current(manifest_path, store, expected_hash=reviewed_hash,
+                                  expected_baseline_hash=dossier["baseline_hash"], approval_context=context)
+        return {"status": "version_accepted", "review_id": review_id, "current_hash": accepted["integrity_hash"],
+                "persisted": True, "baseline_changed": True, "backend_started": False,
+                "authorization_scope": "accepted_version", "future_changes_require_review": True}
+    finally:
+        lock.unlink(missing_ok=True)
 
 def consume_allowed_once(manifest_path: Path, store: Path):
     """Consume the exact reviewed state before a backend process can be spawned.

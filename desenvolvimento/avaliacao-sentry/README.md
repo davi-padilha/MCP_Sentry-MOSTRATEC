@@ -11,6 +11,25 @@
 | `referencia_feicit.csv` | Resultados da FEICIT no formato do teste |
 | `patches_piloto/` | Versões G1 e G2 usadas no piloto |
 
+## Piloto no Claude Desktop
+
+Os scripts abaixo usam dados fictícios e estados isolados. Os resultados e
+limites da versão atual estão em [VALIDACAO_1.3.0.md](../../documentacao/validacoes/VALIDACAO_1.3.0.md).
+Os pareceres das fixtures técnicas não são decisões de modelos.
+
+| Script | Finalidade |
+| --- | --- |
+| `preparar_demo_claude_desktop.py` | Prepara a demonstração Donna simulada em pasta nova. |
+| `verificar_demo_claude_desktop.py` | Confere transporte, catálogo e bloqueio da demonstração. |
+| `conectar_demo_claude_desktop.py` | Apresenta conexão/restauração com backup; grava somente com `--apply`. |
+| `preparar_teste_interpretacao_claude.py` | Prepara as condições offline e a revisão isolada da hipótese de interpretação. |
+| `teste_uso_natural_claude.py` | Prepara estado pendente, conecta/restaura o par de teste; aceita runtime explícito e `--conversation-approval`. |
+| `verificar_aceitacao_permanente_donna.py` | Valida pelo SDK a aceitação permanente, prévia/confirmação de rascunho, chamadas repetidas e reconexão, sem conectar o cliente. |
+
+Use `--help` para os argumentos de cada script. Preserve estados e transcrições
+anteriores; para uma rodada nova, use outra pasta de evidências. O teste real
+da 1.3.0 permanece pendente; a configuração ativa não foi atualizada pelo build.
+
 ## Dados de teste
 
 ```powershell

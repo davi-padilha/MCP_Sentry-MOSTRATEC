@@ -38,6 +38,11 @@ cliente precisa de uma forma de detectar mudanças antes de iniciar o serviço.
 - `arquivos-instalacao/`: instalador, wheel, versão e somas SHA-256.
 
 O ZIP pronto para enviar fica em [distribuicoes/](distribuicoes/README.md).
+O pacote 1.3.0 acrescenta a aceitação permanente da versão pelo chat, com
+confirmação separada e ativação opcional. Sua validação técnica está em
+[VALIDACAO_1.3.0.md](documentacao/validacoes/VALIDACAO_1.3.0.md).
+A integração com Claude Desktop foi introduzida na 1.2.0; os testes reais
+deste novo fluxo são uma etapa separada.
 O instalador confere os arquivos, detecta Python e oferece configuração opcional.
 Instalações novas ficam em `%LOCALAPPDATA%\MCP-Sentry-Gateway`, com os guias
 copiados para essa pasta. A pasta extraída pode ser removida depois de instalar.

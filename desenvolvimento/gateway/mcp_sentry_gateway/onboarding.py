@@ -175,13 +175,15 @@ def discover_snapshot(snapshot, manifest_path, env_values=None, timeout=DISCOVER
         return discover_tools(command, cwd, config.get("passthrough_names", []), values, timeout)
 
 
-def codex_fragment(name: str, manifest: Path, store: Path, env_names: list[str]) -> str:
+def codex_fragment(name: str, manifest: Path, store: Path, env_names: list[str], *, conversation_approval=False) -> str:
     if (not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]*", name) or
             name.startswith("mcp_sentry_review")):
         raise SentryError("nome do servidor Codex inválido ou reservado")
     review_name = f"mcp_sentry_review_{name}"
     command = str(Path(sys.executable).resolve())
     common = ["-m", "mcp_sentry_gateway.gateway"]
+    if conversation_approval:
+        common.append("--conversation-approval")
     execution = common + ["--interface", "execution", "--manifest", str(manifest), "--store", str(store)]
     review = common + ["--interface", "review", "--manifest", str(manifest), "--store", str(store)]
     lines = [
@@ -262,7 +264,16 @@ def prepare_codex(args):
     }
     if backend_timeout is not None:
         manifest["configuration"]["backend_timeout_sec"] = backend_timeout
-    fragment = codex_fragment(args.name, manifest_path, store, names)
+    client = getattr(args, "client", "codex")
+    if client == "claude-desktop":
+        from .claude_desktop import fragment as client_fragment
+        fragment = client_fragment(args.name, manifest_path, store, names,
+                                   conversation_approval=getattr(args, "conversation_approval", False))
+    elif client == "codex":
+        fragment = codex_fragment(args.name, manifest_path, store, names,
+                                 conversation_approval=getattr(args, "conversation_approval", False))
+    else:
+        raise SentryError("cliente ainda não suportado")
     created_manifest = False
     created_fragment = False
     try:
@@ -290,10 +301,10 @@ def prepare_codex(args):
     return {
         "status": "prepared_for_review",
         "manifest": str(manifest_path),
-        "codex_fragment": str(fragment_path),
+        ("codex_fragment" if client == "codex" else "claude_desktop_fragment"): str(fragment_path),
         "tools_discovered": len(manifest["metadata"]["tools"]),
         "approved": False,
-        "codex_configuration_changed": False,
+        ("codex_configuration_changed" if client == "codex" else "claude_configuration_changed"): False,
     }
 
 
@@ -325,9 +336,12 @@ def doctor(manifest_path: Path, store: Path, codex_config: Path | None = None, n
                 issues.append("configuração do Codex não encontrada")
             else:
                 configured = tomllib.loads(codex_config.read_text(encoding="utf-8")).get("mcp_servers", {})
+                selected = configured.get(name, {}) if isinstance(configured, dict) else {}
+                args = selected.get("args", []) if isinstance(selected, dict) else []
                 expected = tomllib.loads(codex_fragment(
                     name, manifest_path.resolve(), store.resolve(),
                     manifest["configuration"].get("passthrough_names", []),
+                    conversation_approval=isinstance(args, list) and "--conversation-approval" in args,
                 ))["mcp_servers"]
                 for entry_name, desired in expected.items():
                     actual = configured.get(entry_name) if isinstance(configured, dict) else None
@@ -351,9 +365,9 @@ def doctor(manifest_path: Path, store: Path, codex_config: Path | None = None, n
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="Prepare MCP Sentry for Codex desktop")
+    parser = argparse.ArgumentParser(description="Prepare MCP Sentry for a local desktop client")
     subcommands = parser.add_subparsers(dest="command", required=True)
-    prepare = subcommands.add_parser("prepare-codex", help="discover tools and generate reviewable files")
+    prepare = subcommands.add_parser("prepare-codex", aliases=["prepare-claude-desktop"], help="discover tools and generate reviewable files")
     prepare.add_argument("--name", required=True)
     prepare.add_argument("--project-root", required=True, type=Path)
     prepare.add_argument("--inspect-root", action="append", required=True)
@@ -361,19 +375,27 @@ def main(argv=None):
     prepare.add_argument("--store", required=True, type=Path)
     prepare.add_argument("--fragment", required=True, type=Path)
     prepare.add_argument("--passthrough-name", action="append")
+    prepare.add_argument("--conversation-approval", action="store_true", help="permitir confirmações separadas pelo chat; confia na atestação do client")
     prepare.add_argument("backend_command", nargs=argparse.REMAINDER)
     check = subcommands.add_parser("doctor", help="check local files without starting the protected server")
     check.add_argument("--manifest", required=True, type=Path)
     check.add_argument("--store", required=True, type=Path)
-    check.add_argument("--codex-config", type=Path)
+    configurations = check.add_mutually_exclusive_group()
+    configurations.add_argument("--codex-config", type=Path)
+    configurations.add_argument("--claude-config", type=Path)
     check.add_argument("--name")
     args = parser.parse_args(argv)
     try:
         if args.command == "doctor":
-            if args.codex_config and not args.name:
-                raise SentryError("--name é necessário com --codex-config")
-            result = doctor(args.manifest, args.store, args.codex_config, args.name)
+            if (args.codex_config or args.claude_config) and not args.name:
+                raise SentryError("--name é necessário com --codex-config ou --claude-config")
+            if args.claude_config:
+                from .claude_desktop import doctor as claude_doctor
+                result = claude_doctor(args.manifest, args.store, args.claude_config, args.name)
+            else:
+                result = doctor(args.manifest, args.store, args.codex_config, args.name)
         else:
+            args.client = "claude-desktop" if args.command == "prepare-claude-desktop" else "codex"
             result = prepare_codex(args)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0 if result["status"] != "needs_attention" else 2

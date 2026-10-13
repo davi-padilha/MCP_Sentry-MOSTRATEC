@@ -363,6 +363,7 @@ def inspect(manifest_path:Path, store:Path, *, return_capture=False):
     baseline_path=store/APPROVED_VERSION_FILE
     if not baseline_path.exists(): raise SentryError("não existe baseline; execute approve primeiro")
     baseline=json.loads(baseline_path.read_text(encoding="utf-8"))
+    validate_baseline_acceptance(store, baseline)
     text_confirmed = _baseline_text_confirmed(store, baseline)
     if text_confirmed: _seed_text_cache(baseline["capture"]["files"])
     current=capture(manifest_path, allow_missing=True); external(store,Path(current["root"]))
@@ -430,14 +431,69 @@ def inspect(manifest_path:Path, store:Path, *, return_capture=False):
         result["_capture"] = current  # transient; never persisted or exposed by the MCP facade
     return result
 
-def accept_current(manifest_path:Path, store:Path, expected_hash: str | None = None):
+def validate_baseline_acceptance(store, baseline):
+    """A conversational acceptance must retain its mandatory audit evidence."""
+    acceptance = baseline.get("acceptance")
+    if acceptance is None:
+        return
+    if (not isinstance(acceptance, dict) or acceptance.get("source") != "client_attested_user_confirmation"
+            or acceptance.get("accepted_hash") != baseline.get("integrity_hash")):
+        raise SentryError("evidência de aceitação permanente inválida")
+    name = f"version-acceptance-{baseline['integrity_hash']}"
+    try:
+        audit = json.loads((store / SECURITY_REPORTS_DIR / f"{name}.json").read_text(encoding="utf-8"))
+        report = (store / SECURITY_REPORTS_DIR / f"{name}.txt").read_bytes()
+    except (OSError, ValueError) as exc:
+        raise SentryError("evidência de aceitação permanente ausente ou inválida") from exc
+    if audit != acceptance or digest(report) != acceptance.get("report_sha256"):
+        raise SentryError("evidência de aceitação permanente divergente")
+
+
+def accept_current(manifest_path:Path, store:Path, expected_hash: str | None = None,
+                   *, approval_context=None, expected_baseline_hash=None):
     baseline=store/APPROVED_VERSION_FILE
     if not baseline.exists(): raise SentryError("não existe baseline; execute approve primeiro")
     current=capture(manifest_path); external(store,Path(current["root"]))
     if expected_hash is not None and digest(canon(current)) != expected_hash:
         raise SentryError("estado mudou desde a revisão exibida")
-    data={"schema_version":1,"created_at":datetime.now(timezone.utc).isoformat(),"capture":current}; data["integrity_hash"]=digest(canon(current)); write(baseline,data)
-    _confirm_baseline_text(store, data["integrity_hash"]); return {"status":"accepted_current","integrity_hash":data["integrity_hash"]}
+    previous_bytes = baseline.read_bytes()
+    previous = json.loads(previous_bytes)
+    if expected_baseline_hash is not None and previous.get("integrity_hash") != expected_baseline_hash:
+        raise SentryError("referência mudou desde a revisão exibida")
+    data={"schema_version":1,"created_at":datetime.now(timezone.utc).isoformat(),"capture":current}
+    data["integrity_hash"]=digest(canon(current))
+    if approval_context is not None:
+        if expected_hash is None or expected_baseline_hash is None:
+            raise SentryError("aceitação pela conversa requer vínculos de versão e referência")
+        if execution_envelope(current) != load_execution_envelope(store):
+            raise SentryError("envelope de execução mudou; requer promoção humana separada")
+        if current["manifest"]["metadata"] != previous["capture"]["manifest"]["metadata"]:
+            raise SentryError("catálogo ou metadados mudaram; requer preparação e aprovação separadas")
+        acceptance = {**approval_context, "accepted_hash": data["integrity_hash"],
+                      "previous_baseline_hash": previous["integrity_hash"], "confirmed_at": data["created_at"]}
+        report = ("MCP Sentry permanent version acceptance confirmation\n"
+                  "Effective only when referenced by the approved baseline.\n"
+                  + json.dumps(acceptance, ensure_ascii=False, sort_keys=True, indent=2) + "\n")
+        acceptance["report_sha256"] = digest(safe_text(report.encode("utf-8")).encode("utf-8"))
+        name = store / SECURITY_REPORTS_DIR / f"version-acceptance-{data['integrity_hash']}"
+        # All required evidence is durable before the baseline commit. Failure
+        # here cannot make an unapproved version executable.
+        write_text_report(name.with_suffix(".txt"), report)
+        write(name.with_suffix(".json"), acceptance)
+        data["acceptance"] = acceptance
+    _confirm_baseline_text(store, data["integrity_hash"])
+    if approval_context is not None:
+        validate_baseline_acceptance(store, data)
+        if baseline.read_bytes() != previous_bytes:
+            raise SentryError("referência mudou durante a aceitação")
+        fresh = capture(manifest_path)
+        if digest(canon(fresh)) != expected_hash:
+            raise SentryError("estado mudou durante a aceitação")
+        if execution_envelope(fresh) != load_execution_envelope(store):
+            raise SentryError("envelope de execução mudou durante a aceitação")
+    # Atomic baseline replacement is the last mutation and the commit point.
+    write(baseline,data)
+    return {"status":"accepted_current","integrity_hash":data["integrity_hash"]}
 
 def promote_execution_envelope(manifest_path: Path, store: Path, human_confirmation: str, expected_hash=None):
     """Separate operator attestation for launch fields; this is not authentication.

@@ -4,12 +4,19 @@ param(
     [string]$Ambiente,
     [switch]$Configurar,
     [switch]$SemConfigurar,
+    [switch]$AprovarNoChat,
     [string]$CodexConfig,
+    [string]$ClaudeConfig,
+    [ValidateSet('codex','claude-desktop')][string]$Cliente,
     [string]$StateRoot
 )
 $ErrorActionPreference = 'Stop'
 if ($Configurar -and $SemConfigurar) { throw 'Escolha -Configurar ou -SemConfigurar.' }
-if (($CodexConfig -or $StateRoot) -and !$Configurar) { throw '-CodexConfig e -StateRoot exigem -Configurar.' }
+if ($AprovarNoChat -and !$Configurar) { throw '-AprovarNoChat exige -Configurar.' }
+if (($CodexConfig -or $ClaudeConfig -or $Cliente -or $StateRoot) -and !$Configurar) { throw '-Cliente, -CodexConfig, -ClaudeConfig e -StateRoot exigem -Configurar.' }
+if ($CodexConfig -and $ClaudeConfig) { throw 'Escolha apenas uma configuracao de cliente.' }
+if ($CodexConfig -and $Cliente -and $Cliente -ne 'codex') { throw '-CodexConfig requer -Cliente codex.' }
+if ($ClaudeConfig -and $Cliente -and $Cliente -ne 'claude-desktop') { throw '-ClaudeConfig requer -Cliente claude-desktop.' }
 $taskRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $taskDataRoot = $PSScriptRoot
 
@@ -147,14 +154,27 @@ Write-Output 'O setup oferece selecao do MCP, confirmacoes separadas e backup da
 
 $taskRunSetup = [bool]$Configurar
 if (!$Configurar -and !$SemConfigurar -and !$taskPrevious) {
-    Write-Output 'Deseja abrir o assistente de configuracao do Codex agora? [s/N]'
+    Write-Output 'Deseja abrir o assistente de configuracao agora? [s/N]'
     try { $taskAnswer = Read-Host 'Resposta' }
     catch { $taskAnswer = '' }
     $taskRunSetup = $taskAnswer -match '^(s|sim)$'
 }
 if ($taskRunSetup) {
-    $taskSetupArgs = @('setup')
+    if (!$Cliente) {
+        if ($ClaudeConfig) { $Cliente = 'claude-desktop' }
+        elseif ($CodexConfig) { $Cliente = 'codex' }
+        else {
+            Write-Output 'Cliente: 1 = Codex; 2 = Claude Desktop'
+            $taskClientAnswer = Read-Host 'Escolha'
+            if ($taskClientAnswer -eq '1') { $Cliente = 'codex' }
+            elseif ($taskClientAnswer -eq '2') { $Cliente = 'claude-desktop' }
+            else { throw 'Selecao invalida. O programa foi instalado; execute setup --client codex ou setup --client claude-desktop.' }
+        }
+    }
+    $taskSetupArgs = @('setup','--client',$Cliente)
+    if ($AprovarNoChat) { $taskSetupArgs += '--conversation-approval' }
     if ($CodexConfig) { $taskSetupArgs += @('--codex-config', $CodexConfig) }
+    if ($ClaudeConfig) { $taskSetupArgs += @('--claude-config', $ClaudeConfig) }
     if ($StateRoot) { $taskSetupArgs += @('--state-root', $StateRoot) }
     & $taskCli @taskSetupArgs
     if ($LASTEXITCODE -ne 0) { throw 'O Sentry foi instalado, mas a configuracao nao foi concluida. Leia o diagnostico acima e execute setup novamente quando estiver pronto.' }

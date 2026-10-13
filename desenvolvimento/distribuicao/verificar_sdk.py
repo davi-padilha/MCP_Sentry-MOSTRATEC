@@ -47,6 +47,52 @@ async def main(python, root):
         if interface == 'execution':
             server = root/'servidor ficticio/server.py'
             server.write_text(server.read_text('utf-8')+'\n# SDK fictional update\n', encoding='utf-8')
+    permanent = root/'permanent'
+    subprocess.run([str(python),'-I',str(helper),'--root',str(permanent),'--prepare-only'], check=True,
+                   capture_output=True, env={**os.environ,'PYTHONIOENCODING':'utf-8'}, timeout=30)
+    server = permanent/'servidor ficticio/server.py'
+    server.write_text(server.read_text('utf-8')+'\n# reviewed permanent update\n', encoding='utf-8')
+    def parameters(interface):
+        return StdioServerParameters(command=str(python), args=['-I','-X','utf8','-m','mcp_sentry_gateway.gateway',
+            '--conversation-approval','--interface',interface,'--manifest',str(permanent/'manifest.json'),
+            '--store',str(permanent/'estado')], env={'PYTHONIOENCODING':'utf-8','PYTHONDONTWRITEBYTECODE':'1'})
+    async with stdio_client(parameters('review')) as (read,write):
+        async with ClientSession(read,write,read_timeout_seconds=timedelta(seconds=30)) as session:
+            await session.initialize()
+            tools = (await session.list_tools()).tools
+            assert len(tools) == 6
+            for tool in tools:
+                Draft202012Validator.check_schema(tool.inputSchema)
+                Draft202012Validator.check_schema(tool.outputSchema)
+            accept_tool = next(t for t in tools if t.name == 'sentry_accept_version')
+            evidence = (await session.call_tool('sentry_review_current_block', {})).structuredContent
+            recorded = await session.call_tool('sentry_record_assessment', {
+                'review_token':evidence['review_token'],'decision':'allow',
+                'justification':'SDK technical fixture, not a model assessment','risks':[]})
+            assert recorded.structuredContent['approval_scope_required']
+            accepted = await session.call_tool('sentry_accept_version', {
+                'review_id':evidence['review_id'],'reviewed_hash':evidence['current_hash'],
+                'dossier_hash':evidence['dossier_hash'],
+                'confirmation':accept_tool.inputSchema['properties']['confirmation']['const']})
+            assert not accepted.isError and accepted.structuredContent['status'] == 'version_accepted'
+            Draft202012Validator(accept_tool.outputSchema).validate(accepted.structuredContent)
+    for values in (['first','second'], ['reconnected']):
+        async with stdio_client(parameters('execution')) as (read,write):
+            async with ClientSession(read,write,read_timeout_seconds=timedelta(seconds=30)) as session:
+                await session.initialize()
+                for value in values:
+                    response = await session.call_tool('echo', {'value':value})
+                    assert not response.isError and response.content[0].text == value
+    server.write_text(server.read_text('utf-8')+'\n# unapproved subsequent change\n', encoding='utf-8')
+    async with stdio_client(parameters('execution')) as (read,write):
+        async with ClientSession(read,write,read_timeout_seconds=timedelta(seconds=30)) as session:
+            await session.initialize()
+            blocked = await session.call_tool('echo', {'value':'must not run'})
+            assert blocked.structuredContent['status'] == 'security_review_required'
+    lifecycle = json.loads((permanent/'estado/relatorios-de-seguranca/backend-lifecycle-current.json').read_text('utf-8'))
+    assert lifecycle['spawn_attempts'] == 0
+    results['permanent_acceptance'] = {'schemas_valid':True,'repeated_calls':True,'reconnection':True,
+                                      'later_change_blocked_before_spawn':True,'requires_distinct_confirmation':True}
     print(json.dumps({'python':sys.version.split()[0],'fictional_data_only':True,'interfaces':results}))
 
 

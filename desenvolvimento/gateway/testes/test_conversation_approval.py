@@ -58,7 +58,9 @@ class ConversationApprovalTests(unittest.TestCase):
     def test_allow_alone_blocks_then_confirmation_runs_once_without_promoting_baseline(self):
         self.prepare()
         result = self.record()["structuredContent"]
-        self.assertEqual(result["required_user_confirmation"], CONVERSATION_CONFIRMATION)
+        self.assertTrue(result["approval_scope_required"])
+        once = next(item for item in result["approval_options"] if item["scope"] == "one_call")
+        self.assertEqual(once["required_user_confirmation"], CONVERSATION_CONFIRMATION)
         self.assert_denied(self.echo())
         authorized = self.tool(self.review, "sentry_authorize_once", self.authorization)
         self.assertEqual(authorized["structuredContent"]["status"], "allowed_once")

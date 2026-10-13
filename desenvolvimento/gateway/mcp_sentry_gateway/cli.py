@@ -10,7 +10,7 @@ from .review import approve_review_execution
 
 
 def main():
-    if len(sys.argv) > 1 and sys.argv[1] in {"status", "restore-codex"}:
+    if len(sys.argv) > 1 and sys.argv[1] in {"status", "restore-codex", "restore-claude-desktop"}:
         from .administration import main as administration_main
         return administration_main(sys.argv[1:])
     if len(sys.argv) > 1 and sys.argv[1] == "materialize":
@@ -28,12 +28,12 @@ def main():
     if len(sys.argv) > 1 and sys.argv[1] == "setup":
         from .setup import main as setup_main
         return setup_main(sys.argv[2:])
-    if len(sys.argv) > 1 and sys.argv[1] in {"prepare-codex", "doctor"}:
+    if len(sys.argv) > 1 and sys.argv[1] in {"prepare-codex", "prepare-claude-desktop", "doctor"}:
         from .onboarding import main as onboarding_main
         return onboarding_main(sys.argv[1:])
     parser = argparse.ArgumentParser(
         description="MCP Sentry local operator commands",
-        epilog="Também disponíveis: status, restore-codex, setup, prepare-server, materialize, prepare-codex, prepare-profile, doctor, review-update. Use COMANDO --help.",
+        epilog="Também disponíveis: status, restore-codex, restore-claude-desktop, setup, prepare-server, materialize, prepare-codex, prepare-claude-desktop, prepare-profile, doctor, review-update. Use COMANDO --help.",
     )
     parser.add_argument("command", choices=(
         "approve", "inspect", "accept-current", "promote-execution-envelope",

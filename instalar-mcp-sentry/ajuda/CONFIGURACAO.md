@@ -15,6 +15,58 @@ Se escolheu outro ambiente, abra sua pasta pai, que contém a `.venv`. A versão
 da entrega está em `arquivos-instalacao/VERSAO.json` no ZIP; depois de instalar,
 uma cópia fica em `ajuda-mcp-sentry/VERSAO.json` junto ao programa.
 
+## Claude Desktop
+
+Para um MCP já configurado no Claude Desktop, use `mcp-sentry setup --client
+claude-desktop`. O assistente detecta o arquivo padrão em
+`%APPDATA%\Claude\claude_desktop_config.json` e perfis da Microsoft Store.
+Se houver mais de um arquivo, ele pede um caminho explícito em vez de escolher.
+Confirme o arquivo usado pelo aplicativo em suas configurações de desenvolvedor,
+na opção **Edit Config**. Por exemplo:
+
+```powershell
+.\.venv\Scripts\mcp-sentry.exe setup --client claude-desktop `
+  --claude-config 'C:\CAMINHO\claude_desktop_config.json'
+```
+
+O assistente aceita entradas locais com `command`, `args`, `env` e, opcionalmente,
+`type: "stdio"`. Opções desconhecidas são recusadas antes de iniciar o MCP.
+A preparação de Python, Node.js e pacotes npx/uvx fixados usa os mesmos controles
+do Codex. O arquivo JSON é reformatado; outras entradas e preferências são
+preservadas. O backup conserva os bytes originais e pode conter credenciais já
+presentes na configuração: mantenha-o privado. Valores de `env` ficam somente
+na conexão de execução, sem ser copiados ao manifesto ou à revisão.
+
+Na rota manual, o comando `prepare-claude-desktop` aceita os mesmos argumentos
+de `prepare-codex`, mas gera um fragmento JSON `mcpServers`; use um arquivo
+`.json` em `--fragment`. Ele não modifica o cliente nem aprova a referência.
+O JSON mostrado na seção **Configure o cliente MCP** abaixo é adequado ao
+Claude Desktop. Complete a preparação e aprovação antes de conectá-lo.
+
+Encerre completamente e reabra o Claude Desktop depois de configurar. Confira
+execução e revisão nos conectores e teste em uma conversa nova. Para diagnosticar
+o arquivo configurado sem iniciar o backend:
+
+```powershell
+.\.venv\Scripts\mcp-sentry.exe doctor --manifest 'CAMINHO_DO_MANIFESTO' `
+  --store 'CAMINHO_DO_ESTADO' --claude-config 'CAMINHO_DA_CONFIGURACAO' --name meu_servidor
+```
+
+O diagnóstico confere esse arquivo e os arquivos locais; não prova que o
+aplicativo o carregou, que não há outras conexões diretas, nem que o modelo
+avaliará corretamente as evidências. Solicite a revisão e o registro do parecer
+em mensagens separadas. A aprovação continua sendo uma decisão do operador.
+Claude Code ainda não tem assistente específico nesta versão.
+
+Na preparação com confirmação pelo chat, acrescente `--conversation-approval`
+ao setup ou a `prepare-claude-desktop`/`prepare-codex`. As duas interfaces devem
+usar esse modo. O diagnóstico confere a consistência das entradas. Os comandos
+`sentry_accept_version` e `sentry_authorize_once` são expostos somente no modo
+opt-in e somente na revisão. Aceitação permanente exige parecer allow vigente
+registrado pelo cliente e confirmação distinta, com reconferência de código,
+baseline, configuração e metadados antes da gravação. Consulte as duas opções
+e suas confirmações em [USO-E-ATUALIZACAO.md](USO-E-ATUALIZACAO.md).
+
 ## Preparação manual para o Codex
 
 O comando `prepare-codex` inicia **uma vez** uma cópia conferida para consultar

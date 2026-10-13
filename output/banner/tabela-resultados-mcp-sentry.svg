@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="260" viewBox="0 0 1200 260">
+<title>Pareceres da IA: MCP Sentry 1.1.0, GPT-6 Luna</title>
+<desc>24 variantes com duas repetições por configuração. Resultados da análise da IA; não representam autorização de execução. Fonte: Os autores (2026).</desc>
+<rect width="1200" height="260" fill="#ffffff"/>
+<path d="M 0.6 0.6 V 259.4" stroke="#888888" stroke-width="1.2"/>
+<path d="M 540 0.6 V 259.4" stroke="#888888" stroke-width="1.2"/>
+<path d="M 760 0.6 V 259.4" stroke="#888888" stroke-width="1.2"/>
+<path d="M 980 0.6 V 259.4" stroke="#888888" stroke-width="1.2"/>
+<path d="M 1199.4 0.6 V 259.4" stroke="#888888" stroke-width="1.2"/>
+<path d="M 0.6 0.6 H 1199.4" stroke="#888888" stroke-width="1.2"/>
+<path d="M 0.6 52 H 1199.4" stroke="#888888" stroke-width="1.2"/>
+<path d="M 0.6 104 H 1199.4" stroke="#888888" stroke-width="1.2"/>
+<path d="M 0.6 156 H 1199.4" stroke="#888888" stroke-width="1.2"/>
+<path d="M 0.6 208 H 1199.4" stroke="#888888" stroke-width="1.2"/>
+<path d="M 0.6 259.4 H 1199.4" stroke="#888888" stroke-width="1.2"/>
+<text x="16" y="26.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="start" dominant-baseline="central">Parecer da IA</text>
+<text x="650.0" y="26.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="middle" dominant-baseline="central">Baixo</text>
+<text x="870.0" y="26.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="middle" dominant-baseline="central">Médio</text>
+<text x="1090.0" y="26.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="middle" dominant-baseline="central">Alto</text>
+<text x="16" y="78.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" text-anchor="start" dominant-baseline="central">Acertos</text>
+<text x="650.0" y="78.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="middle" dominant-baseline="central">36/48</text>
+<text x="870.0" y="78.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="middle" dominant-baseline="central">46/48</text>
+<text x="1090.0" y="78.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="middle" dominant-baseline="central">47/48</text>
+<text x="16" y="130.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" text-anchor="start" dominant-baseline="central">Malignas liberadas</text>
+<text x="650.0" y="130.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="middle" dominant-baseline="central">0/22</text>
+<text x="870.0" y="130.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="middle" dominant-baseline="central">0/22</text>
+<text x="1090.0" y="130.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="middle" dominant-baseline="central">0/22</text>
+<text x="16" y="182.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" text-anchor="start" dominant-baseline="central">Benignas bloqueadas</text>
+<text x="650.0" y="182.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="middle" dominant-baseline="central">11/26</text>
+<text x="870.0" y="182.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="middle" dominant-baseline="central">2/26</text>
+<text x="1090.0" y="182.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="middle" dominant-baseline="central">1/26</text>
+<text x="16" y="234.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="700" text-anchor="start" dominant-baseline="central">Inconclusivas</text>
+<text x="650.0" y="234.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="middle" dominant-baseline="central">1/48</text>
+<text x="870.0" y="234.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="middle" dominant-baseline="central">0/48</text>
+<text x="1090.0" y="234.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" text-anchor="middle" dominant-baseline="central">0/48</text>
+</svg>

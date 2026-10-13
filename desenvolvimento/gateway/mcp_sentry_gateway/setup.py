@@ -1,4 +1,4 @@
-"""Interactive, conservative setup for one Codex stdio server."""
+"""Interactive, conservative setup for one local MCP server."""
 
 from __future__ import annotations
 
@@ -53,8 +53,8 @@ def _eligible(name, entry):
     )
 
 
-def _select_server(servers, requested_name, input_fn, output):
-    choices = sorted(name for name, entry in servers.items() if _eligible(name, entry))
+def _select_server(servers, requested_name, input_fn, output, eligible=_eligible):
+    choices = sorted(name for name, entry in servers.items() if eligible(name, entry))
     if not choices:
         raise SentryError("nenhum servidor MCP local stdio compatível foi encontrado neste arquivo")
     if requested_name is not None:
@@ -334,8 +334,8 @@ def _replace_server_table(original: bytes, name: str, replacement: str):
     return changed.encode("utf-8")
 
 
-def _fragment_with_env(name, manifest, store, passthrough_names, inline_env, client_options):
-    fragment = codex_fragment(name, manifest, store, passthrough_names)
+def _fragment_with_env(name, manifest, store, passthrough_names, inline_env, client_options, *, conversation_approval=False):
+    fragment = codex_fragment(name, manifest, store, passthrough_names, conversation_approval=conversation_approval)
     if not inline_env and not client_options:
         return fragment
     lines = fragment.splitlines()
@@ -368,7 +368,7 @@ def _save_config(config_path, original, updated):
             stream.flush()
             os.fsync(stream.fileno())
         if config_path.read_bytes() != original:
-            raise SentryError("config.toml mudou durante a preparação; backup preservado")
+            raise SentryError(f"{config_path.name} mudou durante a preparação; backup preservado")
         os.replace(temporary, config_path)
         return backup
     finally:
@@ -378,7 +378,7 @@ def _save_config(config_path, original, updated):
 def _restore_config(config_path, original, updated):
     """Roll back only our own write; never replace a concurrent user edit."""
     if config_path.read_bytes() != updated:
-        raise SentryError("config.toml mudou após a instalação; restaure o backup manualmente")
+        raise SentryError(f"{config_path.name} mudou após a instalação; restaure o backup manualmente")
     temporary = config_path.with_name(f".{config_path.name}.sentry-rollback-{uuid.uuid4().hex}.tmp")
     try:
         with temporary.open("xb") as stream:
@@ -390,17 +390,37 @@ def _restore_config(config_path, original, updated):
         temporary.unlink(missing_ok=True)
 
 
-def run_setup(config_path: Path, state_root: Path, *, requested_name=None, input_fn=input, output=print):
+def run_setup(config_path: Path, state_root: Path, *, requested_name=None, input_fn=input, output=print, client="codex", conversation_approval=False):
+    if client == "claude-desktop":
+        from . import claude_desktop as adapter
+        configuration = adapter.configuration
+        eligible = adapter.eligible
+        details = adapter.server_details
+        fragment = adapter.fragment
+        replace = adapter.replace
+        diagnose = adapter.doctor
+        record_installation = adapter.installation_record
+        fragment_name = "claude-desktop-fragment.json"
+    elif client == "codex":
+        from .administration import installation_record
+        configuration, eligible, details = _configuration, _eligible, _server_details
+        fragment, replace, diagnose = _fragment_with_env, _replace_server_table, doctor
+        record_installation = installation_record
+        fragment_name = "codex-fragment.toml"
+    else:
+        raise SentryError("cliente ainda não suportado")
     config_path = config_path.resolve()
     state_root = state_root.resolve()
-    original, _, servers = _configuration(config_path)
-    name = _select_server(servers, requested_name, input_fn, output)
+    original, _, servers = configuration(config_path)
+    name = _select_server(servers, requested_name, input_fn, output, eligible)
     review_name = f"mcp_sentry_review_{name}"
     if review_name in servers:
         raise SentryError("já existe uma entrada de revisão com este nome")
-    command, original_cwd, inline_env, passthrough_names, client_options = _server_details(name, servers[name])
+    command, original_cwd, inline_env, passthrough_names, client_options = details(name, servers[name])
+    preflight = (adapter.fragment(name, Path("manifest"), Path("state")) if client == "claude-desktop"
+                 else f"[mcp_servers.{json.dumps(name)}]\ncommand = \"preflight\"\n")
     # Validate the destination table before downloads or discovery.
-    _replace_server_table(original, name, f"[mcp_servers.{json.dumps(name)}]\ncommand = \"preflight\"\n")
+    replace(original, name, preflight)
     if _package_launcher(command):
         existing = state_root / name
         if existing.exists():
@@ -445,12 +465,12 @@ def run_setup(config_path: Path, state_root: Path, *, requested_name=None, input
     state_dir = state_root / name
     manifest_dir = state_dir / "config"
     manifest_path = manifest_dir / "manifest.json"
-    fragment_path = manifest_dir / "codex-fragment.toml"
+    fragment_path = manifest_dir / fragment_name
     store = state_dir / "state"
     if any(path == root or root in path.parents for path in (manifest_path, fragment_path, store)):
         raise SentryError("o estado do Sentry deve ficar fora da pasta do servidor protegido")
     # Verify the selected TOML table can be replaced before starting the backend.
-    _replace_server_table(original, name, f"[mcp_servers.{json.dumps(name)}]\ncommand = \"preflight\"\n")
+    replace(original, name, preflight)
     output("A descoberta iniciará uma cópia verificada do servidor uma vez para consultar tools/list.")
     if _ask("Digite DESCOBRIR para continuar:", input_fn, output) != "DESCOBRIR":
         return {"status": "cancelled_before_discovery"}
@@ -473,6 +493,8 @@ def run_setup(config_path: Path, state_root: Path, *, requested_name=None, input
         manifest=manifest_path, store=store, fragment=fragment_path,
         passthrough_name=passthrough_names, backend_command=portable_command, env_values=inline_env,
         backend_cwd=backend_cwd,
+        client=client,
+        conversation_approval=conversation_approval,
         backend_timeout_sec=max(10, client_options.get("startup_timeout_sec", 10), client_options.get("tool_timeout_sec", 10)),
     )
     prepare_codex(arguments)
@@ -491,20 +513,20 @@ def run_setup(config_path: Path, state_root: Path, *, requested_name=None, input
     if _ask("Digite APROVAR para registrar esta versão como referência:", input_fn, output) != "APROVAR":
         return {"status": "prepared_not_approved", "manifest": str(manifest_path)}
     approve(manifest_path, store, expected_hash=digest(canon(snapshot)))
-    replacement = _fragment_with_env(name, manifest_path, store, passthrough_names, inline_env, client_options)
-    updated = _replace_server_table(original, name, replacement)
+    replacement = fragment(name, manifest_path, store, passthrough_names, inline_env, client_options,
+                           conversation_approval=conversation_approval)
+    updated = replace(original, name, replacement)
     output(f"A entrada direta '{name}' será substituída por execução via Sentry e revisão separada.")
     output(f"Arquivo a alterar: {config_path}. Um backup integral será preservado.")
     if _ask("Digite SUBSTITUIR para aplicar a configuração:", input_fn, output) != "SUBSTITUIR":
         return {"status": "approved_not_connected", "manifest": str(manifest_path)}
     backup = _save_config(config_path, original, updated)
-    from .administration import installation_record
     try:
-        receipt_path = installation_record(config_path, backup, original, updated, name, store.parent/"codex-installation.json")
+        receipt_path = record_installation(config_path, backup, original, updated, name, store.parent/f"{client}-installation.json")
     except (OSError, ValueError) as exc:
         _restore_config(config_path, original, updated)
         raise SentryError("registro de instalação falhou; configuração original restaurada") from exc
-    diagnosis = doctor(manifest_path, store, config_path, name)
+    diagnosis = diagnose(manifest_path, store, config_path, name)
     if diagnosis["status"] != "ready":
         try:
             _restore_config(config_path, original, updated)
@@ -520,16 +542,31 @@ def run_setup(config_path: Path, state_root: Path, *, requested_name=None, input
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="Instalação assistida do MCP Sentry no Codex")
-    parser.add_argument("--codex-config", type=Path, default=Path.home() / ".codex" / "config.toml")
+    parser = argparse.ArgumentParser(description="Instalação assistida do MCP Sentry no Codex ou Claude Desktop")
+    parser.add_argument("--client", choices=("codex", "claude-desktop"), default="codex")
+    configurations = parser.add_mutually_exclusive_group()
+    configurations.add_argument("--codex-config", type=Path)
+    configurations.add_argument("--claude-config", type=Path)
     parser.add_argument("--state-root", type=Path, default=Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "MCP-Sentry")
     parser.add_argument("--name", help="selecionar servidor sem menu")
+    parser.add_argument("--conversation-approval", action="store_true", help="habilitar aprovação explícita pelo chat; confia na atestação do client")
     args = parser.parse_args(argv)
     try:
-        result = run_setup(args.codex_config, args.state_root, requested_name=args.name)
+        if args.client == "claude-desktop":
+            if args.codex_config:
+                raise SentryError("--codex-config requer --client codex")
+            from .claude_desktop import default_config
+            config_path = args.claude_config or default_config()
+        else:
+            if args.claude_config:
+                raise SentryError("--claude-config requer --client claude-desktop")
+            config_path = args.codex_config or Path.home() / ".codex/config.toml"
+        result = run_setup(config_path, args.state_root, requested_name=args.name, client=args.client,
+                           conversation_approval=args.conversation_approval)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         if result["status"] == "connected_restart_required":
-            print("Reinicie o Codex e verifique as conexões em /mcp.")
+            print("Encerre completamente e reabra o Claude Desktop; confira os conectores em uma conversa nova."
+                  if args.client == "claude-desktop" else "Reinicie o Codex e verifique as conexões em /mcp.")
         return 0
     except (OSError, ValueError, SentryError) as exc:
         print(f"mcp-sentry: setup interrompido: {exc}", file=sys.stderr)

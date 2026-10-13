@@ -1,9 +1,28 @@
 # Desenvolvimento do gateway atual
 
-Código-fonte da versão 1.1.0 do protótipo. O usuário recebe a pasta
+Código-fonte da versão 1.3.0 do protótipo. O usuário recebe a pasta
 [instalar-mcp-sentry/](../../instalar-mcp-sentry/README.md), com o wheel e seu manual;
-ela entrega a 1.1.0 com instalação e atualização validadas. O ZIP fica em `distribuicoes/`.
+O ZIP fica em `distribuicoes/`; as entregas 1.1.0 e 1.2.0 permanecem preservadas.
 O protótipo antigo está em [prototipo-feicit/](../../prototipo-feicit/README.md).
+
+A 1.3.0 acrescenta `sentry_accept_version` no modo opt-in de aprovação pelo
+chat. Depois de allow registrado, o cliente oferece aceitação permanente ou
+uma chamada e pede confirmação própria para a opção escolhida. A aceitação
+reconfere vínculos e atualiza atomicamente a baseline após persistir evidências
+obrigatórias; configuração, cobertura, política e catálogo não são promovidos.
+Uso repetido e reconexão continuam permitidos enquanto o código for igual,
+e alterações posteriores bloqueiam novamente. Uma cópia antiga em execução
+é encerrada e substituída pela cópia da referência aceita antes da próxima
+chamada. O assistente/preparador aceita `--conversation-approval`; o padrão
+externo permanece compatível. A atestação do cliente não autentica o usuário.
+
+A 1.2.0 acrescenta configuração assistida para Claude Desktop: `setup --client
+claude-desktop`, detecção dos perfis Windows/Store, fragmento JSON, diagnóstico,
+inventário e restauração seletiva com backup e rejeição de conflitos. Execução
+e revisão usam o mesmo manifesto/estado e processos separados; credenciais são
+mantidas somente na execução. A preparação e os controles de integridade são
+compartilhados com o Codex. Claude Code será uma etapa posterior. Os testes
+técnicos não validam o comportamento de um modelo Claude real.
 
 A 1.1.0 reduz o tempo local sem mudar o que a IA recebe: reuso estrito da cópia
 verificada (P4), texto mascarado reaproveitado para bytes idênticos (P1),
@@ -47,7 +66,7 @@ Na 0.9.0, o mascaramento distingue chaves secretas de literais como
 `"password="`, preserva linhas físicas e evita deformar o diff. A política
 opcional de privacidade fornece critérios confiados pelo operador para a
 revisão. Ela não filtra respostas em execução. Configuração, promoção e
-limites estão em [PRIVACIDADE.md](PRIVACIDADE.md).
+limites estão em [PRIVACIDADE.md](../../instalar-mcp-sentry/ajuda/PRIVACIDADE.md).
 
 A 0.9.1 sincroniza o esquema de registro do parecer com o protocolo v2,
 eliminando a incompatibilidade de versão anunciada na 0.9.0. Evidências em
@@ -66,7 +85,7 @@ em [desenvolvimento/distribuicao/](../distribuicao/README.md). A versão é lida
 pyproject.toml e conferida contra o pacote. Ambientes virtuais, testes e
 arquivos intermediários não fazem parte da entrega ao usuário.
 
-[Validação da entrega 1.1.0](../../documentacao/validacoes/VALIDACAO_1.1.0.md).
+[Validação da entrega atual 1.3.0](../../documentacao/validacoes/VALIDACAO_1.3.0.md).
 
 [Validacao da 0.11.0](../../documentacao/validacoes/VALIDACAO_0.11.0.md).
 

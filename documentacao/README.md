@@ -7,7 +7,9 @@
 - [Guia do piloto](GUIA_PILOTO.md): preparação e verificações técnicas.
 - [Análise das otimizações](ANALISE_OTIMIZACOES.md): implementação e medições da evolução do gateway.
 - [Validações técnicas](validacoes/README.md): registros separados por versão;
-  a entrega atual é descrita na [validação 1.1.0](validacoes/VALIDACAO_1.1.0.md).
+  a entrega atual é descrita na [validação 1.3.0](validacoes/VALIDACAO_1.3.0.md).
+- [Teste de aprovação pelo chat no Claude](TESTE_APROVACAO_CHAT_CLAUDE.md):
+  observações anteriores à aceitação permanente e distinção dos escopos.
 
 Os caminhos dos comandos foram atualizados após a reorganização. Os registros
 históricos descrevem testes já realizados; a reorganização não representa um novo piloto.

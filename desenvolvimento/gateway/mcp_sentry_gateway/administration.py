@@ -108,8 +108,14 @@ def restore_codex(record_path, *, apply=False):
     return result
 
 
-def _configured_gateways(config_path):
-    servers = tomllib.loads(config_path.read_text(encoding="utf-8")).get("mcp_servers", {})
+def _configured_gateways(config_path, client="codex"):
+    if client == "claude-desktop":
+        from .claude_desktop import configuration
+        servers = configuration(config_path)[2]
+    elif client == "codex":
+        servers = tomllib.loads(config_path.read_text(encoding="utf-8")).get("mcp_servers", {})
+    else:
+        raise SentryError("cliente ainda não suportado")
     groups = {}
     for name, entry in servers.items():
         args = entry.get("args", []) if isinstance(entry, dict) else []
@@ -132,10 +138,10 @@ def _configured_gateways(config_path):
     return groups
 
 
-def inventory(config_path):
+def inventory(config_path, client="codex"):
     """Capture current integrity without creating dossiers, reviews or telemetry."""
     results = []
-    for (manifest, store), entries in _configured_gateways(config_path).items():
+    for (manifest, store), entries in _configured_gateways(config_path, client).items():
         item = {"entries": entries, "execution_authorized_by_status": False}
         try:
             baseline = json.loads((store/APPROVED_VERSION_FILE).read_text(encoding="utf-8"))
@@ -180,13 +186,34 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Estado consolidado e restauração seletiva do MCP Sentry")
     sub = parser.add_subparsers(dest="command", required=True)
     status = sub.add_parser("status")
-    status.add_argument("--codex-config", type=Path, default=Path.home()/".codex/config.toml")
+    status.add_argument("--client", choices=("codex", "claude-desktop"), default="codex")
+    configurations = status.add_mutually_exclusive_group()
+    configurations.add_argument("--codex-config", type=Path)
+    configurations.add_argument("--claude-config", type=Path)
     restore = sub.add_parser("restore-codex")
     restore.add_argument("--installation-record", type=Path, required=True)
     restore.add_argument("--apply", action="store_true", help="aplicar; sem esta opção apenas apresenta a restauração")
+    restore_claude = sub.add_parser("restore-claude-desktop")
+    restore_claude.add_argument("--installation-record", type=Path, required=True)
+    restore_claude.add_argument("--apply", action="store_true", help="aplicar; sem esta opção apenas apresenta a restauração")
     args = parser.parse_args(argv)
     try:
-        result = inventory(args.codex_config) if args.command == "status" else restore_codex(args.installation_record, apply=args.apply)
+        if args.command == "status":
+            if args.client == "claude-desktop":
+                if args.codex_config:
+                    raise SentryError("--codex-config requer --client codex")
+                from .claude_desktop import default_config
+                config_path = args.claude_config or default_config()
+            else:
+                if args.claude_config:
+                    raise SentryError("--claude-config requer --client claude-desktop")
+                config_path = args.codex_config or Path.home()/".codex/config.toml"
+            result = inventory(config_path, args.client)
+        elif args.command == "restore-claude-desktop":
+            from .claude_desktop import restore as restore_claude_config
+            result = restore_claude_config(args.installation_record, apply=args.apply)
+        else:
+            result = restore_codex(args.installation_record, apply=args.apply)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 2 if any(x["status"] == "needs_attention" for x in result.get("servers", [])) else 0
     except (OSError, ValueError, KeyError, TypeError) as exc:

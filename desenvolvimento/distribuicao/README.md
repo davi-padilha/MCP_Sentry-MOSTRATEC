@@ -45,7 +45,10 @@ ou a identificação gerada para ocultar uma falha de validação.
 - Descoberta automática de Python e diagnóstico de executável inválido.
 - Rejeição de arquivos alterados antes de criar ambiente.
 - Oferta opcional do setup, recusa respeitada e configuração com confirmações
-  e backup usando um MCP fictício.
+  e backup usando um MCP fictício em Codex e Claude Desktop; diagnóstico,
+  inventário e restauração do JSON do Claude em perfil descartável.
+- Opção `-AprovarNoChat` nas duas interfaces do Claude e, com SDK, aceitação
+  permanente seguida de chamadas repetidas, reconexão e bloqueio de nova mudança.
 - Transporte `stdio`, resposta nativa, bloqueio antes do início, revisão
   separada, registro de parecer sem liberação e autorização de um início.
 
@@ -59,7 +62,7 @@ As evidências ficam em `laboratorio/execucoes/distribuicao-<versao>-*/` e são
 ignoradas pelo Git. `arquivos-instalacao/VERSAO.json` contém somente identificação,
 requisito Python, escopo, wheel/hash e data. Resultados detalhados ficam em
 `validacao/validacao.json`; o registro da entrega
-está em `documentacao/validacoes/VALIDACAO_1.1.0.md`. As baterias de IA têm seus próprios
+está em `documentacao/validacoes/VALIDACAO_1.3.0.md`. As baterias de IA têm seus próprios
 resultados e hashes; construir um wheel novo não repete nem substitui essas
 campanhas.
 

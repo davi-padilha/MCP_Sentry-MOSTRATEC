@@ -174,6 +174,32 @@ def validate(delivery, target, *, python_sdk=None):
     backups = list(setup_config.parent.glob('config.toml.sentry-backup-*.bak'))
     if len(backups) != 1 or not (setup_state/'example/codex-installation.json').is_file():
         raise ValueError('Setup backup/installation receipt missing')
+    claude_config = target/'setup/claude_desktop_config.json'
+    claude_config.write_text(json.dumps({'preferences': {'keep': True}, 'mcpServers': {
+        'example': {'command': str(python), 'args': [str(setup_server)]},
+        'other': {'command': 'untouched', 'args': []}}}), encoding='utf-8')
+    claude_before = claude_config.read_bytes()
+    claude_state = target/'setup/claude-states'
+    run(installer(copied, environment, extra=['-Configurar','-ClaudeConfig',claude_config,'-StateRoot',claude_state,'-AprovarNoChat']),
+        target, target/'setup-claude.txt', input_text='1\n\n\nDESCOBRIR\nAPROVAR\nSUBSTITUIR\n')
+    claude_data = json.loads(claude_config.read_text('utf-8'))
+    if ('mcp_sentry_review_example' not in claude_data['mcpServers'] or
+            claude_data['preferences'] != {'keep': True} or
+            claude_data['mcpServers']['other'] != {'command': 'untouched', 'args': []}):
+        raise ValueError('Claude Desktop setup changed unrelated options or did not connect the pair')
+    if not all('--conversation-approval' in claude_data['mcpServers'][name]['args']
+               for name in ('example', 'mcp_sentry_review_example')):
+        raise ValueError('Installer did not enable opted-in chat approval in both interfaces')
+    claude_record = claude_state/'example/claude-desktop-installation.json'
+    if not claude_record.is_file():
+        raise ValueError('Claude Desktop installation receipt missing')
+    cli = environment/'Scripts/mcp-sentry.exe'
+    run([cli,'doctor','--manifest',claude_state/'example/config/manifest.json','--store',claude_state/'example/state',
+         '--claude-config',claude_config,'--name','example'], target, target/'doctor-claude.txt')
+    run([cli,'status','--client','claude-desktop','--claude-config',claude_config], target, target/'status-claude.txt')
+    run([cli,'restore-claude-desktop','--installation-record',claude_record,'--apply'], target, target/'restore-claude.txt')
+    if json.loads(claude_config.read_text('utf-8')) != json.loads(claude_before):
+        raise ValueError('Claude Desktop selective restoration did not restore the original entries')
     # Default fresh install asks once; answering no leaves client configuration untouched.
     offered = run(installer(copied, target/'oferta/.venv', python=sys.executable), target, target/'oferta.txt', input_text='n\n')
     if 'Deseja abrir' not in offered.stdout or 'Configuracao nao iniciada' not in offered.stdout:
@@ -214,9 +240,12 @@ def validate(delivery, target, *, python_sdk=None):
         raise ValueError('Existing package environment was not upgraded in place')
     summary = {'estado':'validada', 'python_suite_instalador':sys.version.split()[0], 'python_deteccao_automatica':auto_version,
                'testes_total':int(counts[1]), 'ignorados':int(skipped[1]) if skipped else 0,
-               'modulos_fonte_wheel_instalacao_identicos':modules, 'instalacao_limpa':True, 'upgrade_100_para_110':True,
+               'modulos_fonte_wheel_instalacao_identicos':modules, 'instalacao_limpa':True,
+               'upgrade_origem':'1.0.0', 'upgrade_destino':metadata['versao'],
                'upgrade_preserva_estado_e_configuracao':True, 'deteccao_python':True, 'hash_alterado_rejeitado':True,
                'python_invalido_rejeitado':True, 'setup_opcional_com_backup':True, 'setup_recusado_respeitado':True,
+               'setup_claude_desktop_com_backup':True, 'diagnostico_inventario_restauracao_claude_desktop':True,
+               'opcao_aprovar_no_chat_nas_duas_interfaces':True,
                'ambiente_incompleto_preservado':True, 'ambiente_vazio_reutilizado':True,
                'duplo_clique_e_codigo_de_saida':True, 'instalacao_padrao_em_pasta_fixa':True,
                'funciona_sem_pasta_extraida':True, 'ajuda_preservada_na_instalacao':True,
