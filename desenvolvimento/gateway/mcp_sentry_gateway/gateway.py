@@ -14,6 +14,7 @@ from time import perf_counter
 
 from .core import CONNECTION_RECORDS_DIR, SentryError, VERIFIED_COPIES_DIR, capture, digest, execution_envelope, external, inspect, is_secret_name, load, load_execution_envelope, safe_text, write
 from .lifecycle import BackendLifecycle
+from . import process_tree, verified_copies
 from . import __version__
 from .mcp_facade import MinimumMcp
 from .review import consume_allowed_once
@@ -101,6 +102,8 @@ class BackendSession:
     def __init__(self, manifest_path: Path, store: Path, protocol_version="2025-03-26"):
         self.manifest_path, self.store, self.process, self.copy_root = manifest_path, store, None, None
         self._startup_timings = {}
+        self._copy_lease, self._reusable_copy, self._copy_failed = None, False, False
+        self._process_tree = None
         manifest, project_root = load(manifest_path)
         external(store, project_root)
         self.backend_request_timeout_seconds = manifest["configuration"].get("backend_timeout_sec", BACKEND_REQUEST_TIMEOUT_SECONDS)
@@ -137,11 +140,18 @@ class BackendSession:
             raise SentryError("envelope de execução mudou; requer promoção humana separada")
         self._expected_tools = current["manifest"]["metadata"].get("tools", [])
         root = Path(current["root"])
-        self.copy_root = self.store / VERIFIED_COPIES_DIR / uuid.uuid4().hex
-        self.copy_root.mkdir(parents=True, exist_ok=False)
         stage_started = perf_counter()
         try:
-            for item in current["files"]:
+            # A kept copy is reused only for the permanent baseline, only where
+            # the whole backend process tree can be contained, and only if it
+            # holds exactly the approved bytes and nothing else (P4).
+            self._copy_lease = verified_copies.lease(
+                self.store / VERIFIED_COPIES_DIR, expected_hash, current["files"],
+                current["manifest"]["configuration"].get("cwd", "."),
+                reusable=self._reusable_copy and process_tree.supported())
+            self.copy_root = self._copy_lease.root
+            self._startup_timings["copy_reused"] = 1 if self._copy_lease.reused else 0
+            for item in [] if self._copy_lease.reused else current["files"]:
                 source = self.manifest_path if item["path"] == "@manifest" else root / item["path"]
                 target = self.copy_root / ("manifest.json" if item["path"] == "@manifest" else item["path"])
                 target.parent.mkdir(parents=True, exist_ok=True)
@@ -203,8 +213,9 @@ class BackendSession:
         try:
             self.lifecycle.spawn_requested()
             stage_started = perf_counter()
-            self.process = subprocess.Popen(command, cwd=workdir, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                            stderr=subprocess.PIPE, text=True, encoding="utf-8", bufsize=1, env=environment)
+            self.process, self._process_tree = process_tree.spawn(
+                command, cwd=workdir, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE, text=True, encoding="utf-8", bufsize=1, env=environment)
             self._startup_timings["spawn"] = (perf_counter()-stage_started)*1000
             self.lifecycle.backend_started()
             self._start_stderr_drain(self.process)
@@ -220,7 +231,8 @@ class BackendSession:
             self._startup_timings = {}
             startup_started = perf_counter()
             stage_started = perf_counter()
-            expected_hash, _ = self._verified_capture()  # recapture immediately before any spawn
+            expected_hash, one_time = self._verified_capture()  # recapture immediately before any spawn
+            self._reusable_copy = not one_time
             self._startup_timings["pre_spawn_check"] = (perf_counter()-stage_started)*1000
             if self._closed.is_set(): raise SentryError("gateway está encerrando")
             self._copy_and_spawn(expected_hash)
@@ -365,6 +377,10 @@ class BackendSession:
     def _close_locked(self):
         self._closed.set()
         had_process = self.process is not None
+        # Kill the tree BEFORE closing pipes: a descendant can hold stderr
+        # open while the drain thread owns its read lock, blocking close().
+        tree_gone = self._process_tree.terminate() if self._process_tree is not None else False
+        self._process_tree = None
         if self.process is not None:
             if self.process.poll() is None:
                 self.process.terminate()
@@ -373,23 +389,29 @@ class BackendSession:
             for stream in (self.process.stdin, self.process.stdout, self.process.stderr):
                 if stream is not None: stream.close()
             self.process = None
+        # Descendants of the backend die with it; a copy is kept only when the
+        # whole tree is confirmed gone, so no survivor can write into it.
         if self._stderr_thread is not None:
             self._stderr_thread.join(timeout=1)
             self._stderr_thread = None
-        if self.copy_root is not None:
-            copy_root = self.copy_root
+        if self._copy_lease is not None:
+            lease, self._copy_lease = self._copy_lease, None
             try:
-                shutil.rmtree(copy_root)
+                # Only a copy that served a contained backend without failure
+                # may be kept; it is fully rechecked before any later reuse.
+                lease.release(keep=not self._copy_failed and tree_gone)
             except OSError as exc:
                 # Preserve the path for diagnosis and make incomplete cleanup
                 # observable instead of silently declaring success.
-                raise SentryError(f"falha ao remover cópia verificada: {copy_root}") from exc
-            self.copy_root = None
+                raise SentryError(f"falha ao remover cópia verificada: {lease.root}") from exc
+            finally:
+                self.copy_root = None
         if had_process:
             self.lifecycle.backend_closed()
 
     def _close_after_failure(self, primary):
         """Close fail-closed while retaining both primary and cleanup diagnoses."""
+        self._copy_failed = True
         try:
             self.close()
         except SentryError as cleanup:

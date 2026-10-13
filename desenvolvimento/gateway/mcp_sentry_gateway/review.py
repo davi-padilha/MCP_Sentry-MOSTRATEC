@@ -113,8 +113,9 @@ def ensure_pending(manifest_path: Path, store: Path):
             return existing, result
         generation = int(existing.get("generation", generation)) + 1
 
-def security_status(manifest_path: Path, store: Path):
-    status = _security_status(manifest_path, store)
+def security_status(manifest_path: Path, store: Path, *, snapshot=None):
+    """`snapshot` is an ensure_pending() result taken by the caller for one reading (N1)."""
+    status = _security_status(manifest_path, store, snapshot=snapshot)
     approved = _load(store / APPROVED_VERSION_FILE)
     name = approved["capture"]["manifest"]["metadata"].get("review_interface")
     if isinstance(name, str) and name:
@@ -122,8 +123,8 @@ def security_status(manifest_path: Path, store: Path):
     return status
 
 
-def _security_status(manifest_path: Path, store: Path):
-    record, result = ensure_pending(manifest_path, store)
+def _security_status(manifest_path: Path, store: Path, *, snapshot=None):
+    record, result = snapshot or ensure_pending(manifest_path, store)
     assessment = None
     if record is not None and isinstance(record.get("verdict"), dict):
         assessment = {
@@ -150,9 +151,9 @@ def _security_status(manifest_path: Path, store: Path):
         return {"status": "blocked", "current_hash": record["dossier"]["current_hash"], "review_required": False, "review_id": record["review_id"], "reason": "review_or_authorization_expired"}
     return {"status": "review_required", "current_hash": record["dossier"]["current_hash"], "review_required": True, "review_id": record["review_id"]}
 
-def get_pending(manifest_path: Path, store: Path, review_id: str, page: int = 1, page_size: int = 20):
+def get_pending(manifest_path: Path, store: Path, review_id: str, page: int = 1, page_size: int = 20, *, snapshot=None):
     if not isinstance(page, int) or not isinstance(page_size, int) or page < 1 or not 1 <= page_size <= 100: raise SentryError("paginação inválida")
-    record, result = ensure_pending(manifest_path, store)
+    record, result = snapshot or ensure_pending(manifest_path, store)
     if record is None or record["review_id"] != review_id:
         raise SentryError("revisão pendente inexistente", code="REVIEW_ID_MISMATCH", recovery_tool="sentry_review_current_block")
     changes = record["dossier"]["changes"]; start = (page - 1) * page_size

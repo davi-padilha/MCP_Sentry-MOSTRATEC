@@ -6,6 +6,8 @@ Data: 07/10/2026. Escopo: análise, sem implementar otimizações, iniciar servi
 
 **Estado de implementação (conferido no código da 0.11.0 em 07/10/2026):** implementadas T9, U1 e U2; U5 já existia; T3, T8 e P5 ficam fora por violarem garantias; as demais estão pendentes. A 0.10.0/0.11.0 também acrescentou recibo do parecer, contrato da política aprovada, erros com orientação de releitura e medição do tempo por fase, que não eram ideias numeradas desta análise. A medição mostrou 39,84 s de cópia e verificação num início de 44,70 s do Filesystem, o que reforça P1, P2 e P4.
 
+**Atualização de 08/10/2026 (branch de otimizações, sobre a 1.0.0):** P4, P1 e N1 implementadas e P2 parcial, com testes de equivalência e medição antes/depois no mesmo computador. O Filesystem passou de 39,6 s para 7,5 s até o primeiro resultado e de 10,1 s para 6,2 s de trabalho do Sentry numa revisão de bloqueio (medianas). Detalhes, limites e reprodução na [seção 10](#10-implementação-de-p4-p1-e-p2-08102026).
+
 ## 1. Critério e proveniência
 
 As garantias são requisitos de aceitação:
@@ -177,10 +179,10 @@ Arquivos abreviados abaixo pertencem a desenvolvimento/gateway/mcp_sentry_gatewa
 
 | Ideia | Viabilidade no código | Ganho estimado/limite | G1/G2/G3/G4/G5 e condição | Classificação | Estado em 0.11.0 |
 | --- | --- | --- | --- | --- | --- |
-| P1 — Hash primeiro, texto só quando necessário | Cache _capture_text já parcial; primeira captura monta tudo. Futuro core.capture/inspect e identidade do snapshot | Parcela decodificação/regex/texto inalterado; leitura/hash continuam. Limite: tempo de texto medido na capture; sem segundos atuais | C/P/C/P/C. Hash de bytes completos e lista/configuração/catálogo protegidos; recuperar texto dos mesmos bytes. Preservar identidade ou migrar contrato explicitamente; saída equivalente | ACEITA COM CONDIÇÃO | Pendente |
-| P2 — Eliminar captura antes da cópia | _verified_capture descarta _capture disponível e _copy_and_spawn recaptura; redesign possível, remoção simples insegura | Custo de uma capture menos verificações substitutas obrigatórias; não traduzido em segundos | C/C/C/P/C. Transportar snapshot/hash autorizado; copiar/conferir bytes e conjunto, revalidar manifesto/envelope, detectar adições/remoções/corridas. Retirar sem substituto viola G1/G2. E-B | ACEITA COM CONDIÇÃO | Pendente |
+| P1 — Hash primeiro, texto só quando necessário | Cache _capture_text já parcial; primeira captura monta tudo. Futuro core.capture/inspect e identidade do snapshot | Parcela decodificação/regex/texto inalterado; leitura/hash continuam. Limite: tempo de texto medido na capture; sem segundos atuais | C/P/C/P/C. Hash de bytes completos e lista/configuração/catálogo protegidos; recuperar texto dos mesmos bytes. Preservar identidade ou migrar contrato explicitamente; saída equivalente | ACEITA COM CONDIÇÃO | Implementada na branch (08/10) |
+| P2 — Eliminar captura antes da cópia | _verified_capture descarta _capture disponível e _copy_and_spawn recaptura; redesign possível, remoção simples insegura | Custo de uma capture menos verificações substitutas obrigatórias; não traduzido em segundos | C/C/C/P/C. Transportar snapshot/hash autorizado; copiar/conferir bytes e conjunto, revalidar manifesto/envelope, detectar adições/remoções/corridas. Retirar sem substituto viola G1/G2. E-B | ACEITA COM CONDIÇÃO | Parcial na branch (08/10): reconferência mantida, só ficou mais barata |
 | P3 — Hash paralelo | core.capture sequencial; threads/workers possíveis | Fração paralelizável; disco, arquivos pequenos, GIL/regex podem limitar/piorar. Sem ganho quantificado | C/C/P/P/P com resultado idêntico. Saída ordenada, todos erros propagados, hash parcial proibido, workers/memória limitados. E-B | ACEITA COM CONDIÇÃO | Pendente |
-| P4 — Reusar cópia verificada | _copy_and_spawn cria UUID e close remove cópia; novo índice/ciclo de vida necessários | Evita escrita/criação, mantém leitura/hash da fonte e destino/enumeração; sem segundos | C/C/P/C/P com mesmos bytes. Conjunto exato/extras/links/junctions/manifest/envelope, proteção pós-checagem, não reusar estado produzido pelo backend nem autorização. E-B | ACEITA COM CONDIÇÃO | Pendente |
+| P4 — Reusar cópia verificada | _copy_and_spawn cria UUID e close remove cópia; novo índice/ciclo de vida necessários | Evita escrita/criação, mantém leitura/hash da fonte e destino/enumeração; sem segundos | C/C/P/C/P com mesmos bytes. Conjunto exato/extras/links/junctions/manifest/envelope, proteção pós-checagem, não reusar estado produzido pelo backend nem autorização. E-B | ACEITA COM CONDIÇÃO | Implementada na branch (08/10) |
 | P5 — Tamanho/data e full scan periódico | Implementável, incompatível com contrato | Economia omitindo conferência é inaceitável | V/V/P/P/P. Mesmo tamanho/mtime forjados escondem alteração: G1; destino adulterado pode escapar: G2. Estatística só ordena trabalho, nunca decide integridade | REJEITADA | Não implementar |
 | P6 — Vigia prepara dossiê | Novo worker junto de core.inspect/rev; não existe hoje | Desloca trabalho, não elimina; pode aumentar I/O/descarte. Sem ganho medido | C/P/C/P/C. Vigia é dica, recaptura completa no gate, dossiê por hash e invalidação stale. E-B inclusive evento perdido | ACEITA COM CONDIÇÃO | Pendente |
 
@@ -204,7 +206,7 @@ U6: [documentação oficial MCP de conexão local](https://modelcontextprotocol.
 
 | Ideia | Observação/viabilidade | Ganho/limite | G1/G2/G3/G4/G5 e condição | Classificação | Estado em 0.11.0 |
 | --- | --- | --- | --- | --- | --- |
-| N1 — Snapshot estável por entrega, sem inspect em cada página | facade current_block/get_pending/ensure_pending repetem inspeção por página/status | Poupa capturas/JSON da baseline/gravações durante entrega; evidência igual, tempo desconhecido | C/P/C/P/C. Snapshot imutável por hashes, invalidar leitura/registro ao mudar; checagem fresca antes de registrar/autorizar/iniciar. Não misturar gerações. E-B | ACEITA COM CONDIÇÃO | Pendente |
+| N1 — Snapshot estável por entrega, sem inspect em cada página | facade current_block/get_pending/ensure_pending repetem inspeção por página/status | Poupa capturas/JSON da baseline/gravações durante entrega; evidência igual, tempo desconhecido | C/P/C/P/C. Snapshot imutável por hashes, invalidar leitura/registro ao mudar; checagem fresca antes de registrar/autorizar/iniciar. Não misturar gerações. E-B | ACEITA COM CONDIÇÃO | Implementada na branch (08/10) |
 | N2 — Identidade de bytes separada de texto | digest(canon(current)) incorpora todo conteúdo mascarado; baseline JSON grande | Reduz serialização/memória/hash global; leitura continua; não quantificado | C/C/C/P/C. Canon de nomes/hashes/manifesto/envelope completo; evidência por hash recuperável. Migração explícita de baseline/review_id, sem reaproveitar aprovação por conveniência. E-B | ACEITA COM CONDIÇÃO | Pendente |
 | N3 — Exposição menor de schemas redundantes | facade anuncia outputSchema grande/repetido; client pode nem fornecê-lo ao modelo | Quatro outputSchemas somam 3.950 caracteres; não é economia garantida | P/P/C/C/E. Manter contrato MCP/validação no servidor e campos de consentimento/erro; primeiro medir exposição. E-C + E-A, coordenar com Davi | PRECISA DE EXPERIMENTO | Pendente |
 | N4 — Aviso de proteção central, menos repetição por ferramenta | facade injeta 126 caracteres por ferramenta; gw já tem instructions | Teto bruto pela contagem publicada: Filesystem 1.764/Git 1.512/Donna 1.638 caracteres | P/P/C/C/E. Client deve conservar aviso em descoberta/compactação; agente não contorna bloqueio como erro. E-A + E-C | PRECISA DE EXPERIMENTO | Pendente |
@@ -267,3 +269,103 @@ Depois: T4/T5/T7 como experimentos de apresentação. T1/T2 não são economia c
 Entregues apenas este relatório, script somente de leitura e JSON da medição de definições. Produção/configuração ativa/gabarito/patches privados preservados; sem commit/push.
 
 Permanecem **NA**: catálogo nativo completo, payload real pequeno/grande, tempos por fase no Filesystem instalado, escrita da cópia, Popen/handshake Node e suporte efetivo de list_changed neste build. Fórmulas, comandos e experimentos tornam as lacunas reproduzíveis sem inventar valores. Antes da adoção, pesquisadores precisam confirmar todas as cinco garantias e rejeitar regressão de acerto.
+
+## 10. Implementação de P4, P1 e P2 (08/10/2026)
+
+Feita na branch de otimizações, sobre a 1.0.0, no computador do Pedro (Windows 11, Python 3.14, Node 24.14.1, Defender com proteção em tempo real). Não altera o dossiê, a política, as ferramentas de revisão nem a decisão da IA; muda só o trabalho local antes de iniciar o servidor protegido. Ainda não validada em bateria com o Codex.
+
+### Diagnóstico
+
+[diagnosticar_copia.py](../desenvolvimento/teste_do_sentry/diagnosticar_copia.py) repetiu a cópia verificada fora do gateway (4.078 arquivos, 24,3 MB, mediana de 3 rodadas): copiar 3,37 s; **primeira leitura das cópias 23,94 s**; segunda leitura das mesmas cópias 0,33 s; leitura dos originais 0,44 s. O custo está em abrir arquivos recém-criados pela primeira vez, comportamento típico de antivírus em tempo real; a atribuição ao Defender não foi comprovada por gravação de desempenho. O perfil do `inspect` mostrou 4,0 s nas expressões de mascaramento de segredos na primeira captura de cada processo e ~1,5 s por captura em operações de caminho.
+
+### O que foi feito
+
+- **P4 — reuso estrito da cópia** ([verified_copies.py](../desenvolvimento/gateway/mcp_sentry_gateway/verified_copies.py)): só a cópia da referência permanente é guardada; a de uso único continua apagada. Antes de reusar, confere o conjunto exato de arquivos e pastas, ausência de links, junctions e outros reparse points, ausência de hard links extras e o SHA-256 de cada arquivo. Qualquer divergência descarta e refaz a cópia. Cada cópia é usada por uma conexão por vez (trava do sistema, liberada se o processo morrer); conexões simultâneas usam cópias próprias. Mantém no máximo uma cópia livre por versão e apaga as de versões antigas sem seguir links. A reconferência da fonte antes da cópia foi mantida.
+- **P1 — texto só quando necessário:** o `inspect` reaproveita o texto já mascarado da versão aprovada para arquivos com o mesmo SHA-256. Todo arquivo continua lido e com hash calculado em todas as capturas; arquivos novos ou alterados são mascarados de novo.
+- **P2 — parcial:** a captura antes da cópia **não** foi removida, porque com P4 sua remoção faria uma alteração ocorrida entre a conferência e o início executar a cópia aprovada em vez de bloquear (teste `test_mutation_after_inspection_is_still_blocked_before_spawn`). Apenas a verificação de "arquivo dentro de project_root" passou de comparação de `Path.parents` para prefixo de caminho normalizado, com separador.
+
+### Medição
+
+[medir_inicio.py](../desenvolvimento/teste_do_sentry/medir_inicio.py), Filesystem, 5 rodadas por condição, mediana das rodadas 2–5, mesmo computador:
+
+| Medida | 1.0.0 | + P4 | + P4, P1, P2 |
+|---|---:|---:|---:|
+| Até o primeiro resultado | 39,6 s | 11,7 s | 7,5 s |
+| Conferências antes da chamada | 7,7 s | 7,8 s | 3,6 s |
+| Conferência antes de iniciar | 2,0 s | 2,05 s | 2,07 s |
+| Captura antes da cópia | 1,5 s | 1,6 s | 1,45 s |
+| Cópia verificada | 28,7 s | 0,66 s | 0,73 s |
+
+A primeira conexão depois de aprovar ou aceitar uma versão ainda cria a cópia (44,2 s na série P4). O Git, com 11 arquivos, não muda de forma perceptível. Os números dependem do antivírus e do disco; compare sempre no mesmo computador.
+
+### Equivalência
+
+- [test_verified_copy_equivalence.py](../desenvolvimento/gateway/testes/test_verified_copy_equivalence.py) (27 testes): bytes aprovados em toda conexão; cópia adulterada, arquivo, pasta vazia ou junction plantados, pasta legítima trocada por junction com bytes idênticos e estado gravado pelo backend nunca chegam à execução; mudança não revisada continua bloqueada; versão aceita substitui a anterior; uso único continua único; conexões simultâneas independentes; cópias não se acumulam; e o reuso de fato ocorre com servidor que não grava na própria cópia.
+- [test_capture_equivalence.py](../desenvolvimento/gateway/testes/test_capture_equivalence.py) (8 testes): `capture` e `inspect` byte a byte iguais a uma cópia literal da função da 1.0.0, inclusive erros, em árvore com binário, CRLF, acentos, segredos, chave privada, exclusões, credenciais, raízes ausentes e junctions para dentro, para fora e para pasta vizinha com o mesmo prefixo de nome.
+- Versões propositalmente erradas foram reprovadas: reuso sem conferência (8 testes na simulação antes da P4; 6 contra a P4 real), só com hashes (7; 5), sem procurar links (1), prefixo sem separador (1), texto semeado errado (15) e sem mascaramento (17).
+- Suíte completa: 145 testes, 6 ignorados (os 4 anteriores e 2 links de arquivo, que exigem privilégio no Windows). Dois testes antigos foram ajustados porque descreviam exatamente o comportamento alterado: pasta de cópias vazia após fechar e lista de tempos registrados (novo campo `copy_reused`).
+
+### N1 — uma fotografia por leitura do dossiê
+
+Na 1.0.0, `sentry_review_current_block` fazia uma inspeção para o status e mais uma por página, e `sentry_record_assessment` fazia uma inspeção só para saber o total de mudanças, antes da inspeção fresca do registro. Agora a leitura usa uma única inspeção para status e todas as páginas, e o registro mantém apenas a inspeção fresca de `submit_verdict`. Quando o dossiê citado não foi lido por inteiro nesta conexão, o registro segue o caminho da 1.0.0, com as mesmas mensagens de erro.
+
+Ganho de qualidade: uma leitura nunca mistura versões; se o servidor mudar durante ou depois da leitura, o registro é recusado (`REVIEW_ID_MISMATCH`) e nada é persistido.
+
+Medição numa cópia temporária do Filesystem (alteração benigna de um comentário, dossiê de uma página, mediana das rodadas 2–4, mesmo processo e mesmo `core.py`): tarefa bloqueada 2,17 → 2,18 s; leitura 4,06 → 2,15 s (2 → 1 inspeção); registro 3,84 → 1,91 s (2 → 1); **total do Sentry 10,07 → 6,24 s**. Dossiês com várias páginas ganham mais. O tempo da IA nos turnos não muda.
+
+[test_review_snapshot_equivalence.py](../desenvolvimento/gateway/testes/test_review_snapshot_equivalence.py) (12 testes) compara o dossiê entregue com a reconstrução da 1.0.0 (uma e várias páginas) e fixa os resultados do registro: vínculo exato, mudança depois da leitura, parecer antigo sem leitura, com leitura parcial, com hashes, revisão ou política errados, token de outra conexão e mudança no meio da leitura. Com `review.py` e `mcp_facade.py` da 1.0.0, 11 passam e só o teste de quantidade de inspeções falha. Mutantes reprovados: registro sem leitura completa (1), leitura parcial como completa (1), registro sem inspeção fresca (4) e fotografia reaproveitada entre leituras (3). O teste de leitura parcial cobre um caso que antes não tinha teste.
+
+### Revisão independente e correções (08/10/2026)
+
+Uma revisão independente pelo Codex, só de leitura e com sondas em pasta temporária, recomendou não adotar o commit `cf11f29`. Os achados foram reproduzidos por testes próprios ([test_review_findings_110.py](../desenvolvimento/gateway/testes/test_review_findings_110.py)) antes da correção:
+
+| Achado | Gravidade | Correção |
+|---|---|---|
+| A — descendente do backend sobrevive (fechamento normal ou morte do gateway) e pode alterar a cópia guardada antes da próxima execução | Alto, regressão | [process_tree.py](../desenvolvimento/gateway/mcp_sentry_gateway/process_tree.py): backend criado suspenso dentro de um Job Object com `KILL_ON_JOB_CLOSE`, sem breakaway; no fechamento a árvore é encerrada e a cópia só é guardada se nenhum processo restar. Marca `.in-use`: cópia de conexão interrompida nunca é reutilizada. Sem Job Object (fora do Windows ou falha), não há reuso |
+| B — fluxos alternativos NTFS (ADS) atravessam conexões | Alto, regressão | A conferência rejeita qualquer fluxo além de `::$DATA` em arquivos e qualquer fluxo em pastas |
+| C — troca por junction durante a limpeza | Alto, já existia na 1.0.0 (`shutil.rmtree`) | Sem correção própria; com A, nenhum processo do backend permanece durante a limpeza. Escritor concorrente de fora continua fora do modelo de ameaça |
+| D — P1 depende do histórico do cache quando a regra de mascaramento muda | Médio | Cache por regra (impressão digital do código e padrões) e texto da referência reaproveitado só depois de confirmado igual ao da regra atual (`texto-da-referencia-confirmado.json`) |
+| E — liberações simultâneas guardam duas cópias | Baixo | Trava do conjunto (`pool.lock`) serializa empréstimo, retenção e remoção |
+| F — arquivos `.lock` se acumulam | Baixo | Limpeza de travas e marcas órfãs sob a trava do conjunto |
+| G — prefixo da P2 remove barra invertida de nome POSIX | Baixo | Remove só os separadores da plataforma |
+| Medição sem identificar o pacote importado | Observação | `medir_inicio.py` registra caminho, versão e SHA-256 do pacote medido |
+
+Durante a correção apareceu uma falha intermitente anterior: `os.replace` do relatório de inspeção recusado pelo Windows enquanto o antivírus ainda lia o arquivo anterior, o que bloqueava a chamada (falha fechada). A gravação continua atômica e agora tenta de novo por até 1 s no Windows.
+
+Desfazer cada correção faz testes reprovarem: sem conter a árvore (8), guardar sem confirmar a árvore vazia (1), reutilizar cópia interrompida (1), sem procurar ADS (2), semear sem confirmação (1), sem trava do conjunto (1), sem limpar travas órfãs (1) e prefixo antigo (1). Suíte completa: 169 testes, 3 ignorados, 8 rodadas seguidas sem falha.
+
+Depois das correções, o Filesystem ficou em 7,2 s até o primeiro resultado (5 rodadas, inclusive a primeira, com o estado já assentado); a verificação de ADS custa ~0,14 s. Uma rodada isolada logo após a troca de código levou 74 s: o Codex aberto mantinha a cópia guardada emprestada (cópia nova, 27,6 s), a confirmação do texto da P1 ainda não existia e havia processos de teste órfãos; os 43 s de inspeção dessa rodada não estão totalmente explicados.
+
+Limites que permanecem: o Job Object não é sandbox (um backend pode pedir a outro serviço do sistema, como WMI ou o agendador, que inicie um processo fora do Job); atributos estendidos (EA) não são conferidos; fora do Windows a P4 não reutiliza cópias.
+
+### Correções após a segunda revisão (08/10/2026)
+
+A segunda revisão reproduziu execução de um arquivo não aprovado quando a criação ou atribuição do Job falhava: o backend era retomado sem contenção, um filho sobrevivia e alcançava a conexão seguinte porque a pasta interrompida era reconstruída no mesmo caminho, mesmo com `copy_reused = 0`. Também reproduziu fechamento bloqueado por `stderr` herdado, processo suspenso órfão antes da atribuição e colisão da impressão digital ao mudar flags de regex.
+
+Correções implementadas pelo próprio revisor, a pedido do operador; esta implementação **não constitui uma nova revisão independente**:
+
+- O gateway cria o backend com `CreateProcessW` e `PROC_THREAD_ATTRIBUTE_JOB_LIST`: a atribuição ao Job ocorre na própria criação, antes da retomada. No Windows, falha de criação/configuração/atribuição bloqueia o início, sem fallback sem contenção. Essa rota requer Windows 10 ou superior e usa a infraestrutura de pipes e espera do `Popen` do CPython; foi validada localmente com Python 3.12 e 3.14. A compatibilidade das demais versões de Python suportadas pelo pacote ainda precisa ser validada.
+- A árvore é encerrada antes de fechar os pipes. Uma segunda chamada de `terminate()` não transforma uma consulta anterior inconclusiva em confirmação de árvore vazia.
+- Cópia interrompida ou contaminada é substituída por uma pasta com identificador novo; seu caminho anterior não é reconstruído para outra conexão.
+- A impressão digital inclui as flags dos padrões. Caminhos UNC comuns são convertidos para `\\?\UNC\...` na enumeração de ADS.
+- `test_second_review_110.py` cobre as falhas acima, morte antes da retomada e Job aninhado com launcher de venv. Os testes de reuso ficam explicitamente condicionados ao Windows. As fixtures de captura e gateway removem links antes dos destinos e deixam de ignorar falhas de limpeza; o teste de morte abrupta fecha seus próprios pipes.
+
+Validação final em cópia temporária do pacote e dos testes: 179 testes, 3 casos ignorados por falta de privilégio para symlink, em três rodadas completas no CPython 3.14 (32,57 s; 32,77 s; 32,60 s) e uma no CPython 3.12 (31,30 s). Os dez testes novos passaram nas duas versões. Após aquecimento, a contagem de handles permaneceu em 141 antes e depois de quarenta lançamentos adicionais. Não houve processo de teste sobrevivente ao término da validação. Esses resultados são validação da implementação pelo autor das correções, não aprovação independente nem resultado da bateria do Davi.
+
+Os números de desempenho e de testes das subseções anteriores são históricos. Não houve execução contra a instalação ou estado reais nesta correção. Os limites de EA, serviços externos e escritor externo concorrente permanecem; o Job não passou a ser sandbox.
+
+### Ajuste após o teste real no Codex (08/10/2026)
+
+No Codex, Git e Filesystem funcionaram com a contenção por Job e com a cópia reaproveitada. Mas o Codex encerra o gateway à força ao fim de cada conversa: a marca `.in-use` sempre ficava, e a regra "cópia interrompida nunca é reaproveitada" fazia a conversa seguinte refazer a cópia (37,3 s em vez de 7,3 s), anulando a P4 no uso real.
+
+Ajuste: **todo reuso primeiro move a cópia para um caminho novo e imprevisível**, e só então faz a conferência completa. O Windows recusa mover uma pasta enquanto algum processo tem um arquivo aberto ou o diretório de trabalho dentro dela (verificado: arquivo aberto e processo com `cwd` na pasta recusam; pasta livre move). Uma cópia de conexão encerrada à força passa a ser reaproveitada, porque no Windows todo backend nasce num Job com `KILL_ON_JOB_CLOSE`, sem alternativa sem contenção: a morte do gateway encerra a árvore. Um eventual sobrevivente fora do Job (ver limites) perde o caminho. A marca `.in-use` permanece para diagnóstico e limpeza.
+
+Verificação com o servidor real: o gateway foi encerrado sozinho (sem matar a árvore pelo lado de fora); o processo Node do Filesystem, vivo antes, não existia depois; a conexão seguinte reaproveitou a cópia em 7,36 s. Testes: três testes que descreviam a regra anterior foram atualizados (cópia de conexão morta é reaproveitada só num caminho novo; o caminho antigo deixa de existir; reuso sempre muda o caminho) e um novo verifica que uma cópia ainda em uso por um processo não é reaproveitada. Suíte: 180 testes, 3 ignorados, 4 rodadas sem falha.
+
+### Limites e diferenças
+
+- Servidor que grava na própria pasta (por exemplo, Python sem `-B`) tem a cópia descartada a cada conexão: seguro, mas sem ganho.
+- A cópia aprovada permanece no estado confiável entre sessões. A janela entre conferir e iniciar é a mesma da 1.0.0.
+- Arquivos `.lock` de cópias de uso único permanecem na pasta de cópias.
+- Se a regra de mascaramento mudar, a referência só semeia o cache após confirmação para a nova impressão digital; a captura atual usa o texto da regra atual. O texto histórico da referência não é reescrito.
+- Pendentes: confirmar o efeito do Defender por gravação de desempenho; repetir a medição no computador do Davi; rodar uma bateria curta no Codex antes de adotar.

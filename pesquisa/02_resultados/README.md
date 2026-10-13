@@ -7,6 +7,17 @@ público, a comparação das baterias Sol/0.8.1 e Luna/0.9.1, métricas e regist
 com campos selecionados. Gabarito, patches e transcrições permanecem privados.
 Essas séries são separadas das campanhas FEICIT listadas abaixo.
 
+## Evolução 1.1.0 — GPT-6 Luna
+
+- [Luna médio](10_evolucao_110_luna_medium/README.md): 46/48 acertos; R3: 2/2.
+- [Luna alto](11_evolucao_110_luna_high/README.md): 47/48 acertos; R3: 1/1; uma reposição técnica autorizada e documentada.
+- [Luna baixo](12_evolucao_110_luna_low/README.md): 36/48 acertos; R3: 4/6; uma revisão principal inconclusiva.
+- [Comparação dos três esforços](COMPARACAO_LUNA_110.md): legítimas bloqueadas, maliciosas permitidas, acertos dos R3, tempos, tokens e limitações.
+
+Campanhas em 11/10/2026, com 48 revisões principais em cada esforço.
+As R3 permanecem fora das métricas principais. As pastas incluem relatórios,
+exportações anônimas e proveniência; registros privados permanecem fora do repositório.
+
 ## Leitura recomendada
 
 1. `03_planilhas_para_leitura/` — visão mais simples dos resultados;

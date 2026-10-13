@@ -21,3 +21,4 @@ client_secret.json
 client_secret*.json
 runtime/
 local_data/
+/tmp/manual_review/
