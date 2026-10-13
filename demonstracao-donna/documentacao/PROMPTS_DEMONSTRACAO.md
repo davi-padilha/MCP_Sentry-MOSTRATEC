@@ -43,7 +43,7 @@ para mostrar que o hash mudou, embora a interface MCP observada permaneca igual.
 
 Para executar o cenário protegido, mantenha a versão posterior ativa e
 configure o cliente para iniciar o MCP Sentry conforme o
-[manual atual](../../pacote-usuario/README.md). O gateway deve comparar a versão
+[manual atual](../../instalar-mcp-sentry/README.md). O gateway deve comparar a versão
 aprovada com a atual e bloquear o início até a revisão. Confira esse resultado
 na execução; este roteiro não é evidência de que o piloto já foi realizado.
 

@@ -47,7 +47,7 @@ def main():
     frozen = read(OLD / "operador/protocolo/congelamento.json")
     final = read(OLD / "operador/analise/auditoria-final.json")
     assert final["resumo"]["primarias"] == 48 and not final["resumo"]["r3_pendentes"]
-    wheel = REPO / "pacote-usuario/mcp_sentry_gateway-0.11.0-py3-none-any.whl"
+    wheel = REPO / "distribuicoes-historicas/mcp_sentry_gateway-0.11.0-py3-none-any.whl"
     assert sha(wheel) == frozen["wheel_sha256"]
     with zipfile.ZipFile(wheel) as archive:
         for name in archive.namelist():

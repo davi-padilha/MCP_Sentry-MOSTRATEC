@@ -42,7 +42,7 @@ As confirmações dos testes são fixtures descartáveis, sem substituir usuári
 ou modelo no piloto real. Nenhuma aprovação real foi digitada pelo agente.
 
 Wheel gerado via `pip wheel --no-deps` usando build isolado:
-`pacote-usuario/mcp_sentry_gateway-0.8.1-py3-none-any.whl`.
+`distribuicoes-historicas/mcp_sentry_gateway-0.8.1-py3-none-any.whl`.
 
 - SHA256 wheel: `d3424dd2894f5dd439dcae9869082dca4093c1349d7b95c6f3b04c4ae1528a41`.
 - SHA256 módulos: `86646c50d950cbc3ddf9ff0430e922f4af92400b0e4cbbc3fb9f5a7d4d23717e`.

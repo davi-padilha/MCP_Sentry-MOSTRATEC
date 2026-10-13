@@ -244,7 +244,7 @@ registra o participante ou BCC ficticio com `network_performed=false`.
 Para a demonstração local simulada, configure o cliente para chamar o launcher
 do MCP Sentry, que por sua vez iniciará este mesmo servidor. O gateway compara
 a versão aprovada e a atual antes de executar a Donna. Siga o manual em
-[manual do pacote para o usuário](../pacote-usuario/README.md); não aplique este fluxo a Google real.
+[manual do pacote para o usuário](../instalar-mcp-sentry/README.md); não aplique este fluxo a Google real.
 O mecanismo embutido anterior foi preservado apenas em
 uma referencia legada, fora da estrutura canonica da Donna MCP.
 

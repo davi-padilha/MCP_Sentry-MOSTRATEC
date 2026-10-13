@@ -64,7 +64,7 @@ Fixtures, pareceres `allow` e confirmações fornecidos pelos testes são
 
 ## Servidores reais sem perfil
 
-O runner [smoke_generic.py](../desenvolvimento/gateway/testes/smoke_generic.py) usa preparação
+O runner [smoke_generic.py](../../desenvolvimento/gateway/testes/smoke_generic.py) usa preparação
 genérica, subprocesso físico do Sentry e protocolo stdio. Faz initialize,
 tools/list, chamada normal, alteração controlada do código, chamada bloqueada,
 parecer técnico/ACEITAR e nova chamada. Verifica bytes da entrada copiada e
@@ -127,7 +127,7 @@ outro smoke concorrente: não permite atribuir quantitativamente a diferença
 
 ## Candidata reproduzível
 
-Wheel: `pacote-usuario\mcp_sentry_gateway-0.7.0-py3-none-any.whl`, 56.194 bytes.
+Wheel: `distribuicoes-historicas\mcp_sentry_gateway-0.7.0-py3-none-any.whl`, 56.194 bytes.
 SHA-256:
 
 ```text

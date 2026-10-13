@@ -49,14 +49,14 @@ bateria. Nenhum backend protegido ou recurso Google foi executado no replay.
 
 ## Distribuição
 
-Wheel: `pacote-usuario/mcp_sentry_gateway-0.9.0-py3-none-any.whl`.
+Wheel: `distribuicoes-historicas/mcp_sentry_gateway-0.9.0-py3-none-any.whl`.
 
 SHA256: `329f806338e33cc211326fe77b3e75df559beb2060ccc15c18d8d3321899f7c8`.
 
 O build usou dependências de empacotamento isoladas, sem instalar a candidata
 no ambiente da 0.8.1. Os wheels 0.8.0/0.8.1 e os resultados anteriores foram
-preservados. [Manual de privacidade](../desenvolvimento/gateway/PRIVACIDADE.md)
-e cópia para o usuário em `pacote-usuario/PRIVACIDADE.md`.
+preservados. [Manual de privacidade](../../desenvolvimento/gateway/PRIVACIDADE.md)
+e cópia para o usuário em `distribuicoes-historicas/PRIVACIDADE.md`.
 
 ## Antes da nova série
 

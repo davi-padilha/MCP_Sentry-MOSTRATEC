@@ -1,148 +1,19 @@
-# Distribuições históricas do MCP Sentry
+# Configuração manual e referência de operação
 
-**A entrega atual está em [instalar-mcp-sentry/](../instalar-mcp-sentry/README.md)
-e o ZIP está em [distribuicoes/](../distribuicoes/README.md).** Esta pasta preserva
-wheels e instruções históricos para reprodução, incluindo a 1.0.0 usada para
-validar atualização para a 1.1.0. Os procedimentos abaixo descrevem versões anteriores.
+Este guia é para configuração manual, outros clientes `stdio` e opções
+avançadas. Para o caminho assistido, consulte [Uso e atualização](USO-E-ATUALIZACAO.md).
+Os valores como `C:\MCP\meu-servidor` são exemplos: substitua pelos seus caminhos.
 
-O MCP Sentry é um gateway local para
-servidores MCP iniciados por `stdio`. O cliente de IA inicia o Sentry; o Sentry
-confere os arquivos e a configuração aprovados e só então inicia uma cópia
-verificada do servidor protegido. Se houver mudança, o servidor permanece
-parado até uma revisão e uma decisão do operador.
-
-Esta pasta contém o instalador da candidata **0.11.0**, os wheels **0.10.0**, **0.9.1**, **0.9.0**, **0.8.1** e
-**0.8.0** preservados para reproduzir os testes anteriores, e estas instruções.
-Para reprodução histórica, este README acompanha os respectivos wheels.
-O wheel é um instalador
-Python, não um executável independente; Python 3.11+ deve estar instalado.
-Mantenha o ambiente instalado em um caminho estável.
-O código-fonte e os testes ficam em `desenvolvimento/gateway/` no repositório;
-os guias do piloto e os registros técnicos ficam em `documentacao/`.
-
-O pacote não contém o servidor MCP protegido, credenciais, dados de um projeto específico nem configuração
-de um cliente específico. Cada servidor protegido precisa de seu próprio
-manifesto e diretório de estado.
-
-Na 0.9.0, o mascaramento evita interpretar literais como `"password="` como
-atribuições e preserva linhas físicas do código apresentado. Há uma política
-opcional de privacidade, aprovada separadamente pelo operador e exibida no
-dossiê da IA. Ela orienta a revisão; não filtra respostas do backend em
-execução. Consulte [PRIVACIDADE.md](PRIVACIDADE.md) para declarar regras e
-conferir os limites. A candidata usa `mcp-sentry-review-v2`; a nova série de
-testes deve ter seus próprios estados, versões fixadas e registros.
-
-A 0.9.1 corrige o esquema da ferramenta de registro para anunciar a mesma
-versão v2 exigida na validação do parecer. Não muda as ferramentas nativas.
-
-## Requisitos e instalação
-
-- Windows com Python 3.11 ou posterior.
-- Um cliente que permita configurar servidores MCP locais por `stdio`.
-- O servidor MCP que você quer proteger, já instalado e testado separadamente.
-
-No PowerShell, abra esta pasta e instale o gateway em um ambiente virtual:
+Os comandos abaixo partem da pasta do programa instalado. Na instalação padrão,
+abra PowerShell e execute:
 
 ```powershell
-py -3 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install .\mcp_sentry_gateway-0.11.0-py3-none-any.whl
+Set-Location (Join-Path $env:LOCALAPPDATA 'MCP-Sentry-Gateway')
 ```
 
-O gateway não requer uma instalação separada do SDK MCP. O servidor protegido
-pode requerer suas próprias dependências e seu próprio interpretador. Mantenha
-o gateway e o interpretador usado pelo servidor em caminhos estáveis.
-
-## Instalação assistida para Codex
-
-Na 0.8.1 há um modo opcional para o protótipo MOSTRATEC: acrescente
-`--conversation-approval` aos argumentos do gateway de execução e revisão.
-Após parecer `allow` vigente, o usuário deve enviar em mensagem separada
-`APROVO UMA EXECUÇÃO DESTA VERSÃO.`; o client pode então registrar a autorização
-com `sentry_authorize_once`. A próxima chamada protegida funciona uma vez;
-a seguinte fica bloqueada. Não aceita a versão como referência permanente.
-O Sentry confia na atestação do client sobre a confirmação, sem autenticar
-a autoria humana. Sem a opção, a aprovação continua no terminal.
-O assistente não ativa essa opção automaticamente. O complemento foi
-verificado no Codex com Git e G1 em 05/10/2026; consulte o guia e a validação
-0.8.1 no repositório para evidências e limites antes de usá-lo na bateria.
-
-Se você já tem um servidor MCP local configurado no Codex, execute:
-
-```powershell
-.\.venv\Scripts\mcp-sentry.exe setup
-```
-
-Se a entrada já foi conectada, atualizar o pacote não exige executar `setup`
-novamente. O assistente protege uma entrada direta existente; para conferir uma
-instalação já feita, use `doctor` com o manifesto e o estado salvos.
-
-O assistente lê `~/.codex/config.toml`, lista as entradas locais elegíveis e
-pergunta qual proteger. Ele solicita a pasta e os arquivos do servidor, pede
-permissão **antes de iniciá-lo uma vez** para consultar `tools/list`, mostra o
-catálogo e os hashes dos arquivos, e exige uma aprovação explícita da versão
-atual. Só depois de uma segunda confirmação faz backup do `config.toml` e
-substitui a entrada direta por uma entrada de execução via Sentry e outra de
-revisão. Por fim, roda `doctor`. Reinicie o Codex e confira `/mcp`.
-
-Para entradas `npx` ou `uvx` nos formatos suportados, o próprio `setup` agora:
-
-1. Lê o pacote e a versão da configuração; se não houver versão, pergunta uma versão exata.
-2. Sugere o executável Node/Python e uma pasta nova para a instalação.
-3. Após `INSTALAR`, baixa o pacote sem iniciar o servidor e sugere os arquivos a proteger.
-4. Após `DESCOBRIR`, consulta as ferramentas pela cópia verificada.
-5. Após `APROVAR` e `SUBSTITUIR`, registra a referência e conecta o Codex ao Sentry.
-
-Exemplos de comandos de origem reconhecidos: `npx -y pacote@1.2.3`,
-`cmd /c npx -y @escopo/pacote@1.2.3`, `uvx pacote==1.2.3` e
-`uvx --from distribuicao==1.2.3 comando`. A instalação Node exige npm e Node;
-a rota uvx usa Python/pip e distribuições wheel. O servidor passa a iniciar
-Python/Node diretamente; não há download de versão nova a cada conexão.
-
-Use caminhos absolutos nos argumentos e variáveis que apontam para dados.
-Entradas npx/uvx com `cwd` explícito, tags como `latest`, intervalos, URLs,
-extras e opções avançadas continuam na preparação manual. Uma falha no download
-preserva a configuração do Codex; uma instalação parcial pode ficar na pasta
-escolhida. Corrija a causa e use uma pasta nova para repetir.
-
-A rota manual `materialize` → `prepare-server` permanece disponível, inclusive
-para preparar a configuração de outros clients. Use `mcp-sentry materialize --help`
-e `mcp-sentry prepare-server --help` para os argumentos.
-
-O assistente aceita um servidor `stdio` local iniciado por um interpretador
-Python de caminho absoluto, com um script `.py` existente como primeiro
-argumento, ou `-m pacote` quando o pacote com `__main__.py` está na pasta
-protegida. Também aceita Node com executável absoluto e arquivo de entrada local. Também reconhece o formato específico
-`MasterTool_MCP/scripts/run_server.cmd`: nesse caso, substitui o launcher por
-`.venv/Scripts/python.exe server.py`, protege `server.py` e os arquivos
-`.py` em `mastertool_mcp` (inclusive em subpastas), e executa esses arquivos a partir da
-cópia verificada. O assistente não aceita arquivos `.cmd` arbitrários. O
-workspace de trabalho do MasterTool e o executável MasterTool IEC continuam
-externos à cópia e não são verificados. Para ampliar a cobertura a outros
-arquivos locais, adicione-os na pergunta sobre arquivos/pastas a proteger.
-O assistente confere a existência desses caminhos e o formato da entrada TOML
-antes de iniciar a descoberta. Se os arquivos mudarem enquanto você os revisa,
-a aprovação é interrompida e precisa ser feita novamente após nova conferência.
-Se uma tentativa falhar antes de gerar o manifesto e deixar somente uma pasta
-`config` vazia, a próxima tentativa a reutiliza sem apagar outros dados.
-
-Um `cwd` absoluto dentro da pasta escolhida é reproduzido na cópia verificada;
-os tempos de espera e a política padrão de
-aprovação das ferramentas são mantidos na entrada do Codex. O assistente não migra servidores HTTP,
-servidores definidos em outras camadas de configuração ou
-entradas com opções que ainda não consegue migrar. Em vez de descartar opções,
-ele interrompe a preparação e preserva o arquivo original. Para Filesystem e Git instalados por gerenciadores nos formatos suportados, use
-o próprio `setup`. `prepare-profile` permanece uma alternativa opcional que
-gera arquivos sem modificar a configuração do client. Use
-`--codex-config CAMINHO` se a entrada estiver em outro `config.toml` e
-`--state-root CAMINHO` para escolher onde guardar o estado. O estado deve ficar
-fora do projeto protegido e indisponível para alterações pelo agente de IA.
-
-A sugestão automática inclui o script de entrada e pacotes irmãos com `__init__.py` no caso Python comum;
-no perfil MasterTool, inclui também os módulos `.py` da pasta `mastertool_mcp`.
-Adicione configurações e outros arquivos necessários. O
-Sentry não descobre todas as dependências sozinho. Se o servidor já estiver
-rodando ou continuar configurado em outra camada do Codex, essa conexão direta
-não será protegida. Nunca use a aprovação inicial sem conferir o código.
+Se escolheu outro ambiente, abra sua pasta pai, que contém a `.venv`. A versão
+da entrega está em `arquivos-instalacao/VERSAO.json` no ZIP; depois de instalar,
+uma cópia fica em `ajuda-mcp-sentry/VERSAO.json` junto ao programa.
 
 ## Preparação manual para o Codex
 
@@ -291,11 +162,11 @@ mesmo manifesto e o mesmo diretório de estado:
 {
   "mcpServers": {
     "meu_servidor_via_sentry": {
-      "command": "C:\\caminho\\desenvolvimento\gateway\\.venv\\Scripts\\mcp-sentry-gateway.exe",
+      "command": "C:\\Users\\SEU_USUARIO\\AppData\\Local\\MCP-Sentry-Gateway\\.venv\\Scripts\\mcp-sentry-gateway.exe",
       "args": ["--interface", "execution", "--manifest", "C:\\MCP\\config\\meu-servidor.json", "--store", "C:\\caminho\\estado"]
     },
     "mcp_sentry_review": {
-      "command": "C:\\caminho\\desenvolvimento\gateway\\.venv\\Scripts\\mcp-sentry-gateway.exe",
+      "command": "C:\\Users\\SEU_USUARIO\\AppData\\Local\\MCP-Sentry-Gateway\\.venv\\Scripts\\mcp-sentry-gateway.exe",
       "args": ["--interface", "review", "--manifest", "C:\\MCP\\config\\meu-servidor.json", "--store", "C:\\caminho\\estado"]
     }
   }
@@ -380,7 +251,7 @@ ferramentas ou comandos automáticos.
 - Não é sandbox, antivírus nem mecanismo de autenticação. Os relatórios podem
   conter trechos de código; mantenha o diretório de estado privado.
 
-## Operacao da candidata 0.11.0
+## Operação da versão entregue
 
 O registro pode enviar `review_token`, `decision`, `justification` e `risks`.
 O token e emitido depois da leitura completa das evidencias e vale para o

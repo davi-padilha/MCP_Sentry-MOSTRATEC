@@ -10,7 +10,8 @@ param(
 $ErrorActionPreference = 'Stop'
 if ($Configurar -and $SemConfigurar) { throw 'Escolha -Configurar ou -SemConfigurar.' }
 if (($CodexConfig -or $StateRoot) -and !$Configurar) { throw '-CodexConfig e -StateRoot exigem -Configurar.' }
-$taskRoot = $PSScriptRoot
+$taskRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
+$taskDataRoot = $PSScriptRoot
 
 function Get-TaskHash([string]$Path) {
     $taskStream = [System.IO.File]::OpenRead($Path)
@@ -21,29 +22,40 @@ function Get-TaskHash([string]$Path) {
 
 # Check every distributed file before trusting its version or running Python.
 $taskSums = @{}
-foreach ($taskLine in (Get-Content -LiteralPath (Join-Path $taskRoot 'SHA256SUMS.txt'))) {
-    if ($taskLine -notmatch '^([0-9a-f]{64})  ([A-Za-z0-9_.-]+)$') { throw 'Lista de somas invalida.' }
+foreach ($taskLine in (Get-Content -LiteralPath (Join-Path $taskDataRoot 'SHA256SUMS.txt'))) {
+    if ($taskLine -notmatch '^([0-9a-f]{64})  ((?:[A-Za-z0-9_-]+/)*[A-Za-z0-9_.-]+)$') { throw 'Lista de somas invalida.' }
     $taskHash = $Matches[1]; $taskName = $Matches[2]
     if ($taskSums.ContainsKey($taskName)) { throw 'Nome repetido na lista de somas.' }
-    $taskPath = Join-Path $taskRoot $taskName
+    $taskPath = [IO.Path]::GetFullPath((Join-Path $taskRoot $taskName))
+    if (!$taskPath.StartsWith($taskRoot + '\', [StringComparison]::OrdinalIgnoreCase) -or @($taskName.Split('/') | Where-Object { $_ -eq '.' -or $_ -eq '..' }).Count) { throw 'Caminho invalido na lista de somas.' }
     if (!(Test-Path -LiteralPath $taskPath -PathType Leaf) -or (Get-TaskHash $taskPath) -ne $taskHash) {
         throw "Arquivo ausente ou diferente da soma recebida: $taskName. Obtenha novamente a distribuicao."
     }
     $taskSums[$taskName] = $taskHash
 }
-foreach ($taskName in @('VERSAO.json', 'instalar.ps1', 'README.md', 'CONFIGURACAO.md', 'PRIVACIDADE.md', 'SOLUCAO-DE-PROBLEMAS.md')) {
+foreach ($taskName in @('README.md','INSTALAR.cmd','arquivos-instalacao/VERSAO.json','arquivos-instalacao/instalar.ps1','ajuda/README.md','ajuda/USO-E-ATUALIZACAO.md','ajuda/CONFIGURACAO.md','ajuda/PRIVACIDADE.md','ajuda/SOLUCAO-DE-PROBLEMAS.md')) {
     if (!$taskSums.ContainsKey($taskName)) { throw "Soma obrigatoria ausente: $taskName." }
 }
-$taskMetadata = Get-Content -LiteralPath (Join-Path $taskRoot 'VERSAO.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+$taskMetadata = Get-Content -LiteralPath (Join-Path $taskDataRoot 'VERSAO.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $taskVersion = [string]$taskMetadata.versao
 $taskMinimum = [string]$taskMetadata.python_minimo
 if ($taskVersion -notmatch '^[0-9]+\.[0-9]+\.[0-9]+$' -or $taskMinimum -notmatch '^[0-9]+\.[0-9]+$') { throw 'Versao ou requisito Python invalido em VERSAO.json.' }
 $taskWheelName = "mcp_sentry_gateway-$taskVersion-py3-none-any.whl"
-if ($taskMetadata.wheel -ne $taskWheelName -or !$taskSums.ContainsKey($taskWheelName) -or $taskMetadata.wheel_sha256 -ne $taskSums[$taskWheelName]) {
+$taskWheelEntry = 'arquivos-instalacao/' + $taskWheelName
+if ($taskMetadata.wheel -ne $taskWheelName -or !$taskSums.ContainsKey($taskWheelEntry) -or $taskMetadata.wheel_sha256 -ne $taskSums[$taskWheelEntry]) {
     throw 'Wheel, versao e somas nao correspondem.'
 }
-$taskWheel = Join-Path $taskRoot $taskWheelName
-if (!$Ambiente) { $Ambiente = Join-Path $taskRoot '.venv' }
+$taskWheel = Join-Path $taskDataRoot $taskWheelName
+if (!$Ambiente) {
+    $taskLegacy = Join-Path $taskRoot '.venv'
+    if (Test-Path -LiteralPath (Join-Path $taskLegacy 'Scripts/python.exe')) {
+        $Ambiente = $taskLegacy
+        Write-Output 'Instalacao anterior nesta pasta detectada. Seu caminho sera preservado.'
+    } else {
+        if (!$env:LOCALAPPDATA) { throw 'LOCALAPPDATA nao definido. Informe uma pasta com -Ambiente.' }
+        $Ambiente = Join-Path $env:LOCALAPPDATA 'MCP-Sentry-Gateway/.venv'
+    }
+}
 $taskEnvironment = [System.IO.Path]::GetFullPath($Ambiente)
 $taskVenvPython = Join-Path $taskEnvironment 'Scripts/python.exe'
 $taskPrevious = $null
@@ -96,7 +108,7 @@ if (Test-Path -LiteralPath $taskVenvPython -PathType Leaf) {
             if ($taskPython) { break }
             $taskPython = Get-TaskPython $taskCandidate
         }
-        if (!$taskPython) { throw "Python $taskMinimum+ nao encontrado. Instale Python com venv/pip ou execute .\instalar.ps1 -PythonExe 'C:\CAMINHO\python.exe'. Atalhos da Microsoft Store nao comprovam uma instalacao utilizavel." }
+        if (!$taskPython) { throw "Python $taskMinimum+ nao encontrado. Instale Python com venv/pip (https://www.python.org/downloads/windows/) ou execute .\arquivos-instalacao\instalar.ps1 -PythonExe 'C:\CAMINHO\python.exe'. Atalhos da Microsoft Store nao comprovam uma instalacao utilizavel." }
     }
     Write-Output "Python encontrado: $($taskPython.executable) ($($taskPython.version -join '.'))."
     & $taskPython.executable -I -m venv $taskEnvironment
@@ -105,7 +117,7 @@ if (Test-Path -LiteralPath $taskVenvPython -PathType Leaf) {
 
 Write-Output "Instalando MCP Sentry $taskVersion em $taskEnvironment..."
 & $taskVenvPython -I -m pip --isolated --disable-pip-version-check install --no-index --no-deps $taskWheel
-if ($LASTEXITCODE -ne 0) { throw 'Instalacao nao concluida. Preserve o ambiente e consulte SOLUCAO-DE-PROBLEMAS.md.' }
+if ($LASTEXITCODE -ne 0) { throw 'Instalacao nao concluida. Preserve o ambiente e consulte ajuda/SOLUCAO-DE-PROBLEMAS.md.' }
 @'
 import importlib.metadata, sys
 import mcp_sentry_gateway
@@ -116,9 +128,17 @@ assert mcp_sentry_gateway.__version__ == expected
 if ($LASTEXITCODE -ne 0) { throw 'A versao instalada nao corresponde ao pacote recebido.' }
 
 $taskCli = Join-Path $taskEnvironment 'Scripts/mcp-sentry.exe'
+# Keep the help available after the downloaded ZIP/extracted folder is removed.
+$taskHelp = Join-Path ([IO.Path]::GetDirectoryName($taskEnvironment)) 'ajuda-mcp-sentry'
+New-Item -ItemType Directory -Path $taskHelp -Force | Out-Null
+foreach ($taskGuide in @(Get-ChildItem -LiteralPath (Join-Path $taskRoot 'ajuda') -File)) {
+    Copy-Item -LiteralPath $taskGuide.FullName -Destination (Join-Path $taskHelp $taskGuide.Name) -Force
+}
+Copy-Item -LiteralPath (Join-Path $taskDataRoot 'VERSAO.json') -Destination (Join-Path $taskHelp 'VERSAO.json') -Force
 Write-Output ''
 Write-Output "MCP Sentry $taskVersion instalado e conferido."
 Write-Output "Ambiente: $taskEnvironment"
+Write-Output "Ajuda instalada: $taskHelp"
 $taskCliQuoted = $taskCli.Replace("'", "''")
 Write-Output "Comando: & '$taskCliQuoted' setup"
 if ($taskPrevious) { Write-Output "Instalacao anterior: $taskPrevious. Manifestos, referencias e autorizacoes nao foram alterados. Reinicie as conexoes que usam este ambiente." }

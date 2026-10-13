@@ -16,7 +16,7 @@ O teste de regressão consulta o catálogo, lê as evidências e registra decis�
 A interface de revisão permanece sem objeto de backend. A suíte completa
 executou 91 testes: passou, com um teste de plataforma ignorado.
 
-Wheel: `pacote-usuario/mcp_sentry_gateway-0.9.1-py3-none-any.whl`.
+Wheel: `distribuicoes-historicas/mcp_sentry_gateway-0.9.1-py3-none-any.whl`.
 SHA256: `94b51755b3246e8ee5d420f273bfbb1d50ca6e6c00c6e1307736f6219990a7e4`.
 
 A série parcial `luna-090-20261006` foi preservada com 12 execuções, três sem
@@ -47,6 +47,6 @@ documentadas do coletor ficam na área privada do operador, em
 `C:\MCP-Sentry-Mostratec\series\luna-091-20261006\operador\analise\`.
 Os registros integrais continuam fora deste repositório. Uma seleção pública,
 com relatório, métricas, eventos técnicos e execuções anonimizadas, está em
-[resultados da MOSTRATEC](../pesquisa/02_resultados/04_mostratec_mcp_sentry/README.md).
+[resultados da MOSTRATEC](../../pesquisa/02_resultados/04_mostratec_mcp_sentry/README.md).
 Casos e gabarito histórico permanecem intactos e privados, ao lado do novo
 gabarito v2 versionado. Os pareceres executados não foram alterados.

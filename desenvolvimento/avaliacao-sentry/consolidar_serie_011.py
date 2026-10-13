@@ -76,7 +76,7 @@ def consolidate(series, gold_path, output, verify_only=False):
     assert sha(protocol / "pedidos-fixos.json") == frozen["pedidos_sha256"]
     for patch in frozen["patches"]:
         assert sha(protocol / "patches" / (patch["versao"] + ".patch")) == patch["sha256"]
-    wheel = repo / "pacote-usuario/mcp_sentry_gateway-0.11.0-py3-none-any.whl"
+    wheel = repo / "distribuicoes-historicas/mcp_sentry_gateway-0.11.0-py3-none-any.whl"
     assert sha(wheel) == frozen["wheel_sha256"] == config["ambiente"]["sentry_wheel_sha256"]
     installed = series / "instalacoes/sentry/Lib/site-packages"
     with zipfile.ZipFile(wheel) as package:

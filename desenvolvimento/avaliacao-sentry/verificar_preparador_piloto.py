@@ -27,7 +27,7 @@ def main():
         config = {"servidores": {"G": {"nome": "git-fixture", "codigo": str(lab / "code"),
                                       "estado": str(lab / "state")}},
                   "fotografias": str(lab / "photos"),
-                  "patches": str(repo / "desenvolvimento/teste_do_sentry/patches_piloto"),
+                  "patches": str(repo / "desenvolvimento/avaliacao-sentry/patches_piloto"),
                   "evidencias": str(lab / "evidence"), "registro": str(lab / "registro.csv"),
                   "ambiente": {"tipo": "verificacao_tecnica_sem_MCP"}}
         source = lab / "code/mcp_server_git/server.py"

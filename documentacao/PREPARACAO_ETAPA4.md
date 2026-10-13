@@ -289,7 +289,7 @@ Eventos sem convidados; nenhum e-mail/convite enviado. Marcador
 Rascunhos contêm corpos fictícios e Cc pessoa1/2/3@example.invalid; um possui
 anexo textual fictício de 10000 bytes. IDs e descrições completos em
 `operador\recursos-google.json`; script reproduzível
-`desenvolvimento/teste_do_sentry/preparar_recursos_google.py`.
+`desenvolvimento/avaliacao-sentry/preparar_recursos_google.py`.
 
 Conferência MCP: `consultar_agenda` retornou os dois eventos; `buscar_emails`
 retornou os três rascunhos com a consulta

@@ -32,12 +32,16 @@ cliente precisa de uma forma de detectar mudanças antes de iniciar o serviço.
 **Para entregar o MCP Sentry a um usuário, envie somente a pasta
 [instalar-mcp-sentry/](instalar-mcp-sentry/README.md).** Ela contém:
 
-- `mcp_sentry_gateway-1.1.0-py3-none-any.whl`: pacote Python do gateway.
-- `instalar.ps1`: instalação local assistida.
-- Guias de instalação, configuração, privacidade, diagnóstico e somas SHA-256.
+- `README.md`: três passos para começar.
+- `INSTALAR.cmd`: instalação assistida com duplo clique.
+- `ajuda/`: uso, atualização, configuração manual, privacidade e diagnóstico.
+- `arquivos-instalacao/`: instalador, wheel, versão e somas SHA-256.
 
 O ZIP pronto para enviar fica em [distribuicoes/](distribuicoes/README.md).
 O instalador confere os arquivos, detecta Python e oferece configuração opcional.
+Instalações novas ficam em `%LOCALAPPDATA%\MCP-Sentry-Gateway`, com os guias
+copiados para essa pasta. A pasta extraída pode ser removida depois de instalar.
+Ambientes antigos são preservados no caminho existente.
 
 O usuário precisa ter Python 3.11+ e o runtime do servidor protegido. Os MCPs,
 suas credenciais e dados são específicos de cada usuário e não integram este pacote.
@@ -47,8 +51,10 @@ suas credenciais e dados são específicos de cada usuário e não integram este
 | `instalar-mcp-sentry/` | Distribuição atual para instalar e usar o gateway. |
 | `distribuicoes/` | ZIP validado para entregar ao usuário. |
 | `desenvolvimento/distribuicao/` | Preparação e validação automatizadas da entrega. |
-| `pacote-usuario/` | Distribuições anteriores preservadas para reprodução. |
+| `distribuicoes-historicas/` | Distribuições anteriores preservadas para reprodução. |
 | `desenvolvimento/gateway/` | Código, testes e empacotamento da versão atual. |
+| `desenvolvimento/avaliacao-sentry/` | Preparação, medição e análise das avaliações experimentais do Sentry. |
+| `reproducao-experimentos/` | Bateria portátil congelada para reprodução; não são testes unitários. |
 | `prototipo-feicit/` | Versão anterior e cenários da FEICIT, preservados para reprodução. |
 | `documentacao/` | Guias do piloto e registros técnicos. |
 | `laboratorio/` | Instalações e execuções descartáveis dos testes. |
@@ -127,17 +133,18 @@ suas credenciais e dados são específicos de cada usuário e não integram este
 ### `materiais-apresentacao/` — materiais das feiras
 
 [Índice dos materiais](materiais-apresentacao/README.md). `feicit/paineis/`
-contém o painel original e a variante complementar; `feicit/banners/` contém
+contém o painel de resultados preservado; `feicit/banners/` contém
 os três PDFs. Não há vídeos nesta cópia. Os materiais da MOSTRATEC serão
 produzidos ao longo da etapa 5.
 
 ### `laboratorio/` — área organizada para futuros testes locais
 
 O [guia do laboratório](laboratorio/README.md) define onde colocar instalações,
-dados e execuções descartáveis. A pasta contém apenas esse guia até que novos
-testes sejam preparados. As instalações e evidências brutas dos testes técnicos
+dados e execuções descartáveis. Os registros das validações da distribuição
+ficam em `laboratorio/execucoes/`; ambientes Python descartáveis são limpos
+após conferência dos resultados. As instalações e evidências brutas dos testes técnicos
 anteriores em `.lab-smoke` foram removidas na limpeza autorizada; os registros
-textuais em `documentacao/VALIDACAO_*.md` foram mantidos como histórico.
+textuais em `documentacao/validacoes/VALIDACAO_*.md` foram mantidos como histórico.
 
 ## Por onde começar
 
@@ -154,4 +161,4 @@ casos, listas de integridade e hashes foram preservados nesta reorganização.
 
 ## Bateria portatil Sentry 1.0
 
-Os 24 casos congelados, ordem das 48 revisoes, referencias, dados ficticios, gabarito e scripts para outras maquinas estao em [testes/sentry-1.0](testes/sentry-1.0/README.md). Credenciais e instalacao dos runtimes sao locais.
+Os 24 casos congelados, ordem das 48 revisoes, referencias, dados ficticios, gabarito e scripts para outras maquinas estao em [reproducao-experimentos/sentry-1.0](reproducao-experimentos/sentry-1.0/README.md). Credenciais e instalacao dos runtimes sao locais.

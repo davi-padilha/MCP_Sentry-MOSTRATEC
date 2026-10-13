@@ -110,7 +110,7 @@ Como na bateria final da FEICIT:
 
 Não há aprovação humana durante a bateria: o objetivo é registrar o parecer da IA. O fluxo de aprovação e execução após a revisão é verificado no piloto.
 
-O passo a passo com os comandos está em [CHECKLIST_REVISAO.md](../desenvolvimento/teste_do_sentry/CHECKLIST_REVISAO.md).
+O passo a passo com os comandos está em [CHECKLIST_REVISAO.md](../desenvolvimento/avaliacao-sentry/CHECKLIST_REVISAO.md).
 
 ### Pedidos fixos
 
@@ -183,10 +183,10 @@ O desenho do teste está definido acima. Falta preparar o necessário para execu
    - usuário Windows atual com pastas próprias e chave SSH de teste separada (adaptação escolhida pelo operador);
    - conta Google de teste da Donna, com agenda e contatos de teste;
    - caixa de e-mail de teste para receber os "vazamentos";
-   - pastas permitida e "segredos", repositórios `repo-teste` e `repo-segredos` com `.env` de teste e pasta vazia para o Codex: criados por `desenvolvimento/teste_do_sentry/criar_dados_teste.py`, iguais em qualquer computador.
+   - pastas permitida e "segredos", repositórios `repo-teste` e `repo-segredos` com `.env` de teste e pasta vazia para o Codex: criados por `desenvolvimento/avaliacao-sentry/criar_dados_teste.py`, iguais em qualquer computador.
 2. **Runtimes:** Node.js para o Filesystem (não instalado no computador do Pedro), Python e Git.
 3. **Versão e modelo:** registrar a versão do Codex e o modelo padrão.
-4. **Scripts:** preparação de cada revisão, registro e sorteio (`preparar_revisao.py`) e análise (`analisar.py`), todos em `desenvolvimento/teste_do_sentry/`.
+4. **Scripts:** preparação de cada revisão, registro e sorteio (`preparar_revisao.py`) e análise (`analisar.py`), todos em `desenvolvimento/avaliacao-sentry/`.
 
 ### Critério de conclusão
 
@@ -239,7 +239,7 @@ Oferecer preparação, configuração e revisão/aprovação utilizáveis para s
 2. **Cobertura dos arquivos:** seleção declarada de módulos, dependências locais e configurações. A comparação registra arquivos adicionados, removidos e alterados e mudanças de configuração. Cobertura nova exige promoção separada.
 3. **Aprovação de atualização:** seleção interativa do servidor e decisão do operador, sem copiar hashes manualmente. A aprovação fica vinculada à versão revisada.
 4. **Atualização do catálogo:** descoberta autorizada do catálogo da versão revisada e nova revisão quando os metadados mudam.
-5. **Mensagens e documentação:** `pacote-usuario/` para o usuário e `desenvolvimento/gateway/` como fonte principal; guia em [GUIA_PILOTO.md](GUIA_PILOTO.md).
+5. **Mensagens e documentação:** `instalar-mcp-sentry/` para o usuário e `desenvolvimento/gateway/` como fonte principal; versões anteriores em `distribuicoes-historicas/`; guia em [GUIA_PILOTO.md](GUIA_PILOTO.md).
 6. **Verificações internas e desempenho:** tempo até a primeira resposta medido em amostra técnica: Filesystem 61,2 s, Memory 50,7 s e Git 1,7 s.
 
 ### O que fazer na máquina a partir de agora
@@ -257,7 +257,7 @@ Oferecer preparação, configuração e revisão/aprovação utilizáveis para s
 - [x] Alteração bloqueia antes do início; revisão e decisões vinculadas permitem executar depois da aprovação.
 - [x] Testes pertinentes e limites documentados em `GUIA_PILOTO.md` e nos registros técnicos.
 
-Registros técnicos: [VALIDACAO_0.7.0.md](VALIDACAO_0.7.0.md) e [VALIDACAO_0.8.0.md](VALIDACAO_0.8.0.md).
+Registros técnicos: [VALIDACAO_0.7.0.md](validacoes/VALIDACAO_0.7.0.md) e [VALIDACAO_0.8.0.md](validacoes/VALIDACAO_0.8.0.md).
 
 ## Etapa 3 — piloto com o Git no Codex
 
@@ -304,7 +304,7 @@ a confirmação explícita do usuário. Modo opcional; decisão externa preserva
   bloqueado sem confirmação, executar uma vez após confirmação e bloquear
   a chamada seguinte. Wheel/hash 0.8.1 registrados em VALIDACAO_0.8.1.md.
 
-Detalhes: [VALIDACAO_0.8.1.md](VALIDACAO_0.8.1.md) e [GUIA_PILOTO.md](GUIA_PILOTO.md).
+Detalhes: [VALIDACAO_0.8.1.md](validacoes/VALIDACAO_0.8.1.md) e [GUIA_PILOTO.md](GUIA_PILOTO.md).
 
 Uma recomendação errada ou uma recusa da IA é um resultado observado. Registrar a ocorrência; não ajustar o cenário apenas para obter a resposta desejada.
 
@@ -396,7 +396,7 @@ Nos materiais, distinguir três partes: a pesquisa investigativa da FEICIT, a va
 
 - Mapeamento das versões do Teste do MCP Sentry: gabarito privado, mantido fora do repositório.
 - [Guia do piloto](GUIA_PILOTO.md).
-- [Pacote do usuário e instruções atuais](../pacote-usuario/README.md).
+- [Pacote do usuário e instruções atuais](../instalar-mcp-sentry/README.md).
 - [Demonstração controlada da FEICIT](../prototipo-feicit/documentacao/RESULTADO_DA_DEMONSTRACAO_CONTROLADA.md).
 - [Fluxo de revisão pelo client](../prototipo-feicit/documentacao/AVALIACAO_SEMANTICA_CLIENTE.md).
 - [Filesystem MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem) e [Git MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/git).

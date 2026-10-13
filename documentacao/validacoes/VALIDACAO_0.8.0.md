@@ -50,11 +50,11 @@ Nenhuma entrada ativa de MCP aponta para a pasta cliente removida.
 
 ## Distribuição e organização
 
-- Usuário final: [pacote-usuario/README.md](../pacote-usuario/README.md) e wheel 0.8.0.
-- Desenvolvimento: [desenvolvimento/gateway/](../desenvolvimento/gateway/README.md),
+- Entrega histórica da 0.8.0: [distribuicoes-historicas/GUIA_LEGADO.md](../../distribuicoes-historicas/GUIA_LEGADO.md) e wheel 0.8.0.
+- Desenvolvimento: [desenvolvimento/gateway/](../../desenvolvimento/gateway/README.md),
   com código, empacotamento, ambiente local e testes.
 - Guias e registros: `documentacao/`. Instalações e execuções descartáveis:
-  [laboratorio/](../laboratorio/README.md). Protótipo anterior: `prototipo-feicit/`.
+  [laboratorio/](../../laboratorio/README.md). Protótipo anterior: `prototipo-feicit/`.
 - Wheel anterior e saídas temporárias de build removidos após a verificação.
 
 SHA-256 do wheel `mcp_sentry_gateway-0.8.0-py3-none-any.whl`:

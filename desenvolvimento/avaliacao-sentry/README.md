@@ -14,7 +14,7 @@
 ## Dados de teste
 
 ```powershell
-py -3 desenvolvimento\teste_do_sentry\criar_dados_teste.py
+py -3 desenvolvimento\avaliacao-sentry\criar_dados_teste.py
 ```
 
 Cria `C:\Users\<usuário>\MCP-Sentry-Teste` (ou o caminho de `--base`). Os
@@ -56,7 +56,7 @@ formato:
 - concordância R1/R2.
 
 ```powershell
-$a = "desenvolvimento\teste_do_sentry\analisar.py"
+$a = "desenvolvimento\avaliacao-sentry\analisar.py"
 
 # Referência da FEICIT (já gerada em referencia_feicit.csv):
 py -3 $a feicit
@@ -102,7 +102,7 @@ internos do Sentry. Serve para comparar antes e depois de uma otimização no
 mesmo computador, trocando só a branch. Feche o Codex antes de medir.
 
 ```powershell
-C:\MCP-Sentry-Dev\sentry\Scripts\python.exe desenvolvimento\teste_do_sentry\medir_inicio.py --servidor filesystem --vezes 5 --rotulo antes --saida C:\MCP-Sentry-Dev\medicoes
+C:\MCP-Sentry-Dev\sentry\Scripts\python.exe desenvolvimento\avaliacao-sentry\medir_inicio.py --servidor filesystem --vezes 5 --rotulo antes --saida C:\MCP-Sentry-Dev\medicoes
 ```
 
 A primeira rodada fica fora da mediana "a quente". O CSV registra branch,
@@ -123,7 +123,7 @@ Por turno (1 = tarefa, 2 = revisão, 3 = registro), registra:
   (resultado de `sentry_review_current_block`).
 
 ```powershell
-$t = "desenvolvimento\teste_do_sentry\medir_tokens_rollouts.py"
+$t = "desenvolvimento\avaliacao-sentry\medir_tokens_rollouts.py"
 
 # Todas as sessões de um período que chamaram os servidores de teste:
 py -3 $t --desde 2026-10-05 --ate 2026-10-06 --servidor-contem _teste --saida C:\CAMINHO\tokens
@@ -183,7 +183,7 @@ Patches CRLF são recusados antes da restauração, com mensagem explícita.
 ## Uso
 
 ```powershell
-$p = "desenvolvimento\teste_do_sentry\preparar_revisao.py"
+$p = "desenvolvimento\avaliacao-sentry\preparar_revisao.py"
 $c = "C:\CAMINHO\config.json"
 
 # Uma vez por servidor, logo depois de aprovar a versão de referência:
@@ -236,7 +236,7 @@ A condição 0.11.0/Luna low foi executada em 07/10/2026 após o OK humano:
 Os resultados anonimizados estão em
 [05_evolucao_011_luna_low](../../pesquisa/02_resultados/05_evolucao_011_luna_low/README.md).
 As verificações técnicas anteriores à coleta e seus limites estão em
-[VALIDACAO_0.11.0.md](../../documentacao/VALIDACAO_0.11.0.md).
+[VALIDACAO_0.11.0.md](../../documentacao/validacoes/VALIDACAO_0.11.0.md).
 
 A mesma condição 0.11.0 foi repetida com Luna/medium em 07/10/2026:
 48 principais e uma R3, com referências restauradas. Os resultados e a
@@ -260,4 +260,4 @@ aceitam high, mantendo os controles. Relatório e dados:
 
 ## Bateria portatil Sentry 1.0
 
-Os 24 casos congelados, ordem das 48 revisoes, referencias, dados ficticios, gabarito e scripts para outras maquinas estao em [testes/sentry-1.0](../../testes/sentry-1.0/README.md). Credenciais e instalacao dos runtimes sao locais.
+Os 24 casos congelados, ordem das 48 revisoes, referencias, dados ficticios, gabarito e scripts para outras maquinas estao em [reproducao-experimentos/sentry-1.0](../../reproducao-experimentos/sentry-1.0/README.md). Credenciais e instalacao dos runtimes sao locais.

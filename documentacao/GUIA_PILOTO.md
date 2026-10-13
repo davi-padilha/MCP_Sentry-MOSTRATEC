@@ -11,9 +11,9 @@ ativo. No PowerShell, a partir da raiz deste repositório:
 
 Em outra máquina, crie antes esse ambiente com Python 3.11+.
 Para instalar a candidata fixa, use o wheel
-`pacote-usuario\mcp_sentry_gateway-0.8.0-py3-none-any.whl` em vez de `desenvolvimento/gateway`.
+`distribuicoes-historicas\mcp_sentry_gateway-0.8.0-py3-none-any.whl` em vez de `desenvolvimento/gateway`.
 Confira seu SHA-256 com `Get-FileHash -Algorithm SHA256 CAMINHO_DO_WHEEL`;
-o valor e o resumo histórico dos testes estão no [registro 0.8.0](VALIDACAO_0.8.0.md).
+o valor e o resumo histórico dos testes estão no [registro 0.8.0](validacoes/VALIDACAO_0.8.0.md).
 Use caminhos absolutos para executáveis, manifesto, estado e dados.
 O estado de um piloto real precisa ficar fora de **todas** as pastas em que
 o agente pode escrever, com controle de acesso pelo operador.

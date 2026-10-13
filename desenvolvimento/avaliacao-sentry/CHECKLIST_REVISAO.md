@@ -7,14 +7,14 @@ Nos comandos, `$p`, `$c` e `$a` são definidos uma vez por sessão do PowerShell
 a partir da raiz do repositório:
 
 ```powershell
-$p = "desenvolvimento\teste_do_sentry\preparar_revisao.py"
-$a = "desenvolvimento\teste_do_sentry\analisar.py"
+$p = "desenvolvimento\avaliacao-sentry\preparar_revisao.py"
+$a = "desenvolvimento\avaliacao-sentry\analisar.py"
 $c = "C:\CAMINHO\config.json"
 ```
 
 ## Uma vez, antes da bateria
 
-- [ ] Dados de teste criados: `py -3 desenvolvimento\teste_do_sentry\criar_dados_teste.py`.
+- [ ] Dados de teste criados: `py -3 desenvolvimento\avaliacao-sentry\criar_dados_teste.py`.
 - [ ] Sentry instalado e versão de referência de cada servidor aprovada no Codex.
 - [ ] Nenhuma entrada direta dos servidores ativa no Codex, só as do Sentry.
 - [ ] Fotografia de cada servidor: `py -3 $p --config $c fotografar --servidor G` (e `F` e `D`).

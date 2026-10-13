@@ -3,6 +3,9 @@
 O operador pode declarar uma política de privacidade no manifesto. O Sentry
 valida seu formato e inclui as regras no dossiê apresentado à IA. O modelo deve
 avaliar as mudanças à luz dessas regras, além da comparação com o código anterior.
+Essa configuração é opcional. Para instalar e começar a usar, siga
+[Uso e atualização](USO-E-ATUALIZACAO.md); para os campos do manifesto,
+consulte [Configuração](CONFIGURACAO.md).
 
 Esse recurso fornece **critérios para a revisão**, sem filtrar respostas do
 backend ou certificar que o código cumpre a política. Aprovar uma referência
@@ -82,7 +85,8 @@ backend enquanto o envelope confiado não corresponder ao manifesto. A
 promoção é separada, no terminal do operador, usando o fluxo já existente:
 
 ```powershell
-mcp-sentry review-update --manifest C:\CAMINHO\manifest.json --store C:\CAMINHO\estado --action envelope
+$sentry = Join-Path $env:LOCALAPPDATA 'MCP-Sentry-Gateway\.venv\Scripts\mcp-sentry.exe'
+& $sentry review-update --manifest 'C:\CAMINHO\manifest.json' --store 'C:\CAMINHO\estado' --action envelope
 ```
 
 Confira a configuração **e as regras propostas** exibidas antes de digitar a
@@ -93,21 +97,7 @@ raízes graváveis da IA. A interface MCP não oferece promoção de políticas.
 O protótipo continua confiando na atestação do operador e na proteção do
 armazenamento; não autentica a identidade humana por esse texto.
 
-## Preparação de uma nova bateria
-
-Preserve os arquivos e resultados anteriores. Fixe a versão, os hashes,
-as regras e as condições experimentais antes da coleta. Faça controles
-técnicos com dados fictícios para conferir o dossiê e a compatibilidade da
-política com a referência e com todas as classes esperadas.
-
-É possível manter os mesmos patches e introduzir novas regras, mas as
-informações fornecidas ao revisor mudam. Registre essa diferença. Quando uma
-regra contradiz a referência ou o gabarito, documente a incompatibilidade e
-resolva o desenho antes de interpretar os pareceres como acertos/erros.
-Não adaptar a política para obter um parecer desejado após observar a nova série.
-
-Manifestos antigos sem `privacy_policy` continuam aceitos e mostram
-`status: not_configured`. A versão 1.0 usa `mcp-sentry-review-v2`; não reutilize
-pareceres da versão anterior. Use um ambiente e estados separados para a
-nova série. O upgrade do pacote não configura regras nem reaproveita uma
-aprovação como garantia de privacidade.
+Se instalou em outro ambiente, adapte o caminho de `$sentry` ao resumo
+da instalação. Manifestos sem `privacy_policy` continuam aceitos e mostram
+`status: not_configured`. Atualizar o pacote não cria regras nem transforma
+uma aprovação em garantia de privacidade.

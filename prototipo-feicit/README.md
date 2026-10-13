@@ -2,7 +2,7 @@
 
 Esta pasta preserva a versão anterior e seus cenários de demonstração.
 Ela não é o pacote atual para instalação pelo usuário. A entrega atual está em
-[pacote-usuario/](../pacote-usuario/README.md); o código atual fica em
+[instalar-mcp-sentry/](../instalar-mcp-sentry/README.md); o código atual fica em
 [desenvolvimento/gateway/](../desenvolvimento/gateway/README.md).
 
 O protótipo é mantido para reproduzir os cenários da FEICIT.

@@ -26,19 +26,26 @@ def sha(path):
 
 
 def verify_delivery(folder):
-    metadata = json.loads((folder/'VERSAO.json').read_text('utf-8'))
-    expected = {'README.md','CONFIGURACAO.md','PRIVACIDADE.md','SOLUCAO-DE-PROBLEMAS.md','instalar.ps1','VERSAO.json',metadata['wheel']}
+    metadata = json.loads((folder/'arquivos-instalacao/VERSAO.json').read_text('utf-8'))
+    expected = {'README.md','INSTALAR.cmd','arquivos-instalacao/instalar.ps1','arquivos-instalacao/VERSAO.json',
+                'arquivos-instalacao/'+metadata['wheel'], *('ajuda/'+name for name in
+                ('README.md','USO-E-ATUALIZACAO.md','CONFIGURACAO.md','PRIVACIDADE.md','SOLUCAO-DE-PROBLEMAS.md'))}
     seen = set()
-    for line in (folder/'SHA256SUMS.txt').read_text('ascii').splitlines():
-        match = re.fullmatch(r'([0-9a-f]{64})  ([A-Za-z0-9_.-]+)', line)
+    for line in (folder/'arquivos-instalacao/SHA256SUMS.txt').read_text('ascii').splitlines():
+        match = re.fullmatch(r'([0-9a-f]{64})  ((?:[A-Za-z0-9_-]+/)*[A-Za-z0-9_.-]+)', line)
         if not match or match[2] in seen:
             raise ValueError('Invalid or repeated checksum entry')
+        if not (folder/match[2]).resolve().is_relative_to(folder.resolve()):
+            raise ValueError('Checksum path escapes delivery')
         seen.add(match[2])
         if sha(folder/match[2]) != match[1]:
             raise ValueError('Checksum mismatch: ' + match[2])
-    if seen != expected or metadata['wheel_sha256'] != sha(folder/metadata['wheel']):
+    if seen != expected or metadata['wheel_sha256'] != sha(folder/'arquivos-instalacao'/metadata['wheel']):
         raise ValueError('Delivery inventory or wheel identity mismatch')
-    with zipfile.ZipFile(folder/metadata['wheel']) as archive:
+    actual = {p.relative_to(folder).as_posix() for p in folder.rglob('*') if p.is_file()}
+    if actual != expected | {'arquivos-instalacao/SHA256SUMS.txt'}:
+        raise ValueError('Unexpected files in delivery')
+    with zipfile.ZipFile(folder/'arquivos-instalacao'/metadata['wheel']) as archive:
         modules = {name for name in archive.namelist() if name.startswith('mcp_sentry_gateway/') and name.endswith('.py')}
         expected_modules = {f'mcp_sentry_gateway/{p.name}' for p in (SOURCE/'mcp_sentry_gateway').glob('*.py')}
         if modules != expected_modules:
@@ -49,8 +56,8 @@ def verify_delivery(folder):
     return metadata, len(modules)
 
 
-def run(command, folder, log, *, input_text=None, success=True, timeout=180):
-    result = subprocess.run([str(part) for part in command], cwd=folder, env=ENV, input=input_text,
+def run(command, folder, log, *, input_text=None, success=True, timeout=180, env_overrides=None):
+    result = subprocess.run(command if isinstance(command, str) else [str(part) for part in command], cwd=folder, env={**ENV, **(env_overrides or {})}, input=input_text,
                             text=True, encoding='utf-8', errors='replace', capture_output=True, timeout=timeout)
     log.write_text(result.stdout + '\n' + result.stderr, encoding='utf-8')
     if success and result.returncode:
@@ -60,8 +67,10 @@ def run(command, folder, log, *, input_text=None, success=True, timeout=180):
     return result
 
 
-def installer(folder, environment, *, python=None, extra=()):
-    command = ['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',folder/'instalar.ps1','-Ambiente',environment]
+def installer(folder, environment=None, *, python=None, extra=()):
+    command = ['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',folder/'arquivos-instalacao/instalar.ps1']
+    if environment:
+        command += ['-Ambiente',environment]
     if python:
         command += ['-PythonExe',python]
     return command + list(extra)
@@ -99,7 +108,7 @@ def validate(delivery, target, *, python_sdk=None):
     transport = run([python,'-I',helper,'--root',target/'mcp'], target, target/'mcp.txt')
     transport_result = json.loads(transport.stdout)
     # Upgrade an installed 1.0.0 at a stable path, preserving actual baseline/config files.
-    old_wheel = REPO/'pacote-usuario/mcp_sentry_gateway-1.0.0-py3-none-any.whl'
+    old_wheel = REPO/'distribuicoes-historicas/mcp_sentry_gateway-1.0.0-py3-none-any.whl'
     if not old_wheel.exists():
         old_wheel = REPO/'instalar-mcp-sentry/mcp_sentry_gateway-1.0.0-py3-none-any.whl'
     upgrade_env = target/'upgrade/.venv'
@@ -169,20 +178,58 @@ def validate(delivery, target, *, python_sdk=None):
     offered = run(installer(copied, target/'oferta/.venv', python=sys.executable), target, target/'oferta.txt', input_text='n\n')
     if 'Deseja abrir' not in offered.stdout or 'Configuracao nao iniciada' not in offered.stdout:
         raise ValueError('Optional setup offer did not respect refusal')
+    # Exercise the double-click entry point with a disposable user profile.
+    print('Conferindo duplo clique, pasta fixa e compatibilidade com instalacao anterior...', flush=True)
+    launcher_copy = target/'pacote do usuario'
+    shutil.copytree(delivery, launcher_copy)
+    profile = target/'perfil do usuario'
+    launcher_env = {'LOCALAPPDATA':str(profile), 'MCP_SENTRY_NO_PAUSE':'1'}
+    cmd = f'cmd.exe /d /s /c ""{launcher_copy / "INSTALAR.cmd"}" -PythonExe "{sys.executable}" -SemConfigurar"'
+    run(cmd, target, target/'duplo-clique.txt', env_overrides=launcher_env)
+    stable_env = profile/'MCP-Sentry-Gateway/.venv'
+    stable_python = stable_env/'Scripts/python.exe'
+    installed_help = stable_env.parent/'ajuda-mcp-sentry'
+    for path in (launcher_copy/'ajuda').glob('*.md'):
+        if path.read_bytes() != (installed_help/path.name).read_bytes():
+            raise ValueError('Installed help is missing or different')
+    if (installed_help/'VERSAO.json').read_bytes() != (launcher_copy/'arquivos-instalacao/VERSAO.json').read_bytes():
+        raise ValueError('Installed version record is missing')
+    # The source package path disappears while the executable remains usable.
+    moved = target/'pacote guardado apos instalacao'
+    if not all(p.resolve().is_relative_to(target.resolve()) for p in (launcher_copy, moved)):
+        raise ValueError('Unsafe validation move')
+    launcher_copy.rename(moved)
+    run([stable_python,'-I',helper,'--root',target/'mcp-sem-pacote'], target, target/'sem-pasta-extraida.txt')
+    bad_cmd = f'cmd.exe /d /s /c ""{tampered / "INSTALAR.cmd"}" -SemConfigurar"'
+    run(bad_cmd, target, target/'duplo-clique-rejeitado.txt', success=False, env_overrides=launcher_env)
+    legacy = target/'pacote anterior'
+    shutil.copytree(delivery, legacy)
+    legacy_env = legacy/'.venv'
+    run([sys.executable,'-I','-m','venv',legacy_env], target, target/'legado-venv.txt')
+    legacy_python = legacy_env/'Scripts/python.exe'
+    run([legacy_python,'-I','-m','pip','--isolated','install','--no-index','--no-deps',old_wheel], target, target/'legado-anterior.txt')
+    run(installer(legacy, extra=['-SemConfigurar']), target, target/'legado-reutilizado.txt', env_overrides=launcher_env)
+    legacy_version = run([legacy_python,'-I','-c','import mcp_sentry_gateway; print(mcp_sentry_gateway.__version__)'], target, target/'legado-versao.txt')
+    if legacy_version.stdout.strip() != metadata['versao']:
+        raise ValueError('Existing package environment was not upgraded in place')
     summary = {'estado':'validada', 'python_suite_instalador':sys.version.split()[0], 'python_deteccao_automatica':auto_version,
                'testes_total':int(counts[1]), 'ignorados':int(skipped[1]) if skipped else 0,
                'modulos_fonte_wheel_instalacao_identicos':modules, 'instalacao_limpa':True, 'upgrade_100_para_110':True,
                'upgrade_preserva_estado_e_configuracao':True, 'deteccao_python':True, 'hash_alterado_rejeitado':True,
                'python_invalido_rejeitado':True, 'setup_opcional_com_backup':True, 'setup_recusado_respeitado':True,
                'ambiente_incompleto_preservado':True, 'ambiente_vazio_reutilizado':True,
+               'duplo_clique_e_codigo_de_saida':True, 'instalacao_padrao_em_pasta_fixa':True,
+               'funciona_sem_pasta_extraida':True, 'ajuda_preservada_na_instalacao':True,
+               'ambiente_legado_reutilizado':True,
                'transporte_mcp_stdio':transport_result['checks']}
     summary['passaram'] = summary['testes_total'] - summary['ignorados']
     if python_sdk:
         run([python_sdk,'-I',HERE/'verificar_sdk.py','--python-installed',python,'--root',target/'sdk'], target, target/'sdk.txt')
         sdk = json.loads((target/'sdk.txt').read_text('utf-8').strip())
         summary['sdk_mcp'] = sdk
+    from preparar_distribuicao import source_digest
     result = {'date':datetime.now(ZoneInfo('America/Sao_Paulo')).date().isoformat(), 'summary':summary,
-              'wheel_sha256':metadata['wheel_sha256'],'source_digest':metadata['fonte_modulos_sha256']}
+              'wheel_sha256':metadata['wheel_sha256'],'source_digest':source_digest()}
     (target/'validacao.json').write_text(json.dumps(result, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
     return result
 

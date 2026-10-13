@@ -39,7 +39,7 @@ o resultado final.
 SHA-256 do wheel: `dd9e9b0ef59f2349ab0a90d42345163356d00c4546366d92026860e682fa4ddb`.
 SHA-256 dos módulos instalados, por nome do arquivo, byte zero e conteúdo:
 `eae6d793f58d10baa0ee54beb0ab3e7ecc31ef7b561e9b3a1838af67ef0834aa`.
-Ambos conferem com `VALIDACAO_0.8.0.md`. A instalação antiga 0.1.0 em
+Ambos conferem com `validacoes/VALIDACAO_0.8.0.md`. A instalação antiga 0.1.0 em
 `gateway/codigo_gateway/.venv` foi preservada e não será usada.
 
 ## Preparação e evidências
@@ -490,7 +490,7 @@ por falta de privilégio Windows; 13 testes novos cobrem a autorização na
 conversa e suas recusas. Foram corrigidos também o início da validade de
 cinco minutos na confirmação, a concorrência de chamadas na mesma conexão e
 a tentativa de reutilizar uma cópia antiga para uma autorização nova.
-Consulte `VALIDACAO_0.8.1.md` e o complemento do `GUIA_PILOTO.md`.
+Consulte `validacoes/VALIDACAO_0.8.1.md` e o complemento do `GUIA_PILOTO.md`.
 
 **Pendente:** instalar a candidata com conexões encerradas, autorizar a mudança
 da configuração do Codex e executar o teste complementar real. Não considerar

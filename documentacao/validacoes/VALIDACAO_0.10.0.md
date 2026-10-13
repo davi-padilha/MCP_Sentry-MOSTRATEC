@@ -15,7 +15,7 @@ A suíte completa executou 96 testes com sucesso, com um teste ignorado por limi
 
 Os novos testes verificam recibos contra o arquivo persistido e mascarado, rejeição de identidade incorreta sem reparo automático, independência dos hashes em relação às medidas, falha de telemetria sem perda do parecer e contrato derivado somente da política aprovada.
 
-Wheel: `pacote-usuario/mcp_sentry_gateway-0.10.0-py3-none-any.whl`.
+Wheel: `distribuicoes-historicas/mcp_sentry_gateway-0.10.0-py3-none-any.whl`.
 SHA-256: `e898d0564eedc13d3d732aefea6ec23fca6f91c0179d43a6ad454d587b5e0854`.
 Os 15 módulos do pacote instalado no laboratório conferem byte a byte com o wheel e o código fonte.
 

@@ -22,7 +22,7 @@ Nas tabelas cada linha informa G1 a G5 nessa ordem: **P** = mecanismo preserváv
 
 **Código** significa observado na fonte; **medição**, contagem executada nesta análise; **histórico**, dado publicado anteriormente; **estimativa**, fórmula/hipótese sem demonstração experimental. Não converter hipótese em ganho demonstrado.
 
-Checkout inicial: HEAD `9b9208be12f33db50990b0d9102f900f04dc20d4`. Já havia alterações em `desenvolvimento/teste_do_sentry/CHECKLIST_REVISAO.md`, `documentacao/PLANO_MOSTRATEC.md` e o não rastreado `documentacao/TABELA_RESULTADOS_BATERIAS.md`; preservadas. Não foi encontrado AGENTS.md na raiz/pasta pai ou entre arquivos rastreados. Fonte principal: `desenvolvimento/gateway/`, versão 0.9.1 no pyproject.toml. Não presumir equivalência com outras cópias ou instalação ativa.
+Checkout inicial: HEAD `9b9208be12f33db50990b0d9102f900f04dc20d4`. Já havia alterações em `desenvolvimento/avaliacao-sentry/CHECKLIST_REVISAO.md`, `documentacao/PLANO_MOSTRATEC.md` e o não rastreado `documentacao/TABELA_RESULTADOS_BATERIAS.md`; preservadas. Não foi encontrado AGENTS.md na raiz/pasta pai ou entre arquivos rastreados. Fonte principal: `desenvolvimento/gateway/`, versão 0.9.1 no pyproject.toml. Não presumir equivalência com outras cópias ou instalação ativa.
 
 | Arquivo em desenvolvimento/gateway/mcp_sentry_gateway/ | SHA-256 do recorte |
 | --- | --- |
@@ -37,7 +37,7 @@ Checkout inicial: HEAD `9b9208be12f33db50990b0d9102f900f04dc20d4`. Já havia alt
 
 ### 2.1 Contagens medidas
 
-[medir_otimizacoes.py](../desenvolvimento/teste_do_sentry/medir_otimizacoes.py) importa definições da fonte com bytecode desligado, sem construir gateway, chamar inspeções persistentes ou iniciar backend. Conta caracteres Unicode e bytes UTF-8 de JSON compacto com chaves ordenadas. [LINHA_BASE_OTIMIZACOES.json](LINHA_BASE_OTIMIZACOES.json) preserva resultado e hashes dos 14 módulos.
+[medir_otimizacoes.py](../desenvolvimento/avaliacao-sentry/medir_otimizacoes.py) importa definições da fonte com bytecode desligado, sem construir gateway, chamar inspeções persistentes ou iniciar backend. Conta caracteres Unicode e bytes UTF-8 de JSON compacto com chaves ordenadas. [LINHA_BASE_OTIMIZACOES.json](LINHA_BASE_OTIMIZACOES.json) preserva resultado e hashes dos 14 módulos.
 
 **Tokens estimados = caracteres/4**, aproximação de planejamento não calibrada para estes modelos/código/JSON. Não é tokenizer real nem margem estatística. Não foi observada a transformação de outputSchema, annotations, nomes e instructions em contexto pelo Codex. Ferramentas podem ser descobertas sob demanda. Estes números representam o que o Sentry oferece via MCP, não cobrança integral comprovada em todo turno.
 
@@ -93,7 +93,7 @@ São contadores reportados pelo Codex, não chars/4. Incluem contexto geral/outr
 
 ### 3.1 Os ~60 s publicados
 
-**Histórico, uma amostra da 0.7.0:** [VALIDACAO_0.7.0.md](VALIDACAO_0.7.0.md), “Tempo completo de início e primeira chamada”: Filesystem normal, 0,465 s até initialize/tools-list, 60,783 s na primeira chamada, 61,249 s total. Bloqueado, 13,391 s total; após aceitar, 60,919 s. Primeira chamada inclui início adiado. O documento diz que 72,402 s anteriores tinham outro smoke concorrente, impedindo atribuição causal.
+**Histórico, uma amostra da 0.7.0:** [VALIDACAO_0.7.0.md](validacoes/VALIDACAO_0.7.0.md), “Tempo completo de início e primeira chamada”: Filesystem normal, 0,465 s até initialize/tools-list, 60,783 s na primeira chamada, 61,249 s total. Bloqueado, 13,391 s total; após aceitar, 60,919 s. Primeira chamada inclui início adiado. O documento diz que 72,402 s anteriores tinham outro smoke concorrente, impedindo atribuição causal.
 
 Não há separação das fases, estatística de desempenho ou medida da 0.9.1 atual. Subtrair bloqueado de normal não isola cópia/Node. Histórico: 4.075 arquivos; fechamento recente: 4.078. tempo_min do CSV público inclui três turnos e espera humana; não localiza esses 60 s.
 
@@ -126,9 +126,9 @@ Snapshot incorpora texto de todos os arquivos e seu hash global serializa esse t
 Na máquina dos estados instalados, operador escolhe caminhos; placeholders não são descobertos automaticamente:
 
 ```powershell
-py -3 -B desenvolvimento/teste_do_sentry/medir_otimizacoes.py
-py -3 -B desenvolvimento/teste_do_sentry/medir_otimizacoes.py --baseline 'C:\ESTADO\versao-aprovada.json' --dossier-small 'C:\EXPORTACOES\pequena.json' --dossier-large 'C:\EXPORTACOES\grande.json'
-py -3 -B desenvolvimento/teste_do_sentry/medir_otimizacoes.py --manifest 'C:\ESTADO\manifest.json' --verified-copy 'C:\ESTADO\copias-verificadas\COPIA_EXISTENTE'
+py -3 -B desenvolvimento/avaliacao-sentry/medir_otimizacoes.py
+py -3 -B desenvolvimento/avaliacao-sentry/medir_otimizacoes.py --baseline 'C:\ESTADO\versao-aprovada.json' --dossier-small 'C:\EXPORTACOES\pequena.json' --dossier-large 'C:\EXPORTACOES\grande.json'
+py -3 -B desenvolvimento/avaliacao-sentry/medir_otimizacoes.py --manifest 'C:\ESTADO\manifest.json' --verified-copy 'C:\ESTADO\copias-verificadas\COPIA_EXISTENTE'
 ```
 
 Script só lê/imprime, sem instalar, persistir store, construir BackendSession, aplicar variantes ou iniciar subprocessos. Duas captures opcionais medem cache de texto frio/quente, não cache de disco controlado. Total inclui texto; não somar tempos sobrepostos. Verificação da cópia é diagnóstico offline, não gate atômico de execução.
@@ -276,7 +276,7 @@ Feita na branch de otimizações, sobre a 1.0.0, no computador do Pedro (Windows
 
 ### Diagnóstico
 
-[diagnosticar_copia.py](../desenvolvimento/teste_do_sentry/diagnosticar_copia.py) repetiu a cópia verificada fora do gateway (4.078 arquivos, 24,3 MB, mediana de 3 rodadas): copiar 3,37 s; **primeira leitura das cópias 23,94 s**; segunda leitura das mesmas cópias 0,33 s; leitura dos originais 0,44 s. O custo está em abrir arquivos recém-criados pela primeira vez, comportamento típico de antivírus em tempo real; a atribuição ao Defender não foi comprovada por gravação de desempenho. O perfil do `inspect` mostrou 4,0 s nas expressões de mascaramento de segredos na primeira captura de cada processo e ~1,5 s por captura em operações de caminho.
+[diagnosticar_copia.py](../desenvolvimento/avaliacao-sentry/diagnosticar_copia.py) repetiu a cópia verificada fora do gateway (4.078 arquivos, 24,3 MB, mediana de 3 rodadas): copiar 3,37 s; **primeira leitura das cópias 23,94 s**; segunda leitura das mesmas cópias 0,33 s; leitura dos originais 0,44 s. O custo está em abrir arquivos recém-criados pela primeira vez, comportamento típico de antivírus em tempo real; a atribuição ao Defender não foi comprovada por gravação de desempenho. O perfil do `inspect` mostrou 4,0 s nas expressões de mascaramento de segredos na primeira captura de cada processo e ~1,5 s por captura em operações de caminho.
 
 ### O que foi feito
 
@@ -286,7 +286,7 @@ Feita na branch de otimizações, sobre a 1.0.0, no computador do Pedro (Windows
 
 ### Medição
 
-[medir_inicio.py](../desenvolvimento/teste_do_sentry/medir_inicio.py), Filesystem, 5 rodadas por condição, mediana das rodadas 2–5, mesmo computador:
+[medir_inicio.py](../desenvolvimento/avaliacao-sentry/medir_inicio.py), Filesystem, 5 rodadas por condição, mediana das rodadas 2–5, mesmo computador:
 
 | Medida | 1.0.0 | + P4 | + P4, P1, P2 |
 |---|---:|---:|---:|

@@ -4,4 +4,6 @@
 
 [Proposta para o lado direito do banner](PROPOSTA_BANNER_DIREITO.md): reorganização dos blocos e textos curtos para substituição, sem alterar o PDF.
 
-[Prévia em PDF do lado direito](../../output/pdf/banner-direita-proposta.pdf): nova composição no formato do banner original, com conclusão resumida e referências preservadas. O PDF original permanece intacto.
+A prévia em PDF do lado direito não está disponível nesta cópia. Os textos
+propostos estão no documento acima; os banners originais da FEICIT permanecem
+em [feicit/banners/](../feicit/banners/).

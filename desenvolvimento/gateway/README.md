@@ -16,7 +16,7 @@ de recuperação e rejeição de vínculos inválidos. O diff contém 12 linhas 
 contexto, hashes dos arquivos alterados e limites explícitos da comparação.
 As orientações do dossiê entram em sua identidade; não certificam privacidade
 nem escolhem automaticamente a decisão. As ferramentas nativas são preservadas.
-As distribuições anteriores ficam em `pacote-usuario/` para reprodução.
+As distribuições anteriores ficam em `distribuicoes-historicas/` para reprodução.
 
 A 0.10.0 acrescenta `review_binding` às evidências, erros com código e
 interface de releitura, recibo do parecer efetivamente persistido e contrato
@@ -51,7 +51,7 @@ limites estão em [PRIVACIDADE.md](PRIVACIDADE.md).
 
 A 0.9.1 sincroniza o esquema de registro do parecer com o protocolo v2,
 eliminando a incompatibilidade de versão anunciada na 0.9.0. Evidências em
-[VALIDACAO_0.9.1.md](../../documentacao/VALIDACAO_0.9.1.md).
+[VALIDACAO_0.9.1.md](../../documentacao/validacoes/VALIDACAO_0.9.1.md).
 
 Na raiz do repositório, em PowerShell:
 
@@ -66,8 +66,8 @@ em [desenvolvimento/distribuicao/](../distribuicao/README.md). A versão é lida
 pyproject.toml e conferida contra o pacote. Ambientes virtuais, testes e
 arquivos intermediários não fazem parte da entrega ao usuário.
 
-[Validação da entrega 1.1.0](../../documentacao/VALIDACAO_1.1.0.md).
+[Validação da entrega 1.1.0](../../documentacao/validacoes/VALIDACAO_1.1.0.md).
 
-[Validacao da 0.11.0](../../documentacao/VALIDACAO_0.11.0.md).
+[Validacao da 0.11.0](../../documentacao/validacoes/VALIDACAO_0.11.0.md).
 
 [Guia do piloto](../../documentacao/GUIA_PILOTO.md).

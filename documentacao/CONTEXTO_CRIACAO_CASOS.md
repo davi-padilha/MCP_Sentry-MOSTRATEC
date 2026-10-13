@@ -184,7 +184,7 @@ Use seu prompt de criação junto deste texto de introdução:
 
 > Leia documentacao/CONTEXTO_CRIACAO_CASOS.md, documentacao/PREPARACAO_ETAPA4.md,
 > as seções de desenho e etapa 4 de documentacao/PLANO_MOSTRATEC.md e
-> desenvolvimento/teste_do_sentry/README.md. Depois aplique meu prompt abaixo.
+> desenvolvimento/avaliacao-sentry/README.md. Depois aplique meu prompt abaixo.
 > Esta conversa é de criação; não executar revisões da bateria nem fazer
 > commit/push. Use os recursos externos já preparados, confira os commits
 > feitos pelo operador e resolva as incompatibilidades Donna descritas no

@@ -5,8 +5,13 @@ instalar-mcp-sentry/*.ps1 text eol=lf
 instalar-mcp-sentry/*.json text eol=lf
 instalar-mcp-sentry/*.txt text eol=lf
 instalar-mcp-sentry/*.whl -text
-pacote-usuario/*.whl -text
+instalar-mcp-sentry/** text eol=lf
+instalar-mcp-sentry/**/*.whl -text
+instalar-mcp-sentry/**/*.cmd text eol=crlf
+distribuicoes-historicas/*.whl -text
 distribuicoes/*.zip -text
 desenvolvimento/distribuicao/*.py text eol=lf
 desenvolvimento/distribuicao/*.md text eol=lf
 desenvolvimento/distribuicao/*.in text eol=lf
+# Preserve the frozen package bytes; child attributes retain binary handling.
+reproducao-experimentos/sentry-1.0/** text eol=lf

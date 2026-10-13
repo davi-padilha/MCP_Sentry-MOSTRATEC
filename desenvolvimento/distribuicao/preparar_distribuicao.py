@@ -19,7 +19,7 @@ REPO = Path(__file__).resolve().parents[2]
 SOURCE = REPO / 'desenvolvimento/gateway'
 DELIVERY = REPO / 'instalar-mcp-sentry'
 HERE = Path(__file__).resolve().parent
-DOCS = ('CONFIGURACAO.md', 'PRIVACIDADE.md', 'SOLUCAO-DE-PROBLEMAS.md')
+DOCS = ('README.md','USO-E-ATUALIZACAO.md','CONFIGURACAO.md','PRIVACIDADE.md','SOLUCAO-DE-PROBLEMAS.md')
 
 
 def sha(path):
@@ -54,8 +54,8 @@ def write_json(path, data):
 
 
 def checksums(folder):
-    files = sorted(path for path in folder.iterdir() if path.is_file() and path.name != 'SHA256SUMS.txt')
-    (folder / 'SHA256SUMS.txt').write_text(''.join(f'{sha(path)}  {path.name}\n' for path in files), encoding='ascii', newline='\n')
+    files = sorted(path for path in folder.rglob('*') if path.is_file() and path.name != 'SHA256SUMS.txt')
+    (folder / 'arquivos-instalacao/SHA256SUMS.txt').write_text(''.join(f'{sha(path)}  {path.relative_to(folder).as_posix()}\n' for path in files), encoding='ascii', newline='\n')
 
 
 def deterministic_zip(destination, entries):
@@ -105,10 +105,12 @@ def release(python_sdk=None):
     wheel = build_wheel(work, version)
     stage = work / 'entrega'
     stage.mkdir()
-    shutil.copy2(wheel, stage / wheel.name)
-    for name in (*DOCS, 'instalar.ps1'):
+    (stage/'arquivos-instalacao').mkdir()
+    (stage/'ajuda').mkdir()
+    shutil.copy2(wheel, stage / 'arquivos-instalacao' / wheel.name)
+    for name in (*('ajuda/'+doc for doc in DOCS), 'arquivos-instalacao/instalar.ps1', 'INSTALAR.cmd'):
         text = (DELIVERY / name).read_text('utf-8').replace('\r\n', '\n')
-        (stage / name).write_text(text, encoding='utf-8', newline='\n')
+        (stage / name).write_text(text, encoding='utf-8', newline='\r\n' if name.endswith('.cmd') else '\n')
     template = (HERE / 'README_USUARIO.md.in').read_text('utf-8')
     for key, value in {'VERSAO': version, 'PYTHON_MINIMO': minimum, 'WHEEL': wheel.name}.items():
         template = template.replace('{{' + key + '}}', value)
@@ -116,18 +118,14 @@ def release(python_sdk=None):
         raise ValueError('Unresolved README placeholder.')
     (stage / 'README.md').write_text(template, encoding='utf-8', newline='\n')
     metadata = {'versao': version, 'python_minimo': minimum, 'escopo': 'Prototipo Windows; ferramentas MCP locais stdio',
-                'wheel': wheel.name, 'wheel_sha256': sha(wheel), 'fonte_modulos_sha256': source_digest(),
-                'validacao_tecnica': {'estado': 'em_validacao'},
-                'baterias_modelo': {'registro': 'pesquisa/02_resultados/COMPARACAO_LUNA_110.md',
-                                   'observacao': 'Campanhas anteriores, independentes da validacao desta distribuicao; wheel reconstruido da mesma fonte funcional.'}}
-    write_json(stage / 'VERSAO.json', metadata)
+                'wheel': wheel.name, 'wheel_sha256': sha(wheel)}
+    write_json(stage / 'arquivos-instalacao/VERSAO.json', metadata)
     checksums(stage)
     from validar_distribuicao import validate
     print(f'Validando {version}. Evidencias: {work}', flush=True)
     validation = validate(stage, work / 'validacao', python_sdk=python_sdk)
-    metadata['validacao_tecnica'] = validation['summary']
     metadata['data_validacao'] = validation['date']
-    write_json(stage / 'VERSAO.json', metadata)
+    write_json(stage / 'arquivos-instalacao/VERSAO.json', metadata)
     checksums(stage)
     # Validate the final metadata/checksum bytes too; do not rerun the installation.
     from validar_distribuicao import verify_delivery
@@ -135,22 +133,27 @@ def release(python_sdk=None):
     output = REPO / 'distribuicoes'
     output.mkdir(exist_ok=True)
     staged_zip = work / f'mcp-sentry-{version}.zip'
-    deterministic_zip(staged_zip, [(f'instalar-mcp-sentry/{p.name}', p.read_bytes()) for p in stage.iterdir()])
+    deterministic_zip(staged_zip, [(f'instalar-mcp-sentry/{p.relative_to(stage).as_posix()}', p.read_bytes()) for p in stage.rglob('*') if p.is_file()])
     # Archive prior wheels before replacing the delivery; preserve any local .venv.
-    for old in DELIVERY.glob('*.whl'):
+    for old in DELIVERY.rglob('*.whl'):
+        if '.venv' in old.relative_to(DELIVERY).parts: continue
         if old.name == wheel.name:
             continue
-        archived = REPO / 'pacote-usuario' / old.name
+        archived = REPO / 'distribuicoes-historicas' / old.name
         if archived.exists() and sha(archived) != sha(old):
             raise ValueError(f'Historical wheel conflict: {archived}')
         if not archived.exists():
             shutil.copy2(old, archived)
-    for path in stage.iterdir():
-        shutil.copy2(path, DELIVERY / path.name)
-    for old in DELIVERY.glob('*.whl'):
+    for path in stage.rglob('*'):
+        if not path.is_file(): continue
+        destination = DELIVERY / path.relative_to(stage)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, destination)
+    for old in DELIVERY.rglob('*.whl'):
+        if '.venv' in old.relative_to(DELIVERY).parts: continue
         if old.name != wheel.name:
             # Only specific archived wheel files inside DELIVERY are removed.
-            if old.parent.resolve() != DELIVERY.resolve() or sha(old) != sha(REPO / 'pacote-usuario' / old.name):
+            if not old.resolve().is_relative_to(DELIVERY.resolve()) or sha(old) != sha(REPO / 'distribuicoes-historicas' / old.name):
                 raise ValueError('Archive verification failed.')
             old.unlink()
     final_zip = output / staged_zip.name

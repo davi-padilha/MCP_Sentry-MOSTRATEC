@@ -50,7 +50,7 @@ def main():
         if not (target / "Scripts/python.exe").exists():
             run([python, "-m", "venv", "--without-pip", target], f"venv-{name}")
     wheels = root / "operador/locks"
-    wheel = repo / "pacote-usuario/mcp_sentry_gateway-0.8.1-py3-none-any.whl"
+    wheel = repo / "distribuicoes-historicas/mcp_sentry_gateway-0.8.1-py3-none-any.whl"
     expected = "d3424dd2894f5dd439dcae9869082dca4093c1349d7b95c6f3b04c4ae1528a41"
     if hashlib.sha256(wheel.read_bytes()).hexdigest() != expected:
         raise ValueError("Wheel Sentry difere da candidata validada")

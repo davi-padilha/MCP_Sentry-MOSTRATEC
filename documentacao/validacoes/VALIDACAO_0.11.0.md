@@ -69,7 +69,7 @@ o tempo da consulta externa nao esta incluido no total de inicializacao.
 
 ## Pacote e congelamento
 
-Wheel: `pacote-usuario/mcp_sentry_gateway-0.11.0-py3-none-any.whl`.
+Wheel: `distribuicoes-historicas/mcp_sentry_gateway-0.11.0-py3-none-any.whl`.
 SHA-256: `a3e16dcdca8b71ebe5569be9da5d924ef486325727269d006338c96acb58c8ba`.
 Os 16 modulos instalados conferem com o wheel e a fonte.
 
@@ -93,11 +93,11 @@ diagnósticas com GPT-6 Luna/low confirmado nos registros efetivos. Os mesmos
 24 patches, pedidos, ordem, políticas e gabarito v2 foram preservados.
 Os códigos e estados aprovados foram restaurados; os três servidores estão
 `doctor: ready`. O resultado completo está em
-[05_evolucao_011_luna_low](../pesquisa/02_resultados/05_evolucao_011_luna_low/README.md).
+[05_evolucao_011_luna_low](../../pesquisa/02_resultados/05_evolucao_011_luna_low/README.md).
 Nenhuma correção posterior foi incorporada à versão durante a bateria.
 
 Após novo pedido humano, a mesma versão foi testada também com Luna/medium:
 48 revisões principais e uma R3, modelo/esforço efetivos confirmados,
 referências restauradas. A conferência reutilizou os controles técnicos
 da instalação de bytes idênticos. Resultado e diagnóstico comparativo:
-[06_evolucao_011_luna_medium](../pesquisa/02_resultados/06_evolucao_011_luna_medium/COMPARACAO.md).
+[06_evolucao_011_luna_medium](../../pesquisa/02_resultados/06_evolucao_011_luna_medium/COMPARACAO.md).

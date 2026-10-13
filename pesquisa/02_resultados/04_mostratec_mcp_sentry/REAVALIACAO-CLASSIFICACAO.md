@@ -165,7 +165,7 @@ semântica e essa ressalva constam do registro privado.
 
 Foi reproduzida a pontuação dos registros existentes, sem novas revisões.
 Somente `normalize` e `Metrics` de
-[analisar.py](../../../desenvolvimento/teste_do_sentry/analisar.py) foram
+[analisar.py](../../../desenvolvimento/avaliacao-sentry/analisar.py) foram
 extraídas por AST e executadas em memória, sem executar a CLI ou rotinas de
 gravação do analisador. Conferiram-se 48 registros únicos R1/R2 por bateria;
 inconclusivas foram preservadas e R3 ficaram fora das métricas. Os seis grupos

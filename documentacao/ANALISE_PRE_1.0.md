@@ -73,7 +73,7 @@ os limites documentados do protótipo.
 - Instalação assistida, status administrativo e restauração seletiva com backup
   e rejeição de conflitos.
 
-A [validação 0.11.0](VALIDACAO_0.11.0.md) registra 107 testes técnicos, um
+A [validação 0.11.0](validacoes/VALIDACAO_0.11.0.md) registra 107 testes técnicos, um
 ignorado por limitação de symlink, controles com SDK e leituras nativas.
 Essas evidências permanecem válidas para os mesmos bytes. Uma candidata
 modificada precisará de regressão própria; não se deve reutilizar o resultado
@@ -242,7 +242,7 @@ foi produzido pelo Sentry ou pode ser reduzido com corte de evidências.
 
 ## Fontes da análise
 
-- [Validação técnica 0.11.0](VALIDACAO_0.11.0.md).
+- [Validação técnica 0.11.0](validacoes/VALIDACAO_0.11.0.md).
 - [Diagnóstico low](../pesquisa/02_resultados/05_evolucao_011_luna_low/RELATORIO.md).
 - [Comparação medium](../pesquisa/02_resultados/06_evolucao_011_luna_medium/COMPARACAO.md).
 - [Tokens e tempos históricos](../pesquisa/02_resultados/04_mostratec_mcp_sentry/TOKENS_E_TEMPOS.md).
@@ -250,7 +250,7 @@ foi produzido pelo Sentry ou pode ser reduzido com corte de evidências.
 - [Registros e transições](../desenvolvimento/gateway/mcp_sentry_gateway/review.py).
 - [Captura e dossiê](../desenvolvimento/gateway/mcp_sentry_gateway/core.py).
 - [Execução, catálogo e conexão](../desenvolvimento/gateway/mcp_sentry_gateway/gateway.py).
-- [Limites do pacote](../pacote-usuario/README.md).
+- [Limites do pacote da época](../distribuicoes-historicas/GUIA_LEGADO.md).
 
 Wheel analisado: `mcp_sentry_gateway-0.11.0-py3-none-any.whl`.
 SHA-256 conferido:

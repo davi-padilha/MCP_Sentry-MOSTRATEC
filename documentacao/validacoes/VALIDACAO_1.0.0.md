@@ -84,7 +84,7 @@ bloqueadas e uma inconclusiva; 20 de 24 pares concordantes. Há limites:
 somente 46 bloqueios iniciais foram comprovados, e três conversas tiveram
 chamadas fora do roteiro. O consolidador estrito recusou a coleta; seus
 requisitos não foram relaxados. O relatório com as ressalvas está em
-[07_evolucao_100_luna_low](../pesquisa/02_resultados/07_evolucao_100_luna_low/README.md).
+[07_evolucao_100_luna_low](../../pesquisa/02_resultados/07_evolucao_100_luna_low/README.md).
 Modelo e esforço foram conferidos nos 156 turnos. As três referências foram
 restauradas e ficaram `doctor: ready`; não se observou execução de variantes.
 
@@ -116,7 +116,7 @@ conferidos e as conversas arquivadas. As três referências foram restauradas,
 com `doctor: ready`.
 
 Relatório, comparação descritiva com Low e dados anônimos:
-[08_evolucao_100_luna_medium](../pesquisa/02_resultados/08_evolucao_100_luna_medium/README.md).
+[08_evolucao_100_luna_medium](../../pesquisa/02_resultados/08_evolucao_100_luna_medium/README.md).
 A comparação conserva as ressalvas da coleta Low, cuja auditoria estrita
 não passou; não demonstra um efeito causal isolado do esforço.
 
@@ -136,6 +136,6 @@ conversas arquivadas. As três referências foram restauradas, `doctor: ready`.
 
 O preparador e o consolidador aceitam agora high, sem relaxar os controles.
 Relatório e dados:
-[09_evolucao_100_luna_high](../pesquisa/02_resultados/09_evolucao_100_luna_high/README.md).
+[09_evolucao_100_luna_high](../../pesquisa/02_resultados/09_evolucao_100_luna_high/README.md).
 High e Médio tiveram os mesmos totais de classificação nesta coleta; isso
 não demonstra vantagem de High nem classificação infalível.

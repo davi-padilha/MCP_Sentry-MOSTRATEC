@@ -72,12 +72,12 @@ substitui a inspeção da fonte nem demonstra sozinho a validade do gabarito.
 
 ## Exportação
 
-O [exportador](../../../desenvolvimento/teste_do_sentry/exportar_resultados_publicos.py)
+O [exportador](../../../desenvolvimento/avaliacao-sentry/exportar_resultados_publicos.py)
 usa uma lista explícita de campos permitidos. Ele confere os totais e os
 pares e publica a v1 e a v2 separadamente, sem alterar as fontes congeladas:
 
 ```powershell
-py -3 desenvolvimento/teste_do_sentry/exportar_resultados_publicos.py `
+py -3 desenvolvimento/avaliacao-sentry/exportar_resultados_publicos.py `
   --raiz-privada C:\CAMINHO_PRIVADO `
   --saida pesquisa/02_resultados/04_mostratec_mcp_sentry `
   --reavaliacao C:\CAMINHO_PRIVADO\operador\reavaliacao-20261007
@@ -91,7 +91,7 @@ O exportador recusa substituir uma publicação revisada pela leitura histórica
 sem o parâmetro de reavaliação. Não usar a reexportação para misturar séries
 ou substituir recusas e erros. O exportador é específico deste fechamento.
 
-O script [reavaliar_gabarito.py](../../../desenvolvimento/teste_do_sentry/reavaliar_gabarito.py)
+O script [reavaliar_gabarito.py](../../../desenvolvimento/avaliacao-sentry/reavaliar_gabarito.py)
 criou a versão privada v2 e recalculou as duas séries, preservando hashes dos
 registros, patches e gabarito original. Não executa novas revisões. O código
 de criação do gabarito a partir do mapeamento original continua produzindo v1;

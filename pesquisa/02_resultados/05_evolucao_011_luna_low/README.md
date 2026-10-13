@@ -31,5 +31,5 @@ nativos e seus estados aprovados foram restaurados e ficaram `doctor: ready`.
 Os IDs anônimos não indicam ordem nem correspondem aos IDs de outras séries.
 Gabarito por caso, patches, transcrições, justificativas, contas e credenciais
 permanecem fora do repositório. A publicação anterior continua separada.
-O exportador auditável é `desenvolvimento/teste_do_sentry/consolidar_serie_011.py`;
+O exportador auditável é `desenvolvimento/avaliacao-sentry/consolidar_serie_011.py`;
 `--verificar` faz apenas leituras e valida o payload público em memória.

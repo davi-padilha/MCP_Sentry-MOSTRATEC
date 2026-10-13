@@ -61,7 +61,7 @@ def main():
     # Upgrade in a separate environment; the delivery installer never reapproves servers.
     subprocess.run([sys.executable, '-m', 'venv', str(target/'upgrade')], env=env, check=True)
     upgrade = target/'upgrade/Scripts/python.exe'
-    for wheel in [REPO/'pacote-usuario/mcp_sentry_gateway-0.11.0-py3-none-any.whl', WHEEL]:
+    for wheel in [REPO/'distribuicoes-historicas/mcp_sentry_gateway-0.11.0-py3-none-any.whl', WHEEL]:
         subprocess.run([str(upgrade), '-m', 'pip', 'install', '--no-index', '--no-deps', str(wheel)],
                        env=env, check=True, capture_output=True)
     subprocess.run([str(upgrade), '-c', 'import mcp_sentry_gateway; assert mcp_sentry_gateway.__version__ == "1.0.0"'],

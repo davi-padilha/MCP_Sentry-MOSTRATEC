@@ -1,13 +1,19 @@
 # Solução de problemas
 
+Comece pela mensagem final do instalador: ela distingue instalação do
+programa e configuração do MCP. Os comandos de instalação abaixo são
+executados na pasta extraída do ZIP. Para usar os comandos do programa
+instalado, consulte [Uso e atualização](USO-E-ATUALIZACAO.md).
+
 | Situação | Ação |
 |---|---|
-| Python não encontrado ou atalho da Store inválido | O instalador tenta launchers e instalações locais. Instale Python 3.11+ com venv/pip ou passe um executável real a `instalar.ps1 -PythonExe`. |
-| PowerShell bloqueou o script | Use os comandos de instalação manual do README; não precisa alterar a política global. |
+| Python não encontrado ou atalho da Store inválido | Instale Python 3.11+ com venv/pip pelo [site oficial](https://www.python.org/downloads/windows/), ou execute `.\arquivos-instalacao\instalar.ps1 -PythonExe 'C:\CAMINHO\python.exe'`. |
+| PowerShell bloqueou o script | Use `INSTALAR.cmd`, que ajusta a execução somente para esse processo, ou a alternativa manual em [Uso e atualização](USO-E-ATUALIZACAO.md). Não precisa alterar a política global. |
 | Arquivo ausente ou hash diferente | O instalador confere todos os arquivos entregues antes de instalar. Extraia novamente o ZIP oficial; não altere a lista de somas para ocultar a divergência. |
 | Ambiente existente incompatível | Preserve-o. Escolha outro `-Ambiente` ou confira seu Python antes de atualizar; o instalador não apaga nem recria ambientes existentes automaticamente. |
-| Programa instalado, MCP ainda desconectado | Abra o `setup` pelo comando apresentado no resumo, ou use `-Configurar` em uma instalação nova. |
-| Atualização da 1.0.0 | Encerre as conexões e use `-Ambiente` apontando à `.venv` anterior, com `-SemConfigurar`. Não repita a aprovação inicial. |
+| Programa instalado, MCP ainda desconectado | Abra `setup` pelo comando apresentado no resumo. Consulte [Conectar um MCP](USO-E-ATUALIZACAO.md#conectar-um-mcp). |
+| Atualização da 1.0.0 ou instalação antiga | Encerre as conexões e execute `.\arquivos-instalacao\instalar.ps1 -Ambiente 'C:\PASTA_ANTERIOR\.venv' -SemConfigurar`. Não repita a aprovação inicial. |
+| Pasta extraída apagada depois de instalar | Na instalação padrão nova, o programa e os guias ficam em `%LOCALAPPDATA%\MCP-Sentry-Gateway`. Instalações antigas que guardam a `.venv` na pasta extraída precisam preservar essa pasta. |
 | Configuração não concluída | A instalação do programa pode ter passado. Leia o diagnóstico do setup; suas confirmações e o backup continuam obrigatórios. |
 | Setup não reconhece a entrada | Use a preparação manual em CONFIGURACAO.md; preserve a configuração original. |
 | Servidor requer segredo | Forneça a variável de ambiente indicada por nome; não ponha o valor no manifesto ou nos arquivos inspecionados. |

@@ -1,19 +1,14 @@
-# Documentação e planejamento atuais
+# Guias, planejamento e análises
 
 - [Plano MOSTRATEC](PLANO_MOSTRATEC.md): etapas, prioridades e critérios de conclusão.
 - [Análise antes da 1.0](ANALISE_PRE_1.0.md): funcionamento, ajustes remanescentes,
   achados estáticos e critérios para fechar a primeira versão estável do protótipo.
 - [Resultados MOSTRATEC](../pesquisa/02_resultados/04_mostratec_mcp_sentry/README.md): comparação das duas baterias e dados públicos sem gabarito por caso.
-- [Validação 0.9.1](VALIDACAO_0.9.1.md): correção de protocolo e encerramento da repetição Luna/médio.
 - [Guia do piloto](GUIA_PILOTO.md): preparação e verificações técnicas.
-- [Validação 0.8.0](VALIDACAO_0.8.0.md): integração do setup e distribuição atual.
-- [Validação 0.7.0](VALIDACAO_0.7.0.md): preparação genérica e testes técnicos anteriores.
-- [Validação 0.6.0](VALIDACAO_0.6.0.md): registro histórico anterior.
+- [Análise das otimizações](ANALISE_OTIMIZACOES.md): implementação e medições da evolução do gateway.
+- [Validações técnicas](validacoes/README.md): registros separados por versão;
+  a entrega atual é descrita na [validação 1.1.0](validacoes/VALIDACAO_1.1.0.md).
 
 Os caminhos dos comandos foram atualizados após a reorganização. Os registros
 históricos descrevem testes já realizados; a reorganização não representa um novo piloto.
 Para instalação e uso pelo usuário, consulte [instalar-mcp-sentry/README.md](../instalar-mcp-sentry/README.md).
-
-- [Validação 1.0.0](VALIDACAO_1.0.0.md): distribuição e regressão do protótipo.
-- [Validação 1.1.0](VALIDACAO_1.1.0.md): fechamento da distribuição, instalação,
-  atualização e melhorias do instalador.
