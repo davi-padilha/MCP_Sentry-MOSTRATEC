@@ -1,4 +1,4 @@
-# Políticas de privacidade no MCP Sentry 1.0.0
+# Políticas de privacidade no MCP Sentry
 
 O operador pode declarar uma política de privacidade no manifesto. O Sentry
 valida seu formato e inclui as regras no dossiê apresentado à IA. O modelo deve

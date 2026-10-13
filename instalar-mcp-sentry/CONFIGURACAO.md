@@ -1,6 +1,6 @@
 # Configuração manual e referência de operação
 
-Use o README.md para instalar a versão 1.0.0. Esta referência cobre preparo manual, outros clientes stdio, decisões e limites.
+Use o README.md e VERSAO.json para identificar e instalar a versão entregue. Esta referência cobre preparo manual, outros clientes stdio, decisões e limites.
 
 ## Preparação manual para o Codex
 
@@ -149,11 +149,11 @@ mesmo manifesto e o mesmo diretório de estado:
 {
   "mcpServers": {
     "meu_servidor_via_sentry": {
-      "command": "C:\\caminho\\desenvolvimento\gateway\\.venv\\Scripts\\mcp-sentry-gateway.exe",
+      "command": "C:\\MCP\\instalar-mcp-sentry\\.venv\\Scripts\\mcp-sentry-gateway.exe",
       "args": ["--interface", "execution", "--manifest", "C:\\MCP\\config\\meu-servidor.json", "--store", "C:\\caminho\\estado"]
     },
     "mcp_sentry_review": {
-      "command": "C:\\caminho\\desenvolvimento\gateway\\.venv\\Scripts\\mcp-sentry-gateway.exe",
+      "command": "C:\\MCP\\instalar-mcp-sentry\\.venv\\Scripts\\mcp-sentry-gateway.exe",
       "args": ["--interface", "review", "--manifest", "C:\\MCP\\config\\meu-servidor.json", "--store", "C:\\caminho\\estado"]
     }
   }
@@ -238,7 +238,7 @@ ferramentas ou comandos automáticos.
 - Não é sandbox, antivírus nem mecanismo de autenticação. Os relatórios podem
   conter trechos de código; mantenha o diretório de estado privado.
 
-## Operação da versão 1.0.0
+## Operação da versão entregue
 
 O registro pode enviar `review_token`, `decision`, `justification` e `risks`.
 O token e emitido depois da leitura completa das evidencias e vale para o

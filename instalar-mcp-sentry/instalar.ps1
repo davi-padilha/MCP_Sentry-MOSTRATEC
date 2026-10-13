@@ -1,32 +1,143 @@
-param([string]$PythonExe)
+[CmdletBinding()]
+param(
+    [string]$PythonExe,
+    [string]$Ambiente,
+    [switch]$Configurar,
+    [switch]$SemConfigurar,
+    [string]$CodexConfig,
+    [string]$StateRoot
+)
 $ErrorActionPreference = 'Stop'
+if ($Configurar -and $SemConfigurar) { throw 'Escolha -Configurar ou -SemConfigurar.' }
+if (($CodexConfig -or $StateRoot) -and !$Configurar) { throw '-CodexConfig e -StateRoot exigem -Configurar.' }
 $taskRoot = $PSScriptRoot
-$taskWheel = Join-Path $taskRoot 'mcp_sentry_gateway-1.0.0-py3-none-any.whl'
-$taskChecksums = Get-Content -LiteralPath (Join-Path $taskRoot 'SHA256SUMS.txt')
-$taskLine = @($taskChecksums | Where-Object { $_ -match '^([0-9a-fA-F]{64})\s+\*?mcp_sentry_gateway-1\.0\.0-py3-none-any\.whl$' })
-if ($taskLine.Count -ne 1) { throw 'Soma do instalador ausente ou ambigua.' }
-$taskExpected = ($taskLine[0] -split '\s+')[0].ToLowerInvariant()
-$taskStream = [System.IO.File]::OpenRead($taskWheel)
-$taskHasher = [System.Security.Cryptography.SHA256]::Create()
-try { $taskActual = ([System.BitConverter]::ToString($taskHasher.ComputeHash($taskStream))).Replace('-','').ToLowerInvariant() }
-finally { $taskStream.Dispose(); $taskHasher.Dispose() }
-if ($taskActual -ne $taskExpected) {
-    throw 'O arquivo de instalacao difere da soma recebida. Obtenha o pacote novamente.'
+
+function Get-TaskHash([string]$Path) {
+    $taskStream = [System.IO.File]::OpenRead($Path)
+    $taskHasher = [System.Security.Cryptography.SHA256]::Create()
+    try { return ([System.BitConverter]::ToString($taskHasher.ComputeHash($taskStream))).Replace('-','').ToLowerInvariant() }
+    finally { $taskStream.Dispose(); $taskHasher.Dispose() }
 }
-$taskVenvPython = Join-Path $taskRoot '.venv/Scripts/python.exe'
-if (!(Test-Path -LiteralPath $taskVenvPython)) {
-    if ($PythonExe) { & $PythonExe -m venv (Join-Path $taskRoot '.venv') }
-    else { & py -3 -m venv (Join-Path $taskRoot '.venv') }
-    if ($LASTEXITCODE -ne 0) { throw 'Falha ao criar ambiente Python.' }
+
+# Check every distributed file before trusting its version or running Python.
+$taskSums = @{}
+foreach ($taskLine in (Get-Content -LiteralPath (Join-Path $taskRoot 'SHA256SUMS.txt'))) {
+    if ($taskLine -notmatch '^([0-9a-f]{64})  ([A-Za-z0-9_.-]+)$') { throw 'Lista de somas invalida.' }
+    $taskHash = $Matches[1]; $taskName = $Matches[2]
+    if ($taskSums.ContainsKey($taskName)) { throw 'Nome repetido na lista de somas.' }
+    $taskPath = Join-Path $taskRoot $taskName
+    if (!(Test-Path -LiteralPath $taskPath -PathType Leaf) -or (Get-TaskHash $taskPath) -ne $taskHash) {
+        throw "Arquivo ausente ou diferente da soma recebida: $taskName. Obtenha novamente a distribuicao."
+    }
+    $taskSums[$taskName] = $taskHash
 }
-& $taskVenvPython -c 'import sys; sys.exit(0 if sys.version_info >= (3,11) else 1)'
-if ($LASTEXITCODE -ne 0) { throw 'Python 3.11 ou posterior e necessario.' }
-& $taskVenvPython -m pip install --no-index --no-deps $taskWheel
-if ($LASTEXITCODE -ne 0) { throw 'Instalacao nao concluida.' }
+foreach ($taskName in @('VERSAO.json', 'instalar.ps1', 'README.md', 'CONFIGURACAO.md', 'PRIVACIDADE.md', 'SOLUCAO-DE-PROBLEMAS.md')) {
+    if (!$taskSums.ContainsKey($taskName)) { throw "Soma obrigatoria ausente: $taskName." }
+}
+$taskMetadata = Get-Content -LiteralPath (Join-Path $taskRoot 'VERSAO.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+$taskVersion = [string]$taskMetadata.versao
+$taskMinimum = [string]$taskMetadata.python_minimo
+if ($taskVersion -notmatch '^[0-9]+\.[0-9]+\.[0-9]+$' -or $taskMinimum -notmatch '^[0-9]+\.[0-9]+$') { throw 'Versao ou requisito Python invalido em VERSAO.json.' }
+$taskWheelName = "mcp_sentry_gateway-$taskVersion-py3-none-any.whl"
+if ($taskMetadata.wheel -ne $taskWheelName -or !$taskSums.ContainsKey($taskWheelName) -or $taskMetadata.wheel_sha256 -ne $taskSums[$taskWheelName]) {
+    throw 'Wheel, versao e somas nao correspondem.'
+}
+$taskWheel = Join-Path $taskRoot $taskWheelName
+if (!$Ambiente) { $Ambiente = Join-Path $taskRoot '.venv' }
+$taskEnvironment = [System.IO.Path]::GetFullPath($Ambiente)
+$taskVenvPython = Join-Path $taskEnvironment 'Scripts/python.exe'
+$taskPrevious = $null
+
+function Get-TaskPython([string]$Command, [string[]]$PrefixArgs = @()) {
+    $taskProbe = "import sys,json,importlib.util; print(json.dumps(dict(executable=sys.executable,version=list(sys.version_info[:3]),venv=importlib.util.find_spec('venv') is not None,ensurepip=importlib.util.find_spec('ensurepip') is not None)))"
+    try {
+        $taskOutput = @(& $Command @PrefixArgs -I -c $taskProbe 2>&1)
+        if ($LASTEXITCODE -ne 0) { return $null }
+        $taskInfo = $taskOutput[-1] | ConvertFrom-Json
+        $taskFound = [version]($taskInfo.version -join '.')
+        if ($taskFound -lt [version]$taskMinimum -or !$taskInfo.venv -or !$taskInfo.ensurepip -or !(Test-Path -LiteralPath $taskInfo.executable -PathType Leaf)) { return $null }
+        return $taskInfo
+    } catch { return $null }
+}
+
+if (Test-Path -LiteralPath $taskVenvPython -PathType Leaf) {
+    $taskPython = Get-TaskPython $taskVenvPython
+    if (!$taskPython) { throw "O ambiente existente nao tem Python $taskMinimum+ utilizavel. Preserve-o e informe outro -Ambiente; nao sera recriado automaticamente." }
+    $taskPreviousOutput = @(& $taskVenvPython -I -c "import importlib.metadata as m; print(next((d.version for d in m.distributions() if d.metadata['Name']=='mcp-sentry-gateway'), ''))" 2>$null)
+    if ($LASTEXITCODE -eq 0) { $taskPrevious = [string]$taskPreviousOutput[-1] }
+} else {
+    if (Test-Path -LiteralPath $taskEnvironment) { throw "O ambiente existente nao tem um executavel Python utilizavel: $taskEnvironment. Preserve-o e escolha outra pasta com -Ambiente." }
+    $taskPython = $null
+    if ($PythonExe) {
+        $taskPython = Get-TaskPython $PythonExe
+        if (!$taskPython) { throw "O Python informado nao funciona ou nao atende Python $taskMinimum+ com venv e ensurepip: $PythonExe." }
+    } else {
+        $taskCandidates = @()
+        $taskLauncher = Get-Command py.exe -ErrorAction SilentlyContinue
+        if ($taskLauncher) { $taskPython = Get-TaskPython $taskLauncher.Source @('-3') }
+        foreach ($taskCommand in @('python.exe','python3.exe')) {
+            $taskResolved = Get-Command $taskCommand -ErrorAction SilentlyContinue
+            if ($taskResolved) { $taskCandidates += $taskResolved.Source }
+        }
+        foreach ($taskPattern in @("$env:LOCALAPPDATA\Python\pythoncore-*\python.exe", "$env:LOCALAPPDATA\Programs\Python\Python*\python.exe")) {
+            $taskCandidates += @(Get-ChildItem -Path $taskPattern -File -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -ExpandProperty FullName)
+        }
+        foreach ($taskRegistry in @('HKCU:\Software\Python\PythonCore', 'HKLM:\Software\Python\PythonCore', 'HKLM:\Software\WOW6432Node\Python\PythonCore')) {
+            foreach ($taskKey in @(Get-ChildItem -LiteralPath $taskRegistry -ErrorAction SilentlyContinue)) {
+                $taskInstallKey = Get-Item -LiteralPath (Join-Path $taskKey.PSPath 'InstallPath') -ErrorAction SilentlyContinue
+                if ($taskInstallKey) {
+                    $taskRegistered = $taskInstallKey.GetValue('ExecutablePath')
+                    if (!$taskRegistered -and $taskInstallKey.GetValue('')) { $taskRegistered = Join-Path $taskInstallKey.GetValue('') 'python.exe' }
+                    if ($taskRegistered) { $taskCandidates += $taskRegistered }
+                }
+            }
+        }
+        foreach ($taskCandidate in @($taskCandidates | Select-Object -Unique)) {
+            if ($taskPython) { break }
+            $taskPython = Get-TaskPython $taskCandidate
+        }
+        if (!$taskPython) { throw "Python $taskMinimum+ nao encontrado. Instale Python com venv/pip ou execute .\instalar.ps1 -PythonExe 'C:\CAMINHO\python.exe'. Atalhos da Microsoft Store nao comprovam uma instalacao utilizavel." }
+    }
+    Write-Output "Python encontrado: $($taskPython.executable) ($($taskPython.version -join '.'))."
+    & $taskPython.executable -I -m venv $taskEnvironment
+    if ($LASTEXITCODE -ne 0) { throw "Falha ao criar o ambiente em $taskEnvironment. Confira permissoes e espaco em disco." }
+}
+
+Write-Output "Instalando MCP Sentry $taskVersion em $taskEnvironment..."
+& $taskVenvPython -I -m pip --isolated --disable-pip-version-check install --no-index --no-deps $taskWheel
+if ($LASTEXITCODE -ne 0) { throw 'Instalacao nao concluida. Preserve o ambiente e consulte SOLUCAO-DE-PROBLEMAS.md.' }
 @'
+import importlib.metadata, sys
 import mcp_sentry_gateway
-assert mcp_sentry_gateway.__version__ == "1.0.0"
-print("MCP Sentry 1.0.0 instalado.")
-'@ | & $taskVenvPython -
-if ($LASTEXITCODE -ne 0) { throw 'Falha ao conferir a versao instalada.' }
-Write-Output 'Leia README.md e execute .\.venv\Scripts\mcp-sentry.exe setup para conectar seu MCP.'
+expected = sys.argv[1]
+assert importlib.metadata.version('mcp-sentry-gateway') == expected
+assert mcp_sentry_gateway.__version__ == expected
+'@ | & $taskVenvPython -I - $taskVersion
+if ($LASTEXITCODE -ne 0) { throw 'A versao instalada nao corresponde ao pacote recebido.' }
+
+$taskCli = Join-Path $taskEnvironment 'Scripts/mcp-sentry.exe'
+Write-Output ''
+Write-Output "MCP Sentry $taskVersion instalado e conferido."
+Write-Output "Ambiente: $taskEnvironment"
+$taskCliQuoted = $taskCli.Replace("'", "''")
+Write-Output "Comando: & '$taskCliQuoted' setup"
+if ($taskPrevious) { Write-Output "Instalacao anterior: $taskPrevious. Manifestos, referencias e autorizacoes nao foram alterados. Reinicie as conexoes que usam este ambiente." }
+else { Write-Output 'O programa esta instalado; um MCP ainda precisa ser conectado pelo setup.' }
+Write-Output 'O setup oferece selecao do MCP, confirmacoes separadas e backup da configuracao.'
+
+$taskRunSetup = [bool]$Configurar
+if (!$Configurar -and !$SemConfigurar -and !$taskPrevious) {
+    Write-Output 'Deseja abrir o assistente de configuracao do Codex agora? [s/N]'
+    try { $taskAnswer = Read-Host 'Resposta' }
+    catch { $taskAnswer = '' }
+    $taskRunSetup = $taskAnswer -match '^(s|sim)$'
+}
+if ($taskRunSetup) {
+    $taskSetupArgs = @('setup')
+    if ($CodexConfig) { $taskSetupArgs += @('--codex-config', $CodexConfig) }
+    if ($StateRoot) { $taskSetupArgs += @('--state-root', $StateRoot) }
+    & $taskCli @taskSetupArgs
+    if ($LASTEXITCODE -ne 0) { throw 'O Sentry foi instalado, mas a configuracao nao foi concluida. Leia o diagnostico acima e execute setup novamente quando estiver pronto.' }
+} else {
+    Write-Output 'Configuracao nao iniciada. Execute o comando setup acima quando desejar.'
+}

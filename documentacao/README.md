@@ -15,3 +15,5 @@ históricos descrevem testes já realizados; a reorganização não representa u
 Para instalação e uso pelo usuário, consulte [instalar-mcp-sentry/README.md](../instalar-mcp-sentry/README.md).
 
 - [Validação 1.0.0](VALIDACAO_1.0.0.md): distribuição e regressão do protótipo.
+- [Validação 1.1.0](VALIDACAO_1.1.0.md): fechamento da distribuição, instalação,
+  atualização e melhorias do instalador.

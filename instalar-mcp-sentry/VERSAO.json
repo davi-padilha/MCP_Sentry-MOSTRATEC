@@ -1,44 +1,58 @@
 {
-  "versao": "1.0.0",
-  "data_validacao": "2026-10-07",
+  "versao": "1.1.0",
+  "python_minimo": "3.11",
   "escopo": "Prototipo Windows; ferramentas MCP locais stdio",
-  "wheel": "mcp_sentry_gateway-1.0.0-py3-none-any.whl",
-  "wheel_sha256": "90c4f944160c03fbf90e9f7b1fc4777a86c567b9c223a92c2d08ce38c7cc4b4f",
+  "wheel": "mcp_sentry_gateway-1.1.0-py3-none-any.whl",
+  "wheel_sha256": "61f8e51bb0761a196c72946da8fcbf11416e185c14d6500821443a85d28ebdad",
+  "fonte_modulos_sha256": "9626c5aeb8b7ccf148d70f3d9396e99d7d63fb1af19b28f001ba52ec7a2c84e4",
   "validacao_tecnica": {
-    "testes_total": 110,
-    "passaram": 109,
-    "ignorados": 1,
-    "motivo_ignorado": "symlink no Windows",
+    "estado": "validada",
     "python_suite_instalador": "3.12.14",
-    "python_testes_novos_sdk": "3.14.5",
-    "conexoes_sdk": 5,
-    "schemas_validos": true,
-    "leituras_nativas": [
-      "git_log",
-      "list_directory",
-      "consultar_agenda"
-    ],
+    "python_deteccao_automatica": "3.14.5",
+    "testes_total": 180,
+    "ignorados": 3,
+    "modulos_fonte_wheel_instalacao_identicos": 18,
     "instalacao_limpa": true,
-    "upgrade_011_para_100": true,
-    "modulos_fonte_wheel_instalacao_identicos": 16,
-    "backend_alterado_iniciado": false
+    "upgrade_100_para_110": true,
+    "upgrade_preserva_estado_e_configuracao": true,
+    "deteccao_python": true,
+    "hash_alterado_rejeitado": true,
+    "python_invalido_rejeitado": true,
+    "setup_opcional_com_backup": true,
+    "setup_recusado_respeitado": true,
+    "ambiente_incompleto_preservado": true,
+    "ambiente_vazio_reutilizado": true,
+    "transporte_mcp_stdio": {
+      "native_response_preserved": true,
+      "changed_backend_stayed_stopped": true,
+      "review_separate": true,
+      "missing_token_recoverable": true,
+      "receipt_matches_persisted": true,
+      "recommendation_did_not_authorize": true,
+      "operator_once_resumed": true,
+      "one_time_permission_consumed": true
+    },
+    "passaram": 177,
+    "sdk_mcp": {
+      "python": "3.14.5",
+      "fictional_data_only": true,
+      "interfaces": {
+        "execution": {
+          "tools": 1,
+          "schemas_valid": true,
+          "call_succeeded": true
+        },
+        "review": {
+          "tools": 4,
+          "schemas_valid": true,
+          "call_succeeded": true
+        }
+      }
+    }
   },
   "baterias_modelo": {
-    "estado": "adiada pelo usuario; tentativa parcial cancelada e excluida dos resultados finais",
-    "bateria_100_concluida": false,
-    "evidencias_parciais": "somente na area privada, identificadas como tentativa cancelada",
-    "futura_coleta": {
-      "modelo": "gpt-6-luna",
-      "esforcos": [
-        "low",
-        "medium"
-      ],
-      "primarias_planejadas": 96,
-      "casos_congelados": 24,
-      "repeticoes_primarias": 2,
-      "r3": "diagnostica somente se R1/R2 discordarem",
-      "gabarito": "revisado-v2",
-      "inicio": "somente apos nova requisicao humana"
-    }
-  }
+    "registro": "pesquisa/02_resultados/COMPARACAO_LUNA_110.md",
+    "observacao": "Campanhas anteriores, independentes da validacao desta distribuicao; wheel reconstruido da mesma fonte funcional."
+  },
+  "data_validacao": "2026-10-13"
 }

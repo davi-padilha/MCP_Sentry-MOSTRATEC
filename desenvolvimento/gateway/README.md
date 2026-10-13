@@ -1,8 +1,8 @@
 # Desenvolvimento do gateway atual
 
-Código-fonte da versão 1.1.0 do protótipo, ainda em validação. O usuário recebe a pasta
+Código-fonte da versão 1.1.0 do protótipo. O usuário recebe a pasta
 [instalar-mcp-sentry/](../../instalar-mcp-sentry/README.md), com o wheel e seu manual;
-ela continua entregando a 1.0.0 validada até a validação da 1.1.0.
+ela entrega a 1.1.0 com instalação e atualização validadas. O ZIP fica em `distribuicoes/`.
 O protótipo antigo está em [prototipo-feicit/](../../prototipo-feicit/README.md).
 
 A 1.1.0 reduz o tempo local sem mudar o que a IA recebe: reuso estrito da cópia
@@ -61,10 +61,12 @@ python -m venv .\desenvolvimento\gateway\.venv
 & .\desenvolvimento\gateway\.venv\Scripts\python.exe -m unittest discover -s desenvolvimento/gateway/testes -q
 ```
 
-Para gerar uma distribuição nova, instale a ferramenta de build no ambiente de
-desenvolvimento e execute `python -m build --wheel --outdir ../../pacote-usuario`
-nesta pasta. Ambientes virtuais, testes e arquivos intermediários não fazem
-parte da entrega ao usuário.
+Para gerar uma distribuição nova, use o comando de preparação e validação
+em [desenvolvimento/distribuicao/](../distribuicao/README.md). A versão é lida do
+pyproject.toml e conferida contra o pacote. Ambientes virtuais, testes e
+arquivos intermediários não fazem parte da entrega ao usuário.
+
+[Validação da entrega 1.1.0](../../documentacao/VALIDACAO_1.1.0.md).
 
 [Validacao da 0.11.0](../../documentacao/VALIDACAO_0.11.0.md).
 

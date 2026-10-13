@@ -1,6 +1,11 @@
-# MCP Sentry para servidores MCP locais
+# Distribuições históricas do MCP Sentry
 
-Esta pasta é o pacote do usuário final. O MCP Sentry é um gateway local para
+**A entrega atual está em [instalar-mcp-sentry/](../instalar-mcp-sentry/README.md)
+e o ZIP está em [distribuicoes/](../distribuicoes/README.md).** Esta pasta preserva
+wheels e instruções históricos para reprodução, incluindo a 1.0.0 usada para
+validar atualização para a 1.1.0. Os procedimentos abaixo descrevem versões anteriores.
+
+O MCP Sentry é um gateway local para
 servidores MCP iniciados por `stdio`. O cliente de IA inicia o Sentry; o Sentry
 confere os arquivos e a configuração aprovados e só então inicia uma cópia
 verificada do servidor protegido. Se houver mudança, o servidor permanece
@@ -8,8 +13,8 @@ parado até uma revisão e uma decisão do operador.
 
 Esta pasta contém o instalador da candidata **0.11.0**, os wheels **0.10.0**, **0.9.1**, **0.9.0**, **0.8.1** e
 **0.8.0** preservados para reproduzir os testes anteriores, e estas instruções.
-Esta é a pasta inteira a entregar ao usuário: basta receber este README e o
-arquivo `.whl`, sem baixar o restante do repositório. O wheel é um instalador
+Para reprodução histórica, este README acompanha os respectivos wheels.
+O wheel é um instalador
 Python, não um executável independente; Python 3.11+ deve estar instalado.
 Mantenha o ambiente instalado em um caminho estável.
 O código-fonte e os testes ficam em `desenvolvimento/gateway/` no repositório;

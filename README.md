@@ -32,9 +32,12 @@ cliente precisa de uma forma de detectar mudanças antes de iniciar o serviço.
 **Para entregar o MCP Sentry a um usuário, envie somente a pasta
 [instalar-mcp-sentry/](instalar-mcp-sentry/README.md).** Ela contém:
 
-- `mcp_sentry_gateway-1.0.0-py3-none-any.whl`: pacote Python do gateway.
+- `mcp_sentry_gateway-1.1.0-py3-none-any.whl`: pacote Python do gateway.
 - `instalar.ps1`: instalação local assistida.
 - Guias de instalação, configuração, privacidade, diagnóstico e somas SHA-256.
+
+O ZIP pronto para enviar fica em [distribuicoes/](distribuicoes/README.md).
+O instalador confere os arquivos, detecta Python e oferece configuração opcional.
 
 O usuário precisa ter Python 3.11+ e o runtime do servidor protegido. Os MCPs,
 suas credenciais e dados são específicos de cada usuário e não integram este pacote.
@@ -42,6 +45,8 @@ suas credenciais e dados são específicos de cada usuário e não integram este
 | Pasta | Finalidade |
 | --- | --- |
 | `instalar-mcp-sentry/` | Distribuição atual para instalar e usar o gateway. |
+| `distribuicoes/` | ZIP validado para entregar ao usuário. |
+| `desenvolvimento/distribuicao/` | Preparação e validação automatizadas da entrega. |
 | `pacote-usuario/` | Distribuições anteriores preservadas para reprodução. |
 | `desenvolvimento/gateway/` | Código, testes e empacotamento da versão atual. |
 | `prototipo-feicit/` | Versão anterior e cenários da FEICIT, preservados para reprodução. |

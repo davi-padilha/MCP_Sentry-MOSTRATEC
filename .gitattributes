@@ -1,1 +1,12 @@
 video/*.mp4 filter=lfs diff=lfs merge=lfs -text
+# Distribution checksums refer to the bytes delivered on every platform.
+instalar-mcp-sentry/*.md text eol=lf
+instalar-mcp-sentry/*.ps1 text eol=lf
+instalar-mcp-sentry/*.json text eol=lf
+instalar-mcp-sentry/*.txt text eol=lf
+instalar-mcp-sentry/*.whl -text
+pacote-usuario/*.whl -text
+distribuicoes/*.zip -text
+desenvolvimento/distribuicao/*.py text eol=lf
+desenvolvimento/distribuicao/*.md text eol=lf
+desenvolvimento/distribuicao/*.in text eol=lf
