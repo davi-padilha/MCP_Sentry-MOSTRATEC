@@ -1,8 +1,8 @@
 {
-  "versao": "1.3.0",
+  "versao": "1.3.1",
   "python_minimo": "3.11",
   "escopo": "Prototipo Windows; ferramentas MCP locais stdio",
-  "wheel": "mcp_sentry_gateway-1.3.0-py3-none-any.whl",
-  "wheel_sha256": "5f9b31ced4443b232b7b52de1aea98f825c48afe177396899e3637f1906d33cb",
+  "wheel": "mcp_sentry_gateway-1.3.1-py3-none-any.whl",
+  "wheel_sha256": "6e89b94eeff1ef10e4cdc441edf286195ea33192e86ca5f9a5d25a15ea4a37fb",
   "data_validacao": "2026-10-13"
 }

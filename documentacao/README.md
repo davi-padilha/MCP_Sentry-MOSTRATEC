@@ -7,9 +7,15 @@
 - [Guia do piloto](GUIA_PILOTO.md): preparação e verificações técnicas.
 - [Análise das otimizações](ANALISE_OTIMIZACOES.md): implementação e medições da evolução do gateway.
 - [Validações técnicas](validacoes/README.md): registros separados por versão;
-  a entrega atual é descrita na [validação 1.3.0](validacoes/VALIDACAO_1.3.0.md).
+  a entrega atual é descrita na [validação 1.3.1](validacoes/VALIDACAO_1.3.1.md).
 - [Teste de aprovação pelo chat no Claude](TESTE_APROVACAO_CHAT_CLAUDE.md):
   observações anteriores à aceitação permanente e distinção dos escopos.
+- [Aceitação permanente no Claude 1.3.0](TESTE_ACEITACAO_PERMANENTE_CLAUDE_1.3.0.md):
+  fluxo natural, persistência após reinício e bloqueio posterior, com limitações de comunicação.
+- [Oferta de revisão no Claude 1.3.1](TESTE_OFERTA_REVISAO_CLAUDE_1.3.1.md):
+  opção apresentada após bloqueio e limites observados nas etapas posteriores.
+- [Preparação da Donna no Codex 1.3.1](TESTE_CODEX_DONNA_1.3.1.md):
+  conexão isolada para comparação, com resultado do modelo pendente.
 
 Os caminhos dos comandos foram atualizados após a reorganização. Os registros
 históricos descrevem testes já realizados; a reorganização não representa um novo piloto.

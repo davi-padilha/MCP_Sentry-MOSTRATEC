@@ -101,6 +101,34 @@ class UniversalGatewayTests(unittest.TestCase):
         self.assertEqual(evidence["result"]["structuredContent"]["changes"][0]["path"], "server.py")
         self.assertNotIn("Donna", json.dumps(evidence))
 
+    def test_block_offers_available_review_without_recording_or_authorizing(self):
+        self.manifest_data['metadata']['review_interface'] = 'mcp_sentry_review_example'
+        self.save_manifest()
+        for opted_in in (False, True):
+            with self.subTest(conversation_approval=opted_in):
+                store = self.temp / f'state-offer-{opted_in}'
+                (self.project/'server.py').write_text(SERVER_SOURCE, encoding='utf-8')
+                approve(self.manifest, store)
+                baseline = (store/'versao-aprovada.json').read_bytes()
+                (self.project/'server.py').write_text(SERVER_SOURCE+'\n# changed\n', encoding='utf-8')
+                execution = StdioGateway(self.manifest, store, interface='execution', conversation_approval=opted_in)
+                self.addCleanup(execution.backend.close)
+                blocked = execution.handle(self.request(1, 'tools/call', {'name':'echo', 'arguments':{'value':'x'}}))['result']['structuredContent']
+                self.assertEqual(blocked['status'], 'security_review_required')
+                self.assertFalse(blocked['action_executed'])
+                self.assertEqual(blocked['review_interface'], 'mcp_sentry_review_example')
+                self.assertEqual(blocked['review_offer']['suggested_user_request'], 'Faça a revisão sugerida.')
+                self.assertTrue(blocked['review_offer']['requires_user_request'])
+                # Only a separate request uses the offered read-only tool.
+                review = StdioGateway(self.manifest, store, interface='review', conversation_approval=opted_in)
+                evidence = review.handle(self.request(2, 'tools/call', {'name':blocked['review_offer']['tool'], 'arguments':{}}))['result']['structuredContent']
+                self.assertEqual(evidence['status'], 'pending')
+                self.assertEqual(evidence['total_changes'], 1)
+                record = json.loads((store/'revisoes-de-atualizacoes'/f"{evidence['review_id']}.json").read_text('utf-8'))
+                self.assertIsNone(record['verdict'])
+                self.assertEqual((store/'versao-aprovada.json').read_bytes(), baseline)
+                self.assertEqual(execution.backend.lifecycle.snapshot()['spawn_attempts'], 0)
+
     def test_environment_names_are_configurable_and_bound_to_baseline(self):
         (self.project / "data.txt").write_text("fixture", encoding="utf-8")
         self.manifest_data["inspect_roots"].append("data.txt")

@@ -73,7 +73,11 @@ dos registros de aceitação impede executar a referência aceita pelo chat.
 ```
 
 Use as ferramentas normalmente. Se houver mudança, o Sentry bloqueia o
-início da nova implementação. Solicite ao cliente a revisão do bloqueio e,
+início da nova implementação. O cliente deve oferecer revisar a alteração
+pelo conector separado de revisão, sem aprovar ou executar nada. Para pedir
+essa análise, diga “Faça a revisão sugerida.”. Se esse conector não estiver
+disponível, será necessário configurá-lo primeiro.
+Solicite ao cliente a revisão do bloqueio e,
 em outra mensagem, o registro do parecer. Registrar não autoriza execução.
 
 Se concordar com um parecer favorável, o operador pode autorizar um início:

@@ -32,6 +32,13 @@ STATUS_OUTPUT_SCHEMA = {
         "action_executed": {"type": "boolean"},
         "review_interface": {"type": "string"},
         "review_capability": {"const": "read_only_evidence"},
+        "review_offer": {"type": "object", "properties": {
+            "tool": {"const": "sentry_review_current_block"},
+            "description": {"type": "string"},
+            "suggested_user_request": {"type": "string"},
+            "requires_user_request": {"const": True},
+        }, "required": ["tool", "description", "suggested_user_request", "requires_user_request"],
+            "additionalProperties": False},
         "semantic_review_status": {"enum": ["not_evaluated", "assessment_recorded"]},
         "assessment_recording_status": {"enum": ["not_recorded", "recorded"]},
         "authorization_scope": {"enum": ["none", "one_call", "accepted_version"]},
@@ -251,7 +258,7 @@ def conversation_approval_options():
 
 
 def public_security_status(status, *, action_attempted=False):
-    """Expose facts and recorded assessments without unsolicited workflow commands."""
+    """Expose facts and an optional read-only review, without granting consent."""
     payload = {
         "status": "security_review_required" if action_attempted and status.get("review_required") else status["status"],
         "current_hash": status["current_hash"],
@@ -278,6 +285,16 @@ def public_security_status(status, *, action_attempted=False):
         # retry the blocked action. The named interface cannot dispatch the backend.
         payload["review_interface"] = status.get("review_interface", "separately configured Sentry review interface")
         payload["review_capability"] = "read_only_evidence"
+        payload["review_offer"] = {
+            "tool": "sentry_review_current_block",
+            "description": (
+                "Your AI client can review this change through the separate review interface, "
+                "if you request it. That review reads evidence and presents a recommendation; "
+                "it does not record an assessment, approve the version or execute the protected task."
+            ),
+            "suggested_user_request": "Faça a revisão sugerida.",
+            "requires_user_request": True,
+        }
     elif status.get("authorization_state") == "once_consumed":
         payload["reason"] = status["reason"]
         payload["summary"] = "The one-call authorization was consumed. This version was not accepted as the permanent reference. No backend action was performed."

@@ -91,6 +91,7 @@ Nenhuma baseline foi promovida por esta análise.
 
 A 1.3.0 conecta a aceitação permanente à interface de revisão opcional e
 apresenta os dois escopos com confirmações separadas. A validação técnica está
-em [VALIDACAO_1.3.0.md](validacoes/VALIDACAO_1.3.0.md); o novo teste real ainda
-está pendente. Esse desenvolvimento não altera o resultado histórico descrito
+em [VALIDACAO_1.3.0.md](validacoes/VALIDACAO_1.3.0.md); o novo teste real está
+em [TESTE_ACEITACAO_PERMANENTE_CLAUDE_1.3.0.md](TESTE_ACEITACAO_PERMANENTE_CLAUDE_1.3.0.md).
+Esse desenvolvimento não altera o resultado histórico descrito
 acima nem promove a referência usada neste piloto.

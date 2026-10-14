@@ -1,4 +1,4 @@
-# MCP Sentry 1.3.0 — comece aqui
+# MCP Sentry 1.3.1 — comece aqui
 
 O Sentry protege um servidor MCP local: se a implementação mudar, ele
 interrompe seu uso e oferece evidências para revisão antes de uma autorização.
@@ -26,6 +26,8 @@ Instalações antigas mantêm seus caminhos; veja o guia de atualização abaixo
 **Confirmação pelo chat é opcional:** o guia de uso explica como ativá-la e
 escolher entre aceitar uma versão permanentemente e autorizar uma chamada.
 Um parecer favorável da IA, sozinho, não libera o servidor.
+Ao bloquear uma alteração, o cliente deve oferecer uma revisão somente leitura.
+Você pode pedi-la com “Faça a revisão sugerida.” pelo conector de revisão.
 
 ## Onde encontrar ajuda
 

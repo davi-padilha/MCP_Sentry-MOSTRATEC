@@ -35,6 +35,11 @@ async def main(python, root):
                     response = await session.call_tool('echo', {'value':'SDK native response'})
                     assert not response.isError and response.content[0].text == 'SDK native response'
                 else:
+                    status = await session.call_tool('sentry_security_status', {})
+                    assert status.structuredContent['review_offer']['requires_user_request']
+                    assert status.structuredContent['review_offer']['tool'] == 'sentry_review_current_block'
+                    status_tool = next(t for t in tools if t.name == 'sentry_security_status')
+                    Draft202012Validator(status_tool.outputSchema).validate(status.structuredContent)
                     evidence = await session.call_tool('sentry_review_current_block', {})
                     assert not evidence.isError
                     registered = await session.call_tool('sentry_record_assessment', {
@@ -89,10 +94,13 @@ async def main(python, root):
             await session.initialize()
             blocked = await session.call_tool('echo', {'value':'must not run'})
             assert blocked.structuredContent['status'] == 'security_review_required'
+            assert blocked.structuredContent['review_offer']['requires_user_request']
     lifecycle = json.loads((permanent/'estado/relatorios-de-seguranca/backend-lifecycle-current.json').read_text('utf-8'))
     assert lifecycle['spawn_attempts'] == 0
     results['permanent_acceptance'] = {'schemas_valid':True,'repeated_calls':True,'reconnection':True,
                                       'later_change_blocked_before_spawn':True,'requires_distinct_confirmation':True}
+    results['review_offer'] = {'schema_valid':True,'requires_separate_user_request':True,
+                              'read_only_tool_identified':True,'available_after_new_block':True}
     print(json.dumps({'python':sys.version.split()[0],'fictional_data_only':True,'interfaces':results}))
 
 

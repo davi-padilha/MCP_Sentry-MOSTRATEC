@@ -62,7 +62,7 @@ As evidências ficam em `laboratorio/execucoes/distribuicao-<versao>-*/` e são
 ignoradas pelo Git. `arquivos-instalacao/VERSAO.json` contém somente identificação,
 requisito Python, escopo, wheel/hash e data. Resultados detalhados ficam em
 `validacao/validacao.json`; o registro da entrega
-está em `documentacao/validacoes/VALIDACAO_1.3.0.md`. As baterias de IA têm seus próprios
+está em `documentacao/validacoes/VALIDACAO_1.3.1.md`. As baterias de IA têm seus próprios
 resultados e hashes; construir um wheel novo não repete nem substitui essas
 campanhas.
 

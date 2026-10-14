@@ -1,8 +1,14 @@
 # MCP Sentry 1.3.0 — aceitação permanente pelo chat
 
 Correção concluída e validada tecnicamente em 13/10/2026. O teste do novo fluxo
-com um modelo no Claude Desktop permanece pendente. Nenhuma configuração ativa
-do Claude foi alterada por esta validação. Claude Code permanece como etapa posterior.
+com um modelo no Claude Desktop foi iniciado depois do build: aceitação e
+rascunho funcionaram, mas houve explicação incorreta sobre autorização adicional.
+As observações estão em [TESTE_ACEITACAO_PERMANENTE_CLAUDE_1.3.0.md](../TESTE_ACEITACAO_PERMANENTE_CLAUDE_1.3.0.md).
+Chamada adicional e reinício funcionaram sem nova aprovação. Uma alteração
+posterior voltou a bloquear; o iniciador foi restaurado à referência aceita.
+O fluxo funcional passou nesta rodada; a comunicação do escopo ainda tem falhas.
+O build não alterou a configuração ativa; a conexão de teste foi aplicada em
+etapa posterior com backup. Claude Code permanece como etapa posterior.
 
 ## Comportamento
 
@@ -72,7 +78,7 @@ python -B desenvolvimento/avaliacao-sentry/verificar_aceitacao_permanente_donna.
 Esses pareceres e confirmações são entradas de teste; não representam decisão
 de um modelo nem aprovação do usuário sobre a demonstração ativa.
 
-## Próximo teste no Claude Desktop
+## Roteiro do teste no Claude Desktop
 
 Preparar uma revisão nova em estado isolado e conectar somente o par simulado,
 com backup. Usar os pedidos naturais de rascunho, revisão e registro. Depois

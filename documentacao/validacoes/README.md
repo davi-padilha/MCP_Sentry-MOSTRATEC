@@ -1,6 +1,7 @@
 # Validações técnicas por versão
 
-- [1.3.0](VALIDACAO_1.3.0.md): aceitação permanente pelo chat, persistência e uso repetido; novo teste real pendente.
+- [1.3.1](VALIDACAO_1.3.1.md): oferta explícita de revisão após bloqueio, observada em teste real; limitações posteriores registradas.
+- [1.3.0](VALIDACAO_1.3.0.md): aceitação permanente pelo chat, persistência e uso repetido; fluxo natural conferido, com falhas de comunicação.
 - [1.2.0](VALIDACAO_1.2.0.md): Claude Desktop, distribuição e primeiras observações do piloto.
 - [1.1.0](VALIDACAO_1.1.0.md): entrega anterior preservada, instalação, atualização e SDK.
 - [1.0.0](VALIDACAO_1.0.0.md): fechamento da distribuição anterior.

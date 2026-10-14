@@ -14,7 +14,7 @@
 ## Piloto no Claude Desktop
 
 Os scripts abaixo usam dados fictícios e estados isolados. Os resultados e
-limites da versão atual estão em [VALIDACAO_1.3.0.md](../../documentacao/validacoes/VALIDACAO_1.3.0.md).
+limites da versão atual estão em [VALIDACAO_1.3.1.md](../../documentacao/validacoes/VALIDACAO_1.3.1.md).
 Os pareceres das fixtures técnicas não são decisões de modelos.
 
 | Script | Finalidade |
@@ -24,11 +24,20 @@ Os pareceres das fixtures técnicas não são decisões de modelos.
 | `conectar_demo_claude_desktop.py` | Apresenta conexão/restauração com backup; grava somente com `--apply`. |
 | `preparar_teste_interpretacao_claude.py` | Prepara as condições offline e a revisão isolada da hipótese de interpretação. |
 | `teste_uso_natural_claude.py` | Prepara estado pendente, conecta/restaura o par de teste; aceita runtime explícito e `--conversation-approval`. |
+| `teste_uso_natural_codex.py` | Prepara estado pendente e adiciona/restaura o par simulado no Codex, com backup e preservação das entradas existentes. |
+| `verificar_teste_uso_natural_claude.py` | Confere runtime, oferta de revisão, bloqueio e leitura completa antes de conectar uma rodada nova; não registra nem aprova. |
 | `verificar_aceitacao_permanente_donna.py` | Valida pelo SDK a aceitação permanente, prévia/confirmação de rascunho, chamadas repetidas e reconexão, sem conectar o cliente. |
 
 Use `--help` para os argumentos de cada script. Preserve estados e transcrições
 anteriores; para uma rodada nova, use outra pasta de evidências. O teste real
-da 1.3.0 permanece pendente; a configuração ativa não foi atualizada pelo build.
+da 1.3.0 passou no fluxo funcional e apresentou falhas de comunicação; veja
+[o registro](../../documentacao/TESTE_ACEITACAO_PERMANENTE_CLAUDE_1.3.0.md).
+A configuração ativa não foi atualizada pelo build; a conexão de teste foi
+aplicada depois com backup.
+
+A rodada de comparação no Codex está preparada em estado separado; resultado
+do modelo pendente. Detalhes em
+[TESTE_CODEX_DONNA_1.3.1.md](../../documentacao/TESTE_CODEX_DONNA_1.3.1.md).
 
 ## Dados de teste
 

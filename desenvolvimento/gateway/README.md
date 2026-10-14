@@ -1,9 +1,15 @@
 # Desenvolvimento do gateway atual
 
-Código-fonte da versão 1.3.0 do protótipo. O usuário recebe a pasta
+Código-fonte da versão 1.3.1 do protótipo. O usuário recebe a pasta
 [instalar-mcp-sentry/](../../instalar-mcp-sentry/README.md), com o wheel e seu manual;
-O ZIP fica em `distribuicoes/`; as entregas 1.1.0 e 1.2.0 permanecem preservadas.
+O ZIP fica em `distribuicoes/`; as entregas anteriores permanecem preservadas.
 O protótipo antigo está em [prototipo-feicit/](../../prototipo-feicit/README.md).
+
+A 1.3.1 torna explícita a oferta de revisão somente leitura na resposta do
+bloqueio e nas instruções da interface de execução. O cliente deve oferecer
+revisar pelo conector separado, a pedido do usuário, sem registrar parecer
+ou aprovar a versão. A oferta inclui a frase curta “Faça a revisão sugerida.”.
+Essa orientação não comprova que um modelo a seguirá; o novo teste real é separado.
 
 A 1.3.0 acrescenta `sentry_accept_version` no modo opt-in de aprovação pelo
 chat. Depois de allow registrado, o cliente oferece aceitação permanente ou
@@ -85,7 +91,7 @@ em [desenvolvimento/distribuicao/](../distribuicao/README.md). A versão é lida
 pyproject.toml e conferida contra o pacote. Ambientes virtuais, testes e
 arquivos intermediários não fazem parte da entrega ao usuário.
 
-[Validação da entrega atual 1.3.0](../../documentacao/validacoes/VALIDACAO_1.3.0.md).
+[Validação da entrega atual 1.3.1](../../documentacao/validacoes/VALIDACAO_1.3.1.md).
 
 [Validacao da 0.11.0](../../documentacao/validacoes/VALIDACAO_0.11.0.md).
 
