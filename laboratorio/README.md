@@ -34,3 +34,13 @@ JSON e snapshots fictícios das execuções são preservados. As pastas `.venv`
 geradas dentro de `execucoes/` podem ser removidas depois que os processos
 terminarem: elas são recriáveis e não são evidências científicas. O manifesto
 `LIMPEZA_AMBIENTES.json` registra os caminhos e bytes removidos nesta limpeza.
+
+Em 14/10/2026 foram removidos 35 ambientes `.venv` das validações 1.2/1.3 e
+as instalações locais antigas 1.2.0 e 1.3.0, liberando aproximadamente 456 MiB.
+A instalação 1.3.1 usada por Codex e Claude foi preservada. Relatórios,
+snapshots e estados das rodadas permanecem nas pastas de execução.
+O manifesto desta manutenção fica em
+`execucoes/limpeza-repo-2026-10-14/LIMPEZA_AMBIENTES.json`.
+Para repetir validações antigas, recrie os ambientes a partir dos wheels
+preservados; os caminhos antigos de Python nos registros históricos não
+representam instalações ainda disponíveis.

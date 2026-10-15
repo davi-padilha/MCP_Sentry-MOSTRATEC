@@ -88,6 +88,16 @@ python -B desenvolvimento/avaliacao-sentry/verificar_teste_uso_natural_claude.py
 Esse Python precisa ter o SDK MCP. O verificador recusa estados já avaliados
 ou aceitos e não registra parecer nem concede aprovação.
 
+## Rodada no Codex
+
+Em 14/10/2026, o usuário testou com “luna leve”. O fluxo de bloqueio, oferta
+de revisão, análise, registro, aceitação permanente, criação do rascunho fictício,
+chamada adicional, reconexão e bloqueio de nova alteração passou nesta rodada.
+O iniciador foi restaurado à referência aceita, sem nova aprovação.
+Evidências e limites em [TESTE_CODEX_DONNA_1.3.1.md](../TESTE_CODEX_DONNA_1.3.1.md).
+O teste de instalação em outra máquina continua pendente; a validação técnica
+do instalador em perfis descartáveis não substitui essa etapa.
+
 ## Pacote
 
 - ZIP: `distribuicoes/mcp-sentry-1.3.1.zip`.

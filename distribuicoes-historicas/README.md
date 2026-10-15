@@ -7,6 +7,9 @@ a outra pessoa, envie o ZIP de [distribuicoes/](../distribuicoes/README.md).
 
 | Versão preservada | Arquivo |
 | --- | --- |
+| 1.3.0 | [Wheel 1.3.0](mcp_sentry_gateway-1.3.0-py3-none-any.whl) |
+| 1.2.0 | [Wheel 1.2.0](mcp_sentry_gateway-1.2.0-py3-none-any.whl) |
+| 1.1.0 | [Wheel 1.1.0](mcp_sentry_gateway-1.1.0-py3-none-any.whl) |
 | 1.0.0 | [Wheel 1.0.0](mcp_sentry_gateway-1.0.0-py3-none-any.whl) |
 | 0.11.0 | [Wheel 0.11.0](mcp_sentry_gateway-0.11.0-py3-none-any.whl) |
 | 0.10.0 | [Wheel 0.10.0](mcp_sentry_gateway-0.10.0-py3-none-any.whl) |
@@ -16,7 +19,7 @@ a outra pessoa, envie o ZIP de [distribuicoes/](../distribuicoes/README.md).
 | 0.8.0 | [Wheel 0.8.0](mcp_sentry_gateway-0.8.0-py3-none-any.whl) |
 
 Os arquivos `.whl` foram movidos sem alteração de conteúdo. A 1.0.0 é usada
-para conferir a atualização para a 1.1.0.
+como origem da validação de atualização das entregas posteriores.
 
 [GUIA_LEGADO.md](GUIA_LEGADO.md) preserva as instruções antigas.
 [PRIVACIDADE.md](PRIVACIDADE.md) preserva a documentação de privacidade dessas

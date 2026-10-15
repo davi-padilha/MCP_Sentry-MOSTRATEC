@@ -35,8 +35,10 @@ da 1.3.0 passou no fluxo funcional e apresentou falhas de comunicação; veja
 A configuração ativa não foi atualizada pelo build; a conexão de teste foi
 aplicada depois com backup.
 
-A rodada de comparação no Codex está preparada em estado separado; resultado
-do modelo pendente. Detalhes em
+A rodada no Codex está em estado separado. Com “luna leve” informado pelo
+usuário, bloqueio, revisão, registro, aceitação, rascunho, reconexão e bloqueio
+de nova alteração controlada funcionaram. O iniciador foi restaurado à versão
+aceita. O teste de instalação em outra máquina permanece pendente. Detalhes em
 [TESTE_CODEX_DONNA_1.3.1.md](../../documentacao/TESTE_CODEX_DONNA_1.3.1.md).
 
 ## Dados de teste

@@ -15,7 +15,7 @@
 - [Oferta de revisão no Claude 1.3.1](TESTE_OFERTA_REVISAO_CLAUDE_1.3.1.md):
   opção apresentada após bloqueio e limites observados nas etapas posteriores.
 - [Preparação da Donna no Codex 1.3.1](TESTE_CODEX_DONNA_1.3.1.md):
-  conexão isolada para comparação, com resultado do modelo pendente.
+  conexão isolada e fluxo natural conferido com luna leve.
 
 Os caminhos dos comandos foram atualizados após a reorganização. Os registros
 históricos descrevem testes já realizados; a reorganização não representa um novo piloto.
