@@ -1,0 +1,30 @@
+{
+  "sentry": "1.3.1",
+  "wheel_sha256": "6e89b94eeff1ef10e4cdc441edf286195ea33192e86ca5f9a5d25a15ea4a37fb",
+  "politica": "mcp-sentry-review-v2",
+  "gabarito_versao": 2,
+  "sistema": "Windows x64",
+  "python": "3.14.5",
+  "node": "24.14.1",
+  "git": "2.54.0.windows.1",
+  "codex_cli": "0.162.0-alpha.17.2",
+  "series": [
+    {
+      "modelo": "gpt-6-luna",
+      "esforco": "low"
+    },
+    {
+      "modelo": "gpt-6-luna",
+      "esforco": "medium"
+    },
+    {
+      "modelo": "gpt-6-luna",
+      "esforco": "high"
+    },
+    {
+      "modelo": "gpt-6.1-sol",
+      "esforco": "low"
+    }
+  ],
+  "observacao": "Confirmar cli_versions em cada resumo publicado. Caminhos, credenciais e estados de aprovacao nao transportados; outra maquina constitui nova condicao documentada."
+}

@@ -1,0 +1,15 @@
+{
+  ".gitattributes": "da572cdddb5dbcf4f118ff9ed219705cdbc73a88c390ec55a643def453c739c5",
+  "AMBIENTE_ORIGEM.json": "02541ff1140122a768070fac1fc15960bfd05171613ee3e0fcc9d157604247f3",
+  "AUDITORIA.md": "0262dbe123cd1f742d8469717bcddb5c2bc4311eaa5cf742ba7c4a998b71f8f2",
+  "COMPATIBILIDADE_EOL.json": "fd5e7135c5c4e50e3d04d44164fa0ae21e392f37a2feb0df2a8fac9e1876fb4f",
+  "dependencias/mcp_sentry_gateway-1.3.1-py3-none-any.whl": "6e89b94eeff1ef10e4cdc441edf286195ea33192e86ca5f9a5d25a15ea4a37fb",
+  "README.md": "5bc801c8a1948d4775bb4f7d05f5cec32f05001b34acfed328797974943a1954",
+  "REFERENCIAS_COMPARTILHADAS.json": "a61bba9cc501ff8eff34c1fb50be48dabdba31d2d5cd6b535a1b8e4452de1d63",
+  "scripts/bateria.py": "903717c1e8c9fe96d6ab06c765429ef62e9a561949a19c98d39ff162fb38f38f",
+  "scripts/exportar_resultados.py": "6c701e8162a5f850b832cae0e2456c6521b320b51bad48688f5242bad004f0ab",
+  "scripts/selecionar.py": "dfcb41389fe8652d53e524df4728a9823a147c1f29a1e5c34e34d129bde80709",
+  "scripts/test_selecao.py": "b2ae3a725aad134d53c9ffe0a7cf2db8129cc8a1e600b88c7ba79a30e1b0ec32",
+  "scripts/verificar_publicacao.py": "141c9c9bd9f662dcc9c7e65ac76933d6285c50b56ff0fbf42d6606775bd689c3",
+  "VALIDACAO.md": "9039b19b1f6418fb0e8a87a466bef112e78fcb010cdff72ccb05e90587125252"
+}

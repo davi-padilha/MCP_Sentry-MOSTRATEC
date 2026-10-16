@@ -22,3 +22,13 @@ python -B reproducao-experimentos/sentry-1.0/scripts/bateria.py verificar
 
 Renomear a pasta externa não transforma a bateria 1.0.0 em uma bateria da
 versão atual. Consulte seu README para os requisitos e limites de reprodução.
+
+## Complemento Sentry 1.3.1
+
+[Pacote da campanha 1.3.1](sentry-1.3.1/README.md): instala o wheel 1.3.1, reutiliza os casos congelados e oferece preparação Windows, requisitos para outro ambiente, checklist de auditoria e seleção explícita de tentativas. Configurações: Luna low/medium/high e Sol 6.1 low. Registra também a compatibilidade LF/CRLF dos textos históricos sem reescrever seu manifesto.
+
+```powershell
+python -B reproducao-experimentos/sentry-1.3.1/scripts/bateria.py verificar
+```
+
+[Resultados e limitações](../pesquisa/02_resultados/COMPARACAO_SENTRY_131.md).

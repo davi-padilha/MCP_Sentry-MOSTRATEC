@@ -1,0 +1,101 @@
+{
+  "principal": {
+    "revisoes": 48,
+    "duracao_turnos_segundos": {
+      "n": 48,
+      "soma": 1582.03,
+      "mediana": 25.6465
+    },
+    "tokens_observaveis": true,
+    "tokens": {
+      "input_tokens": 14100122,
+      "cached_input_tokens": 12514432,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 75370,
+      "reasoning_output_tokens": 37893,
+      "total_tokens": 14175492,
+      "input_sem_cache": 1585690
+    },
+    "gateway_por_etapa_ms": {
+      "assessment_persistence": {
+        "n": 48,
+        "soma": 356.87620001408504,
+        "mediana": 6.246500000997912
+      },
+      "dossier_build": {
+        "n": 153,
+        "soma": 11079.162900045048,
+        "mediana": 4.444399994099513
+      },
+      "evidence_persistence": {
+        "n": 153,
+        "soma": 1782.849199968041,
+        "mediana": 10.701500003051478
+      },
+      "integrity_check": {
+        "n": 153,
+        "soma": 520956.9528999418,
+        "mediana": 56.42980000266107
+      }
+    }
+  },
+  "diagnostico": {
+    "revisoes": 2,
+    "duracao_turnos_segundos": {
+      "n": 2,
+      "soma": 39.650999999999996,
+      "mediana": 19.825499999999998
+    },
+    "tokens_observaveis": true,
+    "tokens": {
+      "input_tokens": 554079,
+      "cached_input_tokens": 499584,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 3186,
+      "reasoning_output_tokens": 1626,
+      "total_tokens": 557265,
+      "input_sem_cache": 54495
+    },
+    "gateway_por_etapa_ms": {
+      "assessment_persistence": {
+        "n": 2,
+        "soma": 12.038499997288454,
+        "mediana": 6.019249998644227
+      },
+      "dossier_build": {
+        "n": 6,
+        "soma": 20.5765999853611,
+        "mediana": 3.2836999962455593
+      },
+      "evidence_persistence": {
+        "n": 6,
+        "soma": 56.411000005027745,
+        "mediana": 9.293150000303285
+      },
+      "integrity_check": {
+        "n": 6,
+        "soma": 222.55280000536004,
+        "mediana": 18.03930000096443
+      }
+    }
+  },
+  "tecnica_excluida": {
+    "revisoes": 0,
+    "duracao_turnos_segundos": {
+      "n": 0,
+      "soma": 0,
+      "mediana": null
+    },
+    "tokens_observaveis": true,
+    "tokens": {
+      "input_tokens": 0,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 0,
+      "reasoning_output_tokens": 0,
+      "total_tokens": 0,
+      "input_sem_cache": 0
+    },
+    "gateway_por_etapa_ms": {}
+  }
+}

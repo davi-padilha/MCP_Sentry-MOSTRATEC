@@ -1,0 +1,101 @@
+{
+  "principal": {
+    "revisoes": 48,
+    "duracao_turnos_segundos": {
+      "n": 48,
+      "soma": 1465.618,
+      "mediana": 20.6175
+    },
+    "tokens_observaveis": true,
+    "tokens": {
+      "input_tokens": 14107343,
+      "cached_input_tokens": 12449536,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 39690,
+      "reasoning_output_tokens": 1206,
+      "total_tokens": 14147033,
+      "input_sem_cache": 1657807
+    },
+    "gateway_por_etapa_ms": {
+      "assessment_persistence": {
+        "n": 47,
+        "soma": 313.7205999737489,
+        "mediana": 5.851499998243526
+      },
+      "dossier_build": {
+        "n": 148,
+        "soma": 11451.089899957879,
+        "mediana": 4.736850001791026
+      },
+      "evidence_persistence": {
+        "n": 148,
+        "soma": 1726.8687000396312,
+        "mediana": 10.161250003875466
+      },
+      "integrity_check": {
+        "n": 148,
+        "soma": 562929.1133000588,
+        "mediana": 65.7845499990799
+      }
+    }
+  },
+  "diagnostico": {
+    "revisoes": 4,
+    "duracao_turnos_segundos": {
+      "n": 4,
+      "soma": 103.135,
+      "mediana": 17.55
+    },
+    "tokens_observaveis": true,
+    "tokens": {
+      "input_tokens": 1262184,
+      "cached_input_tokens": 1107072,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 3430,
+      "reasoning_output_tokens": 17,
+      "total_tokens": 1265614,
+      "input_sem_cache": 155112
+    },
+    "gateway_por_etapa_ms": {
+      "assessment_persistence": {
+        "n": 4,
+        "soma": 22.778399994422216,
+        "mediana": 5.698549997759983
+      },
+      "dossier_build": {
+        "n": 13,
+        "soma": 736.4729999899282,
+        "mediana": 3.73030000628205
+      },
+      "evidence_persistence": {
+        "n": 13,
+        "soma": 141.6741000066395,
+        "mediana": 10.209400003077462
+      },
+      "integrity_check": {
+        "n": 13,
+        "soma": 35853.91750000417,
+        "mediana": 20.52489999914542
+      }
+    }
+  },
+  "tecnica_excluida": {
+    "revisoes": 1,
+    "duracao_turnos_segundos": {
+      "n": 1,
+      "soma": 7.389,
+      "mediana": 7.389
+    },
+    "tokens_observaveis": true,
+    "tokens": {
+      "input_tokens": 58478,
+      "cached_input_tokens": 43776,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 153,
+      "reasoning_output_tokens": 0,
+      "total_tokens": 58631,
+      "input_sem_cache": 14702
+    },
+    "gateway_por_etapa_ms": {}
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "principal": {
+    "revisoes": 48,
+    "duracao_turnos_segundos": {
+      "n": 48,
+      "soma": 1449.837,
+      "mediana": 20.9705
+    },
+    "tokens_observaveis": true,
+    "tokens": {
+      "input_tokens": 14429165,
+      "cached_input_tokens": 12848256,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 51410,
+      "reasoning_output_tokens": 13421,
+      "total_tokens": 14480575,
+      "input_sem_cache": 1580909
+    },
+    "gateway_por_etapa_ms": {
+      "assessment_persistence": {
+        "n": 48,
+        "soma": 362.26849999366095,
+        "mediana": 6.262099996092729
+      },
+      "dossier_build": {
+        "n": 151,
+        "soma": 11772.789199974795,
+        "mediana": 4.6975000004749745
+      },
+      "evidence_persistence": {
+        "n": 151,
+        "soma": 2241.2634000356775,
+        "mediana": 10.503999998036306
+      },
+      "integrity_check": {
+        "n": 151,
+        "soma": 524791.0177999656,
+        "mediana": 71.35249999555526
+      }
+    }
+  },
+  "diagnostico": {
+    "revisoes": 2,
+    "duracao_turnos_segundos": {
+      "n": 2,
+      "soma": 98.458,
+      "mediana": 49.229
+    },
+    "tokens_observaveis": true,
+    "tokens": {
+      "input_tokens": 557113,
+      "cached_input_tokens": 500992,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 1894,
+      "reasoning_output_tokens": 341,
+      "total_tokens": 559007,
+      "input_sem_cache": 56121
+    },
+    "gateway_por_etapa_ms": {
+      "assessment_persistence": {
+        "n": 2,
+        "soma": 33.74910000275122,
+        "mediana": 16.87455000137561
+      },
+      "dossier_build": {
+        "n": 6,
+        "soma": 1365.85400000331,
+        "mediana": 217.74275000279886
+      },
+      "evidence_persistence": {
+        "n": 6,
+        "soma": 82.49999999679858,
+        "mediana": 12.9089500005648
+      },
+      "integrity_check": {
+        "n": 6,
+        "soma": 64192.503399994166,
+        "mediana": 2073.3739499992225
+      }
+    }
+  },
+  "tecnica_excluida": {
+    "revisoes": 0,
+    "duracao_turnos_segundos": {
+      "n": 0,
+      "soma": 0,
+      "mediana": null
+    },
+    "tokens_observaveis": true,
+    "tokens": {
+      "input_tokens": 0,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 0,
+      "reasoning_output_tokens": 0,
+      "total_tokens": 0,
+      "input_sem_cache": 0
+    },
+    "gateway_por_etapa_ms": {}
+  }
+}

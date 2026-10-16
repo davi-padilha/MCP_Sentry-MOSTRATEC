@@ -168,3 +168,7 @@ casos, listas de integridade e hashes foram preservados nesta reorganização.
 ## Bateria portatil Sentry 1.0
 
 Os 24 casos congelados, ordem das 48 revisoes, referencias, dados ficticios, gabarito e scripts para outras maquinas estao em [reproducao-experimentos/sentry-1.0](reproducao-experimentos/sentry-1.0/README.md). Credenciais e instalacao dos runtimes sao locais.
+
+## Campanhas Sentry 1.3.1
+
+[Resultados de Luna low/medium/high e Sol 6.1 low](pesquisa/02_resultados/COMPARACAO_SENTRY_131.md), com métricas, tempos, tokens e tentativas técnicas separados. O [pacote de replicação 1.3.1](reproducao-experimentos/sentry-1.3.1/README.md) fixa a versão e reutiliza os 24 casos congelados, incluindo preparação e auditoria para outras máquinas.

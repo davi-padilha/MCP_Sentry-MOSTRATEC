@@ -30,3 +30,10 @@ exportações anônimas e proveniência; registros privados permanecem fora do r
 
 Somente resultados oficiais e análises vinculadas ao fechamento quantitativo
 foram mantidos. Explorações pós-hoc permanecem no repositório histórico.
+
+## Evolução 1.3.1 — Luna e Sol
+
+- [Comparação das quatro configurações](COMPARACAO_SENTRY_131.md): Luna low 34/48, medium 44/48, high 46/48; Sol 6.1 low 48/48.
+- [Replicação em outras máquinas](../../reproducao-experimentos/sentry-1.3.1/README.md): wheel 1.3.1 fixado, referências compartilhadas, preparação, auditoria e seleção de tentativas.
+
+São 192 revisões principais, 8 R3 diagnósticas e 2 tentativas técnicas preservadas separadamente, com contagens de tokens e tempos de 602 turnos. Evidências privadas permanecem fora do repositório.

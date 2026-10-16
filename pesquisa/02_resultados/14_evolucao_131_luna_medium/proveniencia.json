@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "serie": "luna-medium-131-20261015",
+  "modelo": "gpt-6-luna",
+  "esforco": "medium",
+  "sentry": "1.3.1",
+  "wheel_sha256": "6e89b94eeff1ef10e4cdc441edf286195ea33192e86ca5f9a5d25a15ea4a37fb",
+  "gabarito_versao": 2,
+  "gabarito_sha256": "594ef4262c20c709fea3d630ef3e79d28cafbcd508adc7e167647579b685ba8c",
+  "fontes_privadas_sha256": {
+    "registro.csv": "e86b2f5932eaa14567afaf7ede45bc6b3a0df50520cdf209b0f8843f9d7bf9cf",
+    "resumo-metricas.json": "3cb0b64448c71d4a565bb5f1ed06703cd7f14ae1a47fa3717184253c30dffce4",
+    "medicoes-privadas.json": "a6ba23e659b42aa302e3429cf65a204cdf77d3d28599dc02f3d9430950af37f7",
+    "auditoria-final.json": "1a8c630b60d93c7c56af2da4d9a9c0645818bf01aa8749ce2a26b67e242bebf2",
+    "congelamento.json": "7487dffd1204d632ba8acb31ce86305acbd7fef5d58bbdc153b8907c41780d83"
+  },
+  "conferencias": {
+    "principais": 48,
+    "R3": 2,
+    "tecnicas": 0,
+    "turnos": 150,
+    "contagens_tokens_recalculadas": true,
+    "backend_iniciado": false
+  },
+  "publicacao": {
+    "ids": "HMAC independentes por serie; chave e mapa somente no arquivo privado do operador",
+    "ordem": "anonima; nao representa cronologia",
+    "nao_incluido": [
+      "gabarito por caso",
+      "IDs de conversas",
+      "caminhos locais",
+      "timestamps por caso",
+      "credenciais",
+      "transcricoes",
+      "justificativas",
+      "argumentos ou retornos MCP",
+      "mapa de casos"
+    ]
+  },
+  "arquivos_publicos_sha256": {
+    "execucoes_publicas.csv": "46aa5c01e31c2dbe88d9a5d9b662dcdd14e16a2efb419ffd14f5db1e926ddb31",
+    "metricas_por_grupo.csv": "3072ff7bf0006db2cb4bc33043029c7a8611de23ac8b6ff06f7250cf550c5339",
+    "README.md": "6febd0e8aedcf526fff1014c89c69d89d52de0e1b918f82028ebc27a5ad32c73",
+    "resumo.json": "ee331e4eff637f169a13bcb8cb00809adfd057f1cec543239f0c89f52348bbab",
+    "tempos-e-consumo.json": "6ca760d2cc488a904f8c9e7cabb7a4c1a1a9bda428390a694abaa87ee0f5d9e7",
+    "tempos_gateway.csv": "c4ade92fe7fcf819f0fbda6e50c7ba0693c0f5666a99383b28fbe89c7298ce25",
+    "turnos_publicos.csv": "d2bf6a8fc90140ca26650b74321c405ad6bc016cf5cc198071c15445d0346cbf"
+  }
+}

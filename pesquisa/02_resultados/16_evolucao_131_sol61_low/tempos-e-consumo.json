@@ -1,0 +1,96 @@
+{
+  "principal": {
+    "revisoes": 48,
+    "duracao_turnos_segundos": {
+      "n": 48,
+      "soma": 2419.064,
+      "mediana": 41.0965
+    },
+    "tokens_observaveis": true,
+    "tokens": {
+      "input_tokens": 16597772,
+      "cached_input_tokens": 14783104,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 43993,
+      "reasoning_output_tokens": 664,
+      "total_tokens": 16641765,
+      "input_sem_cache": 1814668
+    },
+    "gateway_por_etapa_ms": {
+      "assessment_persistence": {
+        "n": 48,
+        "soma": 337.3367000021972,
+        "mediana": 6.180300006235484
+      },
+      "dossier_build": {
+        "n": 177,
+        "soma": 15237.17320006108,
+        "mediana": 4.831099999137223
+      },
+      "evidence_persistence": {
+        "n": 177,
+        "soma": 2000.5468000163091,
+        "mediana": 10.225099991657771
+      },
+      "integrity_check": {
+        "n": 177,
+        "soma": 572644.7271998913,
+        "mediana": 54.44940000597853
+      }
+    }
+  },
+  "diagnostico": {
+    "revisoes": 0,
+    "duracao_turnos_segundos": {
+      "n": 0,
+      "soma": 0,
+      "mediana": null
+    },
+    "tokens_observaveis": true,
+    "tokens": {
+      "input_tokens": 0,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 0,
+      "reasoning_output_tokens": 0,
+      "total_tokens": 0,
+      "input_sem_cache": 0
+    },
+    "gateway_por_etapa_ms": {}
+  },
+  "tecnica_excluida": {
+    "revisoes": 1,
+    "duracao_turnos_segundos": {
+      "n": 1,
+      "soma": 1363.984,
+      "mediana": 1363.984
+    },
+    "tokens_observaveis": true,
+    "tokens": {
+      "input_tokens": 140270,
+      "cached_input_tokens": 111360,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 176,
+      "reasoning_output_tokens": 0,
+      "total_tokens": 140446,
+      "input_sem_cache": 28910
+    },
+    "gateway_por_etapa_ms": {
+      "dossier_build": {
+        "n": 1,
+        "soma": 295.24920000403654,
+        "mediana": 295.24920000403654
+      },
+      "evidence_persistence": {
+        "n": 1,
+        "soma": 16.129700001329184,
+        "mediana": 16.129700001329184
+      },
+      "integrity_check": {
+        "n": 1,
+        "soma": 1362564.9144999916,
+        "mediana": 1362564.9144999916
+      }
+    }
+  }
+}
